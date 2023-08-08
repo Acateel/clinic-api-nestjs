@@ -10,7 +10,7 @@ export enum EnvironmentEnum {
   ACCESS_SECRET = 'JWT_ACCESS_SECRET',
 }
 
-export enum UserRoleEnum {
+export enum RoleEnum {
   GUEST = 'GUEST',
   DOCTOR = 'DOCTOR',
   PATIENT = 'PATIENT',
@@ -22,9 +22,12 @@ export enum TokenLifetimeEnum {
 }
 
 export enum ProviderEnum {
-  APP_GUARD = 'APP_GUARD',
+  AUTH_GUARD = 'AUTH_GUARD',
+  ROLES_GUARD = 'ROLES_GUARD',
 }
 
 export enum MetadataEnum {
   PUBLIC_ENDPOINT = 'PUBLIC_ENDPOINT',
+  ROLES = 'ROLES',
+  OWN_ROLE = 'OWN_ROLE',
 }

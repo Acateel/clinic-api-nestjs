@@ -1,16 +1,20 @@
 import { FindManyOptions } from 'typeorm';
-import { UserRoleEnum } from './enum';
+import { RoleEnum } from './enum';
 
 export interface ReadOptions<T> {
   find?: FindManyOptions<T>;
 }
 
 export interface AuthenticatedRequest {
-  user: UserPayload;
+  readonly user: UserPayload;
 }
 
 export interface UserPayload {
-  sub: string;
-  email: string;
-  role: UserRoleEnum;
+  readonly sub: string;
+  readonly email: string;
+  readonly role: RoleEnum;
+}
+
+export interface UserOwnedEntity {
+  readonly userId: string;
 }

@@ -1,12 +1,15 @@
-import { UserRoleEnum } from 'src/common/enum';
+import { RoleEnum } from 'src/common/enum';
+import { PatientEntity } from 'src/patient/patient.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  OneToMany,
+  RelationId,
 } from 'typeorm';
 
-@Entity({ name: 'user' })
+@Entity('user')
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
   id!: string;
@@ -17,15 +20,22 @@ export class UserEntity {
   @Column({ select: false })
   password?: string;
 
-  @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.GUEST })
-  role!: UserRoleEnum;
+  @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.GUEST })
+  role!: RoleEnum;
 
   @Column({ name: 'first_name' })
   firstName!: string;
 
-  @CreateDateColumn({ name: 'created_at', select: false })
-  createdAt?: Date;
-
   @Column({ name: 'reset_token', type: String, select: false, nullable: true })
   resetToken?: string | null;
+
+  // TODO: reverse side relations?
+  @OneToMany(() => PatientEntity, (patient) => patient.user)
+  patients?: PatientEntity[];
+
+  @RelationId((user: UserEntity) => user.patients)
+  patientIds!: string[];
+
+  @CreateDateColumn({ name: 'created_at', select: false })
+  createdAt?: Date;
 }

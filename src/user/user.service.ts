@@ -43,6 +43,7 @@ export class UserService {
       .createQueryBuilder('u')
       .where('u.id = :id', { id })
       .addSelect(['u.password', 'u.createdAt', 'u.resetToken'])
+      .leftJoinAndSelect('u.patients', 'patients') // TODO: join relations when get entity details?
       .getOne();
 
     if (!user) {

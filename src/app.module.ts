@@ -15,6 +15,10 @@ import { JwtConfigService } from './config/jwtConfig.service';
 import { ProviderEnum } from './common/enum';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
+import { PatientModule } from './patient/patient.module';
+import { UniquePhoneNumberConstraint } from './common/util/uniquePhoneNumberConstraint';
+import { RolesGuard } from './auth/roles.guard';
+import { RestrictResponseEntityToOwnUserInterceptor } from './common/interceptor/RestrictResponseEntityToOwnUser.interceptor';
 
 @Module({
   imports: [
@@ -30,10 +34,14 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    PatientModule,
   ],
   providers: [
     UniqueEmailConstraint,
-    { provide: ProviderEnum.APP_GUARD, useClass: AuthGuard },
+    UniquePhoneNumberConstraint,
+    RestrictResponseEntityToOwnUserInterceptor,
+    { provide: ProviderEnum.AUTH_GUARD, useClass: AuthGuard },
+    { provide: ProviderEnum.ROLES_GUARD, useClass: RolesGuard },
   ],
 })
 export class AppModule implements NestModule {

@@ -4,7 +4,7 @@ import * as qs from 'qs';
 import { In } from 'typeorm';
 import { ReadOptions } from '../interface';
 
-@Injectable()
+@Injectable() // TODO: middleware or interceptor or decorator
 export class TypeOrmFindOptionsQueryMapperMiddleware implements NestMiddleware {
   use(
     req: Request<unknown, unknown, unknown, ReadOptions<unknown>>,

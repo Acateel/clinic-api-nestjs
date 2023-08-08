@@ -15,8 +15,11 @@ import { UserService } from './user.service';
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
 import { UserEntity } from './user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { RoleEnum } from 'src/common/enum';
 
 @Controller('users')
+@Roles(RoleEnum.ADMIN)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

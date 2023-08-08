@@ -5,7 +5,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserPayload } from 'src/common/interface';
 import * as uuid from 'uuid';
-import { RecoverPasswordDto } from './dto/recoverPassword.dto';
 import { SALT_ROUNDS } from 'src/common/constant';
 
 @Injectable()
