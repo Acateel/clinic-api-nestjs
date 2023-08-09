@@ -17,7 +17,10 @@ import { UserEntity } from './user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/common/enum';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
+@ApiBearerAuth()
 @Controller('users')
 @Roles(RoleEnum.ADMIN)
 export class UserController {

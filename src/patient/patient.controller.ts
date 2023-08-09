@@ -18,7 +18,10 @@ import { Roles } from 'src/auth/roles.decorator';
 import { UserEntity } from 'src/user/user.entity';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
 import { ForbidOtherUserDataResponse } from 'src/common/decorator/forbidOtherUserDataAccess.decorator';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('patients')
+@ApiBearerAuth()
 @Controller('patients')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}

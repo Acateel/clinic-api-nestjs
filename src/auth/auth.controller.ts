@@ -5,7 +5,9 @@ import { RegisterUserDto } from './dto/registerUser.dto';
 import { SkipAuth } from './skipAuth.decorator';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { RecoverPasswordDto } from './dto/recoverPassword.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 @SkipAuth()
 export class AuthController {
