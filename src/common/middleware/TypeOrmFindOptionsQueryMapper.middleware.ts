@@ -34,12 +34,13 @@ export class TypeOrmFindOptionsQueryMapperMiddleware implements NestMiddleware {
         }
       }
 
-      if (mappedQuery.filter || mappedQuery.sort) {
-        req.query.find = {
-          where: mappedQuery.filter,
-          order: mappedQuery.sort,
-        };
-      }
+      req.query.find = {
+        where: mappedQuery.filter,
+        order: mappedQuery.sort,
+        skip: mappedQuery.skip,
+        take: mappedQuery.take,
+      };
+
       next();
     } catch (error) {
       next(error);

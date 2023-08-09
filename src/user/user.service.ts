@@ -13,6 +13,7 @@ import {
 import { CreateUserDto } from './dto/createUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { FindOptions } from 'src/common/interface';
 
 @Injectable()
 export class UserService {
@@ -28,7 +29,7 @@ export class UserService {
     return this.userRepository.findOneBy({ id: createdUser.id });
   }
 
-  async read(options?: FindManyOptions) {
+  async read(options?: FindOptions<UserEntity>) {
     try {
       return await this.userRepository.find(options);
     } catch (error) {

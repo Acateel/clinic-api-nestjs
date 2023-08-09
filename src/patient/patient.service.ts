@@ -14,6 +14,7 @@ import { PatientEntity } from './patient.entity';
 import { CreatePatientDto } from './dto/createPatient.dto';
 import { UserService } from 'src/user/user.service';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
+import { FindOptions } from '../common/interface';
 
 @Injectable()
 export class PatientService {
@@ -31,7 +32,7 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
 
-  async read(options?: FindManyOptions) {
+  async read(options?: FindOptions<PatientEntity>) {
     try {
       return await this.patientRepository.find(options);
     } catch (error) {
