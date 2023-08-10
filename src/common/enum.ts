@@ -21,11 +21,6 @@ export enum TokenLifetimeEnum {
   ACCESS = '1D',
 }
 
-export enum ProviderEnum {
-  AUTH_GUARD = 'AUTH_GUARD',
-  ROLES_GUARD = 'ROLES_GUARD',
-}
-
 export enum MetadataEnum {
   PUBLIC_ENDPOINT = 'PUBLIC_ENDPOINT',
   ROLES = 'ROLES',

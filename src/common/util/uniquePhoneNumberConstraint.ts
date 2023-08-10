@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   ValidationArguments,
   ValidatorConstraint,
@@ -6,7 +5,6 @@ import {
 } from 'class-validator';
 import { PatientService } from 'src/patient/patient.service';
 
-@Injectable()
 @ValidatorConstraint({ async: true })
 export class UniquePhoneNumberConstraint
   implements ValidatorConstraintInterface

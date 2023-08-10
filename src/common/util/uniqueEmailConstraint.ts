@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   ValidationArguments,
   ValidatorConstraint,
@@ -6,7 +5,6 @@ import {
 } from 'class-validator';
 import { UserService } from 'src/user/user.service';
 
-@Injectable()
 @ValidatorConstraint({ async: true })
 export class UniqueEmailConstraint implements ValidatorConstraintInterface {
   constructor(private readonly userService: UserService) {}
