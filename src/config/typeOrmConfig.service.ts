@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmOptionsFactory, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { EnvironmentEnum } from 'src/common/enum';
-import { UserEntity } from '../user/user.entity';
-import { PatientEntity } from 'src/patient/patient.entity';
 
 @Injectable()
 export class TypeOrmConfigService implements TypeOrmOptionsFactory {
+  private readonly entitiesPath = 'dist/database/entity/**/*.entity.js';
+
   constructor(private readonly configService: ConfigService) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
@@ -17,7 +17,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       host: this.configService.get(EnvironmentEnum.DB_HOST),
       database: this.configService.get(EnvironmentEnum.DB_NAME),
       port: this.configService.get(EnvironmentEnum.DB_PORT),
-      entities: [UserEntity, PatientEntity],
+      entities: [this.entitiesPath],
       synchronize: true,
     };
   }

@@ -1,5 +1,5 @@
 import { RoleEnum } from 'src/common/enum';
-import { PatientEntity } from 'src/patient/patient.entity';
+import { PatientEntity } from 'src/database/entity/patient.entity';
 import {
   Entity,
   Column,

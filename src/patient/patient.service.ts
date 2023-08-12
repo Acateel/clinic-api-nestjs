@@ -10,7 +10,7 @@ import {
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
-import { PatientEntity } from './patient.entity';
+import { PatientEntity } from '../database/entity/patient.entity';
 import { CreatePatientDto } from './dto/createPatient.dto';
 import { UserService } from 'src/user/user.service';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
@@ -32,7 +32,7 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
 
-  async read(options?: FindOptions<PatientEntity>) {
+  async get(options?: FindOptions<PatientEntity>) {
     try {
       return await this.patientRepository.find(options);
     } catch (error) {
@@ -42,7 +42,7 @@ export class PatientService {
     }
   }
 
-  async readById(id: string) {
+  async getById(id: string) {
     const patient = await this.patientRepository
       .createQueryBuilder('p')
       .where('p.id = :id', { id })
@@ -58,7 +58,7 @@ export class PatientService {
   }
 
   async update(id: string, dto: UpdatePatientDto) {
-    const patient = await this.readById(id);
+    const patient = await this.getById(id);
     this.patientRepository.merge(patient, dto);
     const createdPatient = await this.patientRepository.save(patient);
 

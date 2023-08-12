@@ -15,7 +15,7 @@ import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/createPatient.dto';
 import { RoleEnum } from 'src/common/enum';
 import { Roles } from 'src/auth/roles.decorator';
-import { UserEntity } from 'src/user/user.entity';
+import { UserEntity } from 'src/database/entity/user.entity';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
 import { ForbidOtherUserDataResponse } from 'src/common/decorator/forbidOtherUserDataAccess.decorator';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -34,15 +34,15 @@ export class PatientController {
 
   @Get()
   @Roles(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT)
-  read(@Query() query: ReadOptions<UserEntity>) {
-    return this.patientService.read(query.find);
+  get(@Query() query: ReadOptions<UserEntity>) {
+    return this.patientService.get(query.find);
   }
 
   @Get(':uuid')
   @Roles(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT)
   @ForbidOtherUserDataResponse(RoleEnum.PATIENT)
-  readById(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.patientService.readById(uuid);
+  getById(@Param('uuid', ParseUUIDPipe) uuid: string) {
+    return this.patientService.getById(uuid);
   }
 
   @Put(':uuid')

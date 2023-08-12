@@ -13,7 +13,7 @@ import {
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserService } from './user.service';
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
-import { UserEntity } from './user.entity';
+import { UserEntity } from '../database/entity/user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/common/enum';
@@ -32,8 +32,8 @@ export class UserController {
   }
 
   @Get()
-  read(@Query() query: ReadOptions<UserEntity>) {
-    return this.userService.read(query.find);
+  get(@Query() query: ReadOptions<UserEntity>) {
+    return this.userService.get(query.find);
   }
 
   @Get('profile')
@@ -42,8 +42,8 @@ export class UserController {
   }
 
   @Get(':uuid')
-  readById(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.userService.readById(uuid);
+  getById(@Param('uuid', ParseUUIDPipe) uuid: string) {
+    return this.userService.getById(uuid);
   }
 
   @Put(':uuid')

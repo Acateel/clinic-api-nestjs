@@ -29,7 +29,7 @@ export class AuthService {
   async login(email: string, password: string) {
     try {
       const user = await this.userService.find({ email });
-      const userDetails = await this.userService.readById(user.id);
+      const userDetails = await this.userService.getById(user.id);
 
       if (!bcrypt.compareSync(password, userDetails.password!)) {
         throw new Error('Incorrect password');

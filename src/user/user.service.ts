@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { UserEntity } from 'src/user/user.entity';
+import { UserEntity } from 'src/database/entity/user.entity';
 import {
   EntityPropertyNotFoundError,
   FindManyOptions,
@@ -29,7 +29,7 @@ export class UserService {
     return this.userRepository.findOneBy({ id: createdUser.id });
   }
 
-  async read(options?: FindOptions<UserEntity>) {
+  async get(options?: FindOptions<UserEntity>) {
     try {
       return await this.userRepository.find(options);
     } catch (error) {
@@ -39,7 +39,7 @@ export class UserService {
     }
   }
 
-  async readById(id: string) {
+  async getById(id: string) {
     const user = await this.userRepository
       .createQueryBuilder('u')
       .where('u.id = :id', { id })
@@ -55,7 +55,7 @@ export class UserService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    const user = await this.readById(id);
+    const user = await this.getById(id);
     this.userRepository.merge(user, dto);
     const createdUser = await this.userRepository.save(user);
 
