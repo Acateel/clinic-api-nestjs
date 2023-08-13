@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
     JwtModule.registerAsync({
       useClass: JwtConfigService,
       imports: [ConfigModule],
+      global: true,
     }),
     UserModule,
   ],

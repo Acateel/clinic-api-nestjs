@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserPayload } from 'src/common/interface';
 import * as uuid from 'uuid';
 import { SALT_ROUNDS } from 'src/common/constant';
+import { AuthResponseDto } from './dto/response/authResponse.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,9 +22,12 @@ export class AuthService {
       email: user!.email,
       role: user!.role,
     };
+    const response: AuthResponseDto = {
+      user: payload,
+      access_token: this.jwtService.sign(payload),
+    };
 
-    // TODO: create respose dto?
-    return { user: payload, access_token: this.jwtService.sign(payload) };
+    return response;
   }
 
   async login(email: string, password: string) {
@@ -40,8 +44,12 @@ export class AuthService {
         email: user.email,
         role: user.role,
       };
+      const response: AuthResponseDto = {
+        user: payload,
+        access_token: this.jwtService.sign(payload),
+      };
 
-      return { user: payload, access_token: this.jwtService.sign(payload) };
+      return response;
     } catch (error) {
       throw new UnauthorizedException('Wrong credentials');
     }
@@ -51,6 +59,7 @@ export class AuthService {
     const resetToken = uuid.v4();
     const user = await this.userService.find({ email });
     await this.userService.update(user.id, { resetToken });
+
     return resetToken;
   }
 

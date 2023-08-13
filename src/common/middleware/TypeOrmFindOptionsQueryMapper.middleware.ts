@@ -3,7 +3,6 @@ import * as qs from 'qs';
 import { In } from 'typeorm';
 import { ReadOptions } from '../interface';
 
-// TODO: middleware or interceptor/decorator because now executes before guards
 export const typeOrmFindOptionsQueryMapperMiddleware = (
   req: Request<unknown, unknown, unknown, ReadOptions<unknown>>,
   res: Response,

@@ -22,7 +22,6 @@ export enum TokenLifetimeEnum {
 }
 
 export enum MetadataEnum {
-  PUBLIC_ENDPOINT = 'PUBLIC_ENDPOINT',
   ROLES = 'ROLES',
   OWN_ROLE = 'OWN_ROLE',
 }

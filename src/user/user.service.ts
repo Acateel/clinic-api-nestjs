@@ -6,7 +6,6 @@ import {
 import { UserEntity } from 'src/database/entity/user.entity';
 import {
   EntityPropertyNotFoundError,
-  FindManyOptions,
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
