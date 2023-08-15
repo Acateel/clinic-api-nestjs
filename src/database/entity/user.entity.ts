@@ -8,6 +8,7 @@ import {
   OneToMany,
   RelationId,
 } from 'typeorm';
+import { DoctorEntity } from './doctor.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -35,6 +36,12 @@ export class UserEntity {
 
   @RelationId((user: UserEntity) => user.patients)
   patientIds!: string[];
+
+  @OneToMany(() => DoctorEntity, (doctor) => doctor.user)
+  doctors?: DoctorEntity[];
+
+  @RelationId((user: UserEntity) => user.patients)
+  doctorIds!: string[];
 
   @CreateDateColumn({ name: 'created_at', select: false })
   createdAt?: Date;

@@ -4,6 +4,7 @@ import { PatientEntity } from './entity/patient.entity';
 import { UserEntity } from './entity/user.entity';
 import { TypeOrmConfigService } from 'src/config/typeOrmConfig.service';
 import { ConfigModule } from '@nestjs/config';
+import { DoctorEntity } from './entity/doctor.entity';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
       useClass: TypeOrmConfigService,
       imports: [ConfigModule],
     }),
-    TypeOrmModule.forFeature([PatientEntity, UserEntity]),
+    TypeOrmModule.forFeature([PatientEntity, UserEntity, DoctorEntity]),
   ],
   exports: [TypeOrmModule],
 })
