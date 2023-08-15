@@ -31,8 +31,8 @@ import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { PatientResponseDto } from './dto/response/patientResponse.dto';
 import { PatientDetailsResponseDto } from './dto/response/patientDetailsResponse.dto';
 
-@ApiTags('patients')
 @Controller('patients')
+@ApiTags('patients')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 

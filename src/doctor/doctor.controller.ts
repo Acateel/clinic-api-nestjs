@@ -31,8 +31,8 @@ import { ForbidOtherUserDataResponse } from 'src/common/decorator/forbidOtherUse
 import { DoctorDetailsResponseDto } from './dto/response/doctorDetailsResponse.dto';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 
-@ApiTags('doctors')
 @Controller('doctors')
+@ApiTags('doctors')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 

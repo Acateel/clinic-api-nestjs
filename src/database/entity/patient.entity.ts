@@ -4,10 +4,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
 import { UserEntity } from 'src/database/entity/user.entity';
+import { AppointmentEntity } from './appointment.entity';
 
 @Entity('patient')
 export class PatientEntity {
@@ -23,6 +25,12 @@ export class PatientEntity {
 
   @RelationId((patient: PatientEntity) => patient.user)
   userId!: string;
+
+  @OneToMany(() => AppointmentEntity, (appointment) => appointment.patient)
+  appointments?: AppointmentEntity[];
+
+  @RelationId((patient: PatientEntity) => patient.appointments)
+  appointmentIds!: string;
 
   @CreateDateColumn({ name: 'created_at', select: false })
   createdAt?: Date;

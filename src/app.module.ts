@@ -13,6 +13,7 @@ import { PatientModule } from './patient/patient.module';
 import { UniquePhoneNumberConstraint } from './common/util/uniquePhoneNumberConstraint';
 import { RestrictResponseEntityToOwnUserInterceptor } from './common/interceptor/RestrictResponseEntityToOwnUser.interceptor';
 import { DoctorModule } from './doctor/doctor.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { DoctorModule } from './doctor/doctor.module';
     AuthModule,
     PatientModule,
     DoctorModule,
+    AppointmentModule,
   ],
   providers: [
     UniqueEmailConstraint,

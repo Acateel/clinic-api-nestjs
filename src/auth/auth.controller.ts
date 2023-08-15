@@ -15,8 +15,8 @@ import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/response/authResponse.dto';
 import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
 
-@ApiTags('auth')
 @Controller()
+@ApiTags('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
