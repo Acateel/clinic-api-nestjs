@@ -30,7 +30,6 @@ export class UserEntity {
   @Column({ name: 'reset_token', type: String, select: false, nullable: true })
   resetToken?: string | null;
 
-  // TODO: reverse side relations?
   @OneToMany(() => PatientEntity, (patient) => patient.user)
   patients?: PatientEntity[];
 

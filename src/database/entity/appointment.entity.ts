@@ -10,12 +10,21 @@ import { PatientEntity } from './patient.entity';
 import { DoctorEntity } from './doctor.entity';
 
 @Entity('appointment')
-// TODO: try delete appointment when linked to doctor or patient
 export class AppointmentEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'appointment_id' })
   id!: string;
 
-  @Column()
+  @Column({
+    type: 'timestamp',
+    transformer: {
+      to(value: Date | string) {
+        return new Date(value);
+      },
+      from(value: string) {
+        return new Date(value);
+      },
+    },
+  })
   date!: Date;
 
   @ManyToOne(() => PatientEntity, { onDelete: 'CASCADE', nullable: false })
@@ -31,5 +40,5 @@ export class AppointmentEntity {
   doctorId!: string;
 
   @CreateDateColumn({ name: 'created_at', select: false })
-  createdAt!: Date;
+  createdAt?: Date;
 }
