@@ -10,6 +10,7 @@ import { AuthenticatedRequest, UserOwnedEntity } from '../interface';
 import { Reflector } from '@nestjs/core';
 import { MetadataEnum, RoleEnum } from '../enum';
 
+// TODO: delete or what
 @Injectable()
 export class RestrictResponseEntityToOwnUserInterceptor
   implements NestInterceptor<UserOwnedEntity>

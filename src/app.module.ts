@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { UniqueEmailConstraint } from './common/util/uniqueEmailConstraint';
 import { typeOrmFindOptionsQueryMapperMiddleware } from './common/middleware/TypeOrmFindOptionsQueryMapper.middleware';
 import { AuthModule } from './auth/auth.module';
 import { PatientModule } from './patient/patient.module';
-import { UniquePhoneNumberConstraint } from './common/util/uniquePhoneNumberConstraint';
 import { RestrictResponseEntityToOwnUserInterceptor } from './common/interceptor/RestrictResponseEntityToOwnUser.interceptor';
 import { DoctorModule } from './doctor/doctor.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { UniqueEmailConstraint } from './common/decorator/isUniqueEmail.decorator';
+import { UniquePhoneNumberConstraint } from './common/decorator/isUniquePhoneNumber.decorator';
 
 @Module({
   imports: [

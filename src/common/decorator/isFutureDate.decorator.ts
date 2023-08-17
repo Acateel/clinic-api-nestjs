@@ -1,5 +1,11 @@
-import { ValidationOptions, registerDecorator } from 'class-validator';
-import { IsFutureDateConstraint } from '../util/isFutureDateConstraint';
+import {
+  ValidationArguments,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+  registerDecorator,
+} from 'class-validator';
+import { DateTime } from 'luxon';
 
 export function IsFutureDate(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
@@ -10,4 +16,27 @@ export function IsFutureDate(validationOptions?: ValidationOptions) {
       validator: IsFutureDateConstraint,
     });
   };
+}
+
+@ValidatorConstraint()
+class IsFutureDateConstraint implements ValidatorConstraintInterface {
+  validate(
+    value: unknown,
+    validationArguments?: ValidationArguments | undefined,
+  ): boolean | Promise<boolean> {
+    const utcDate = value as string;
+    const inputDate = DateTime.fromISO(utcDate, { zone: 'utc' });
+
+    if (!inputDate.isValid) {
+      return false;
+    }
+
+    const currentDate = DateTime.utc();
+
+    return inputDate > currentDate;
+  }
+
+  defaultMessage(): string {
+    return 'Date can not be in the past';
+  }
 }
