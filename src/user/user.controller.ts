@@ -22,7 +22,6 @@ import { MetadataEnum, RoleEnum } from 'src/common/enum';
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';

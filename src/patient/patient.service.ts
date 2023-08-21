@@ -6,7 +6,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   EntityPropertyNotFoundError,
-  FindManyOptions,
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
