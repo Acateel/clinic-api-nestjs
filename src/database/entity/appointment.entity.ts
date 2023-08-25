@@ -39,6 +39,6 @@ export class AppointmentEntity {
   @RelationId((appointment: AppointmentEntity) => appointment.doctor)
   doctorId!: string;
 
-  @CreateDateColumn({ name: 'created_at', select: false })
+  @CreateDateColumn({ select: false })
   createdAt?: Date;
 }

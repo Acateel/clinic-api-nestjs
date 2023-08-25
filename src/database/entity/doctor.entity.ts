@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -13,21 +12,19 @@ import { AppointmentEntity } from './appointment.entity';
 
 @Entity('doctor')
 export class DoctorEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { name: 'doctor_id' })
   id!: string;
 
   @Column()
   speciality!: string;
 
   @Column({
-    name: 'available_slots',
     type: 'timestamp',
     array: true,
   })
   availableSlots!: Date[];
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
-  @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 
   @RelationId((doctor: DoctorEntity) => doctor.user)
@@ -39,6 +36,6 @@ export class DoctorEntity {
   @RelationId((doctor: DoctorEntity) => doctor.appointments)
   appointmentIds!: string;
 
-  @CreateDateColumn({ name: 'created_at', select: false })
+  @CreateDateColumn({ select: false })
   createdAt?: Date;
 }

@@ -24,10 +24,10 @@ export class UserEntity {
   @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.GUEST })
   role!: RoleEnum;
 
-  @Column({ name: 'first_name' })
+  @Column()
   firstName!: string;
 
-  @Column({ name: 'reset_token', type: String, select: false, nullable: true })
+  @Column({ type: String, select: false, nullable: true })
   resetToken?: string | null;
 
   @OneToMany(() => PatientEntity, (patient) => patient.user)
@@ -42,6 +42,6 @@ export class UserEntity {
   @RelationId((user: UserEntity) => user.patients)
   doctorIds!: string[];
 
-  @CreateDateColumn({ name: 'created_at', select: false })
+  @CreateDateColumn({ select: false })
   createdAt?: Date;
 }

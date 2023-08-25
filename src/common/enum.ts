@@ -1,15 +1,3 @@
-export enum EnvironmentEnum {
-  PORT = 'PORT',
-
-  DB_USER = 'PGUSER',
-  DB_PASSWORD = 'PGPASSWORD',
-  DB_NAME = 'PGDATABASE',
-  DB_HOST = 'PGHOST',
-  DB_PORT = 'PGPORT',
-
-  ACCESS_SECRET = 'JWT_ACCESS_SECRET',
-}
-
 export enum RoleEnum {
   GUEST = 'GUEST',
   DOCTOR = 'DOCTOR',

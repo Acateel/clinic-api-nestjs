@@ -23,3 +23,17 @@ export interface UserPayload {
 export interface UserOwnedEntity {
   readonly userId: string;
 }
+
+export interface AppConfig {
+  server: {
+    port: number;
+  };
+  database: {
+    user: string;
+    password: string;
+    name: string;
+    host: number;
+    port: number;
+  };
+  jwt: { secret: string };
+}

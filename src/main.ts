@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as classValidator from 'class-validator';
-import { EnvironmentEnum } from './common/enum';
 import { ValidationPipe } from '@nestjs/common';
+import { AppConfig } from './common/interface';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,7 +28,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = app.get(ConfigService).get(EnvironmentEnum.PORT);
+  const port = app
+    .get(ConfigService<AppConfig, true>)
+    .get('server.port', { infer: true });
   await app.listen(port);
 }
 bootstrap();
