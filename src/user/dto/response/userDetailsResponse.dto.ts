@@ -6,7 +6,7 @@ export class UserDetailsResponseDto {
   readonly email!: string;
   readonly password!: string;
   readonly role!: RoleEnum;
-  readonly firstName!: string;
+  readonly fullName!: string;
   readonly resetToken!: string | null;
   readonly patients!: PatientResponseDto[];
   readonly patientIds!: number[];

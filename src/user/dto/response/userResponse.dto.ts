@@ -4,6 +4,6 @@ export class UserResponseDto {
   readonly id!: number;
   readonly email!: string;
   readonly role!: RoleEnum;
-  readonly firstName!: string;
+  readonly fullName!: string;
   readonly patientIds!: number[];
 }

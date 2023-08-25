@@ -19,7 +19,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsNotEmpty()
-  readonly firstName?: string;
+  readonly fullName?: string;
 
   @IsOptional()
   @IsEnum(RoleEnum)

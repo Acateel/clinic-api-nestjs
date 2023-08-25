@@ -25,7 +25,7 @@ export class UserEntity {
   role!: RoleEnum;
 
   @Column()
-  firstName!: string;
+  fullName!: string;
 
   @Column({ type: String, select: false, nullable: true })
   resetToken?: string | null;

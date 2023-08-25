@@ -16,7 +16,7 @@ export class CreateUserDto {
   readonly password!: string;
 
   @IsNotEmpty()
-  readonly firstName!: string;
+  readonly fullName!: string;
 
   @IsOptional()
   @IsEnum(RoleEnum)
