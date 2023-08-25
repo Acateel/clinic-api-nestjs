@@ -12,8 +12,8 @@ import { AppointmentEntity } from './appointment.entity';
 
 @Entity('doctor')
 export class DoctorEntity {
-  @PrimaryGeneratedColumn('uuid', { name: 'doctor_id' })
-  id!: string;
+  @PrimaryGeneratedColumn({ name: 'doctor_id' })
+  id!: number;
 
   @Column()
   speciality!: string;
@@ -28,13 +28,13 @@ export class DoctorEntity {
   user?: UserEntity;
 
   @RelationId((doctor: DoctorEntity) => doctor.user)
-  userId!: string;
+  userId!: number;
 
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.doctor)
   appointments?: AppointmentEntity[];
 
   @RelationId((doctor: DoctorEntity) => doctor.appointments)
-  appointmentIds!: string;
+  appointmentIds!: number[];
 
   @CreateDateColumn({ select: false })
   createdAt?: Date;

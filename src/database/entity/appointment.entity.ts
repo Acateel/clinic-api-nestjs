@@ -11,8 +11,8 @@ import { DoctorEntity } from './doctor.entity';
 
 @Entity('appointment')
 export class AppointmentEntity {
-  @PrimaryGeneratedColumn('uuid', { name: 'appointment_id' })
-  id!: string;
+  @PrimaryGeneratedColumn({ name: 'appointment_id' })
+  id!: number;
 
   @Column({
     type: 'timestamp',
@@ -31,13 +31,13 @@ export class AppointmentEntity {
   patient?: PatientEntity;
 
   @RelationId((appointment: AppointmentEntity) => appointment.patient)
-  patientId!: string;
+  patientId!: number;
 
   @ManyToOne(() => DoctorEntity, { onDelete: 'CASCADE', nullable: false })
   doctor?: DoctorEntity;
 
   @RelationId((appointment: AppointmentEntity) => appointment.doctor)
-  doctorId!: string;
+  doctorId!: number;
 
   @CreateDateColumn({ select: false })
   createdAt?: Date;

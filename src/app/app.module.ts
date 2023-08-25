@@ -16,10 +16,11 @@ import { UniqueEmailConstraint } from '../common/decorator/isUniqueEmail.decorat
 import { UniquePhoneNumberConstraint } from '../common/decorator/isUniquePhoneNumber.decorator';
 import { jwtConfig } from './config/jwt.config';
 import { databaseConfig } from './config/database.config';
+import { serverConfig } from './config/server.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [jwtConfig, databaseConfig] }),
+    ConfigModule.forRoot({ load: [jwtConfig, databaseConfig, serverConfig] }),
     UserModule,
     AuthModule,
     PatientModule,

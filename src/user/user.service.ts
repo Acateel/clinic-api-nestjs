@@ -38,7 +38,7 @@ export class UserService {
     }
   }
 
-  async getById(id: string) {
+  async getById(id: number) {
     const user = await this.userRepository
       .createQueryBuilder('u')
       .where('u.id = :id', { id })
@@ -53,7 +53,7 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, dto: UpdateUserDto) {
+  async update(id: number, dto: UpdateUserDto) {
     const user = await this.getById(id);
     this.userRepository.merge(user, dto);
     const createdUser = await this.userRepository.save(user);
@@ -61,7 +61,7 @@ export class UserService {
     return this.userRepository.findOneBy({ id: createdUser.id });
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     await this.userRepository.delete(id);
   }
 

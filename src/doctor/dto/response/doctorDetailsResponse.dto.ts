@@ -1,10 +1,10 @@
 import { UserResponseDto } from 'src/user/dto/response/userResponse.dto';
 
 export class DoctorDetailsResponseDto {
-  readonly id!: string;
+  readonly id!: number;
   readonly speciality!: string;
   readonly availableSlots!: Date[];
   readonly user!: UserResponseDto;
-  readonly userId!: string;
+  readonly userId!: number;
   readonly createdAt!: Date;
 }

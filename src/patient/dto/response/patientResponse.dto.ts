@@ -1,5 +1,5 @@
 export class PatientResponseDto {
-  readonly id!: string;
+  readonly id!: number;
   readonly phoneNumber!: string;
-  readonly userId!: string;
+  readonly userId!: number;
 }

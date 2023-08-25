@@ -23,7 +23,7 @@ export class PatientService {
     private readonly userService: UserService,
   ) {}
 
-  async create(userId: string, dto: CreatePatientDto) {
+  async create(userId: number, dto: CreatePatientDto) {
     const user = await this.userService.find({ id: userId });
     const patient = this.patientRepository.create({ ...dto, user });
     const createdPatient = await this.patientRepository.save(patient);
@@ -41,7 +41,7 @@ export class PatientService {
     }
   }
 
-  async getById(id: string) {
+  async getById(id: number) {
     const patient = await this.patientRepository
       .createQueryBuilder('p')
       .where('p.id = :id', { id })
@@ -56,7 +56,7 @@ export class PatientService {
     return patient;
   }
 
-  async update(id: string, dto: UpdatePatientDto) {
+  async update(id: number, dto: UpdatePatientDto) {
     const patient = await this.getById(id);
     this.patientRepository.merge(patient, dto);
     const createdPatient = await this.patientRepository.save(patient);
@@ -64,7 +64,7 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     await this.patientRepository.delete(id);
   }
 

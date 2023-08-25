@@ -1,6 +1,6 @@
 export class DoctorResponseDto {
-  readonly id!: string;
+  readonly id!: number;
   readonly speciality!: string;
   readonly availableSlots!: Date[];
-  readonly userId!: string;
+  readonly userId!: number;
 }

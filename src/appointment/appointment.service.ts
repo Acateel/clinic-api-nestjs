@@ -86,7 +86,7 @@ export class AppointmentService {
     }
   }
 
-  async getById(id: string) {
+  async getById(id: number) {
     const appointment = await this.appointmentRepository
       .createQueryBuilder('a')
       .where('a.id = :id', { id })
@@ -102,7 +102,7 @@ export class AppointmentService {
     return appointment;
   }
 
-  async update(id: string, dto: UpdateAppointmentDto) {
+  async update(id: number, dto: UpdateAppointmentDto) {
     const appointment = await this.getById(id);
     this.appointmentRepository.merge(appointment, dto);
 
@@ -145,7 +145,7 @@ export class AppointmentService {
     }
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     await this.appointmentRepository.delete(id);
   }
 }

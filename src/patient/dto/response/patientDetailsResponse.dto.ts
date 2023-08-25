@@ -1,9 +1,9 @@
 import { UserDetailsResponseDto } from 'src/user/dto/response/userDetailsResponse.dto';
 
 export class PatientDetailsResponseDto {
-  readonly id!: string;
+  readonly id!: number;
   readonly phoneNumber!: string;
   readonly user!: UserDetailsResponseDto;
-  readonly userId!: string;
+  readonly userId!: number;
   readonly createdAt!: Date;
 }

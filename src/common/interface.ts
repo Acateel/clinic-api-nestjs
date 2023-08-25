@@ -15,13 +15,13 @@ export interface AuthenticatedRequest {
 }
 
 export interface UserPayload {
-  readonly sub: string;
+  readonly sub: number;
   readonly email: string;
   readonly role: RoleEnum;
 }
 
 export interface UserOwnedEntity {
-  readonly userId: string;
+  readonly userId: number;
 }
 
 export interface AppConfig {

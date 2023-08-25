@@ -6,7 +6,6 @@ import {
   Get,
   Query,
   Param,
-  ParseUUIDPipe,
   Put,
   Delete,
 } from '@nestjs/common';
@@ -36,24 +35,21 @@ export class AppointmentController {
     return this.appointmentService.get(query.find);
   }
 
-  @Get(':uuid')
+  @Get(':id')
   @ApiResponse({ status: HttpStatus.OK, type: AppointmentDetailsResponseDto })
-  getById(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.appointmentService.getById(uuid);
+  getById(@Param('id') id: number) {
+    return this.appointmentService.getById(id);
   }
 
-  @Put(':uuid')
+  @Put(':id')
   @ApiResponse({ status: HttpStatus.OK, type: AppointmentResponseDto })
-  update(
-    @Param('uuid', ParseUUIDPipe) uuid: string,
-    @Body() dto: UpdateAppointmentDto,
-  ) {
-    return this.appointmentService.update(uuid, dto);
+  update(@Param('id') id: number, @Body() dto: UpdateAppointmentDto) {
+    return this.appointmentService.update(id, dto);
   }
 
-  @Delete(':uuid')
+  @Delete(':id')
   @ApiResponse({ status: HttpStatus.OK })
-  delete(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.appointmentService.delete(uuid);
+  delete(@Param('id') id: number) {
+    return this.appointmentService.delete(id);
   }
 }

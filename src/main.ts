@@ -22,7 +22,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('clinic-api-nestjs')
-    .setVersion('0.2')
+    .setVersion('0.3')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
@@ -31,6 +31,7 @@ async function bootstrap() {
   const port = app
     .get(ConfigService<AppConfig, true>)
     .get('server.port', { infer: true });
+  console.log(port);
   await app.listen(port);
 }
 bootstrap();

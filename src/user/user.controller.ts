@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -65,36 +64,33 @@ export class UserController {
     return this.userService.getById(req.user.sub);
   }
 
-  @Get(':uuid')
+  @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
-  getById(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.userService.getById(uuid);
+  getById(@Param('id') id: number) {
+    return this.userService.getById(id);
   }
 
-  @Put(':uuid')
+  @Put(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
-  update(
-    @Param('uuid', ParseUUIDPipe) uuid: string,
-    @Body() dto: UpdateUserDto,
-  ) {
-    return this.userService.update(uuid, dto);
+  update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
+    return this.userService.update(id, dto);
   }
 
-  @Delete(':uuid')
+  @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })
-  delete(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.userService.delete(uuid);
+  delete(@Param('id') id: number) {
+    return this.userService.delete(id);
   }
 }

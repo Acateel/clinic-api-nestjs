@@ -4,10 +4,10 @@ import { IsUtcDate } from 'src/common/decorator/isUtcDate.decorator';
 
 export class UpdateAppointmentDto {
   @IsOptional()
-  public readonly patientId?: string;
+  public readonly patientId?: number;
 
   @IsOptional()
-  public readonly doctorId?: string;
+  public readonly doctorId?: number;
 
   @IsOptional()
   @IsDateString()

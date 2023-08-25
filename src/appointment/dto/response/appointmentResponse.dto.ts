@@ -1,6 +1,6 @@
 export class AppointmentResponseDto {
-  readonly id!: string;
+  readonly id!: number;
   readonly date!: Date;
-  readonly patientId!: string;
-  readonly doctorId!: string;
+  readonly patientId!: number;
+  readonly doctorId!: number;
 }

@@ -4,10 +4,10 @@ import { IsUtcDate } from 'src/common/decorator/isUtcDate.decorator';
 
 export class CreateAppointmentDto {
   @IsNotEmpty()
-  readonly patientId!: string;
+  readonly patientId!: number;
 
   @IsNotEmpty()
-  readonly doctorId!: string;
+  readonly doctorId!: number;
 
   @IsDateString()
   @IsUtcDate()

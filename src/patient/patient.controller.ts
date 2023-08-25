@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -60,7 +59,7 @@ export class PatientController {
     return this.patientService.get(query.find);
   }
 
-  @Get(':uuid')
+  @Get(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata(MetadataEnum.ROLES, [
     RoleEnum.ADMIN,
@@ -71,30 +70,27 @@ export class PatientController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientDetailsResponseDto })
-  getById(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.patientService.getById(uuid);
+  getById(@Param('id') id: number) {
+    return this.patientService.getById(id);
   }
 
-  @Put(':uuid')
+  @Put(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN, RoleEnum.PATIENT])
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientResponseDto })
-  update(
-    @Param('uuid', ParseUUIDPipe) uuid: string,
-    @Body() dto: UpdatePatientDto,
-  ) {
-    return this.patientService.update(uuid, dto);
+  update(@Param('id') id: number, @Body() dto: UpdatePatientDto) {
+    return this.patientService.update(id, dto);
   }
 
-  @Delete(':uuid')
+  @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN, RoleEnum.PATIENT])
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK })
-  delete(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.patientService.delete(uuid);
+  delete(@Param('id') id: number) {
+    return this.patientService.delete(id);
   }
 }
