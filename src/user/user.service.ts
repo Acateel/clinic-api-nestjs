@@ -53,6 +53,34 @@ export class UserService {
     return user;
   }
 
+  async getByEmail(email: string) {
+    const user = await this.userRepository
+      .createQueryBuilder('u')
+      .where('u.email = :email', { email })
+      .addSelect(['u.password'])
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async getByResetToken(resetToken: string) {
+    const user = await this.userRepository
+      .createQueryBuilder('u')
+      .where('u.resetToken = :resetToken', { resetToken })
+      .addSelect(['u.resetToken'])
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
   async update(id: number, dto: UpdateUserDto) {
     const user = await this.getById(id);
     this.userRepository.merge(user, dto);
@@ -63,17 +91,5 @@ export class UserService {
 
   async delete(id: number) {
     await this.userRepository.delete(id);
-  }
-
-  async find(options: Partial<UserEntity>) {
-    const user = await this.userRepository.findOneBy(
-      options as FindOptionsWhere<UserEntity>,
-    );
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
   }
 }

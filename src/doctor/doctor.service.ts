@@ -25,7 +25,7 @@ export class DoctorService {
   ) {}
 
   async create(userId: number, dto: CreateDoctorDto) {
-    const user = await this.userService.find({ id: userId });
+    const user = await this.userService.getById(userId);
     const doctor = this.doctorRepository.create({ ...dto, user });
     const createdDoctor = await this.doctorRepository.save(doctor);
 
@@ -106,17 +106,5 @@ export class DoctorService {
 
   async delete(id: number) {
     await this.doctorRepository.delete(id);
-  }
-
-  async find(options: Partial<DoctorEntity>) {
-    const doctor = await this.doctorRepository.findOneBy(
-      options as FindOptionsWhere<DoctorEntity>,
-    );
-
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-
-    return doctor;
   }
 }

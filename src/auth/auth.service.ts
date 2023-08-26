@@ -5,8 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UserPayload } from 'src/common/interface';
 import * as uuid from 'uuid';
-import { SALT_ROUNDS } from 'src/common/constant';
 import { AuthResponseDto } from './dto/response/authResponse.dto';
+import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,11 +32,15 @@ export class AuthService {
 
   async login(email: string, password: string) {
     try {
-      const user = await this.userService.find({ email });
+      const user = await this.userService.getByEmail(email);
       const userDetails = await this.userService.getById(user.id);
 
-      if (!bcrypt.compareSync(password, userDetails.password!)) {
-        throw new Error('Incorrect password');
+      const isWrongPassword = !bcrypt.compareSync(
+        password,
+        userDetails.password!,
+      );
+      if (isWrongPassword) {
+        throw new UnauthorizedException('Wrong credentials');
       }
 
       const payload: UserPayload = {
@@ -57,16 +61,19 @@ export class AuthService {
 
   async resetPassword(email: string) {
     const resetToken = uuid.v4();
-    const user = await this.userService.find({ email });
+    const user = await this.userService.getByEmail(email);
     await this.userService.update(user.id, { resetToken });
+    const response: ResetPasswordResponseDto = {
+      resetToken,
+    };
 
-    return resetToken;
+    return response;
   }
 
   async recoverPassword(resetToken: string, newPassword: string) {
-    const user = await this.userService.find({ resetToken });
+    const user = await this.userService.getByResetToken(resetToken);
     await this.userService.update(user.id, {
-      password: bcrypt.hashSync(newPassword, SALT_ROUNDS),
+      password: newPassword,
       resetToken: null,
     });
   }

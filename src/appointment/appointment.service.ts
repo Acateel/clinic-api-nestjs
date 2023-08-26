@@ -34,8 +34,8 @@ export class AppointmentService {
   }
 
   async create(dto: CreateAppointmentDto) {
-    const doctor = await this.doctorService.find({ id: dto.doctorId });
-    const patient = await this.patientService.find({ id: dto.patientId });
+    const doctor = await this.doctorService.getById(dto.doctorId);
+    const patient = await this.patientService.getById(dto.patientId);
     const appointment = this.appointmentRepository.create({
       ...dto,
       doctor,
@@ -111,16 +111,12 @@ export class AppointmentService {
     }
 
     if (dto.patientId) {
-      const patient = await this.patientService.find({
-        id: dto.patientId,
-      });
+      const patient = await this.patientService.getById(dto.patientId);
       appointment.patient = patient;
     }
 
     if (dto.doctorId) {
-      const doctor = await this.doctorService.find({
-        id: dto.doctorId,
-      });
+      const doctor = await this.doctorService.getById(dto.doctorId);
       appointment.doctor = doctor;
     }
 

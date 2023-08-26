@@ -28,7 +28,7 @@ export class UniqueEmailConstraint implements ValidatorConstraintInterface {
     validationArguments?: ValidationArguments,
   ): Promise<boolean> {
     try {
-      await this.userService.find({ email: value as string });
+      await this.userService.getByEmail(value as string);
       return false;
     } catch (error) {
       return true;

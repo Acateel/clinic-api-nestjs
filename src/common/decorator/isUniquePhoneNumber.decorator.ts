@@ -29,7 +29,7 @@ export class UniquePhoneNumberConstraint
     validationArguments?: ValidationArguments,
   ): Promise<boolean> {
     try {
-      await this.patientService.find({ phoneNumber: value as string });
+      await this.patientService.getByPhoneNumber(value as string);
       return false;
     } catch (error) {
       return true;
