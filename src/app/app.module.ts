@@ -17,10 +17,14 @@ import { UniquePhoneNumberConstraint } from '../common/decorator/isUniquePhoneNu
 import { jwtConfig } from './config/jwt.config';
 import { databaseConfig } from './config/database.config';
 import { serverConfig } from './config/server.config';
+import { validate } from './config/appConfigValidation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [jwtConfig, databaseConfig, serverConfig] }),
+    ConfigModule.forRoot({
+      load: [jwtConfig, databaseConfig, serverConfig],
+      validate,
+    }),
     UserModule,
     AuthModule,
     PatientModule,
