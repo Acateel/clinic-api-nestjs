@@ -2,40 +2,32 @@ import {
   CallHandler,
   ExecutionContext,
   ForbiddenException,
-  Injectable,
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
 import { AuthenticatedRequest, UserOwnedEntity } from '../interface';
-import { Reflector } from '@nestjs/core';
-import { MetadataEnum, RoleEnum } from '../enum';
+import { RoleEnum } from '../enum';
 
-// TODO: delete or what
-@Injectable()
-export class RestrictResponseEntityToOwnUserInterceptor
+export class CheckResponseEntityOwnershipByAuthorizedUserInterceptor
   implements NestInterceptor<UserOwnedEntity>
 {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(private readonly roleToCheck: RoleEnum) {}
 
   intercept(
     context: ExecutionContext,
     next: CallHandler<UserOwnedEntity>,
   ): Observable<UserOwnedEntity> | Promise<Observable<UserOwnedEntity>> {
     return next.handle().pipe(
-      map((patient: UserOwnedEntity) => {
+      map((response: UserOwnedEntity) => {
         const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
-        const ownRole = this.reflector.get<RoleEnum>(
-          MetadataEnum.OWN_ROLE,
-          context.getHandler(),
-        );
 
-        if (ownRole && ownRole === req.user.role) {
-          if (patient.userId !== req.user.sub) {
+        if (this.roleToCheck === req.user.role) {
+          if (response.userId !== req.user.sub) {
             throw new ForbiddenException('Access to other user data denied');
           }
         }
 
-        return patient;
+        return response;
       }),
     );
   }

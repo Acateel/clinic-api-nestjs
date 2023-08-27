@@ -9,7 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { typeOrmFindOptionsQueryMapperMiddleware } from '../common/middleware/TypeOrmFindOptionsQueryMapper.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { PatientModule } from '../patient/patient.module';
-import { RestrictResponseEntityToOwnUserInterceptor } from '../common/interceptor/RestrictResponseEntityToOwnUser.interceptor';
+import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from '../common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
 import { DoctorModule } from '../doctor/doctor.module';
 import { AppointmentModule } from '../appointment/appointment.module';
 import { UniqueEmailConstraint } from '../common/decorator/isUniqueEmail.decorator';
@@ -31,11 +31,7 @@ import { validate } from './config/appConfigValidation';
     DoctorModule,
     AppointmentModule,
   ],
-  providers: [
-    UniqueEmailConstraint,
-    UniquePhoneNumberConstraint,
-    RestrictResponseEntityToOwnUserInterceptor,
-  ],
+  providers: [UniqueEmailConstraint, UniquePhoneNumberConstraint],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

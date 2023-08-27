@@ -9,16 +9,15 @@ import {
   Delete,
   Request,
   UseGuards,
-  SetMetadata,
   HttpStatus,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/createPatient.dto';
-import { MetadataEnum, RoleEnum } from 'src/common/enum';
+import { RoleEnum } from 'src/common/enum';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
-import { ForbidOtherUserDataResponse } from 'src/common/decorator/forbidOtherUserDataAccess.decorator';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -29,6 +28,7 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { PatientResponseDto } from './dto/response/patientResponse.dto';
 import { PatientDetailsResponseDto } from './dto/response/patientDetailsResponse.dto';
+import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from 'src/common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -36,8 +36,7 @@ export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
   @Post()
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: PatientResponseDto })
@@ -46,12 +45,10 @@ export class PatientController {
   }
 
   @Get()
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [
-    RoleEnum.ADMIN,
-    RoleEnum.DOCTOR,
-    RoleEnum.PATIENT,
-  ])
+  @UseGuards(
+    AuthGuard,
+    new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT),
+  )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientResponseDto })
@@ -60,13 +57,15 @@ export class PatientController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [
-    RoleEnum.ADMIN,
-    RoleEnum.DOCTOR,
-    RoleEnum.PATIENT,
-  ])
-  @ForbidOtherUserDataResponse(RoleEnum.PATIENT)
+  @UseGuards(
+    AuthGuard,
+    new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT),
+  )
+  @UseInterceptors(
+    new CheckResponseEntityOwnershipByAuthorizedUserInterceptor(
+      RoleEnum.PATIENT,
+    ),
+  )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientDetailsResponseDto })
@@ -75,8 +74,7 @@ export class PatientController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN, RoleEnum.PATIENT])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.PATIENT))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientResponseDto })
@@ -85,8 +83,7 @@ export class PatientController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN, RoleEnum.PATIENT])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.PATIENT))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK })

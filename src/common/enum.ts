@@ -8,8 +8,3 @@ export enum RoleEnum {
 export enum TokenLifetimeEnum {
   ACCESS = '1D',
 }
-
-export enum MetadataEnum {
-  ROLES = 'ROLES',
-  OWN_ROLE = 'OWN_ROLE',
-}

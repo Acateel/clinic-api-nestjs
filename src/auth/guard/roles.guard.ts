@@ -1,24 +1,20 @@
 import {
-  Injectable,
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { MetadataEnum, RoleEnum } from 'src/common/enum';
+import { RoleEnum } from 'src/common/enum';
 import { AuthenticatedRequest } from 'src/common/interface';
 
-@Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  private readonly requiredRoles?: RoleEnum[];
+
+  constructor(...requiredRoles: RoleEnum[]) {
+    this.requiredRoles = requiredRoles;
+  }
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<RoleEnum[]>(
-      MetadataEnum.ROLES,
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (!requiredRoles) {
+    if (!this.requiredRoles) {
       return true;
     }
 
@@ -28,6 +24,6 @@ export class RolesGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    return requiredRoles.includes(req.user.role);
+    return this.requiredRoles.includes(req.user.role);
   }
 }

@@ -1,5 +1,6 @@
 import { FindManyOptions } from 'typeorm';
 import { RoleEnum } from './enum';
+import { Request } from 'express';
 
 export type FindOptions<T> = Pick<
   FindManyOptions<T>,
@@ -10,7 +11,7 @@ export interface ReadOptions<T> {
   find: FindOptions<T>;
 }
 
-export interface AuthenticatedRequest {
+export interface AuthenticatedRequest extends Request {
   readonly user: UserPayload;
 }
 

@@ -9,7 +9,6 @@ import {
   Delete,
   Request,
   UseGuards,
-  SetMetadata,
   HttpStatus,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -17,7 +16,7 @@ import { UserService } from './user.service';
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
 import { UserEntity } from '../database/entity/user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { MetadataEnum, RoleEnum } from 'src/common/enum';
+import { RoleEnum } from 'src/common/enum';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -35,8 +34,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: UserResponseDto })
@@ -45,8 +43,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
@@ -55,8 +52,7 @@ export class UserController {
   }
 
   @Get('profile')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
@@ -65,8 +61,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
@@ -75,8 +70,7 @@ export class UserController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
@@ -85,8 +79,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, RolesGuard)
-  @SetMetadata(MetadataEnum.ROLES, [RoleEnum.ADMIN])
+  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })
