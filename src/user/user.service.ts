@@ -4,11 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { UserEntity } from 'src/database/entity/user.entity';
-import {
-  EntityPropertyNotFoundError,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
+import { EntityPropertyNotFoundError, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/updateUser.dto';
