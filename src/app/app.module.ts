@@ -9,7 +9,6 @@ import { ConfigModule } from '@nestjs/config';
 import { typeOrmFindOptionsQueryMapperMiddleware } from '../common/middleware/TypeOrmFindOptionsQueryMapper.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { PatientModule } from '../patient/patient.module';
-import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from '../common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
 import { DoctorModule } from '../doctor/doctor.module';
 import { AppointmentModule } from '../appointment/appointment.module';
 import { UniqueEmailConstraint } from '../common/decorator/isUniqueEmail.decorator';

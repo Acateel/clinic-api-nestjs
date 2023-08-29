@@ -31,7 +31,7 @@ async function bootstrap() {
   const port = app
     .get(ConfigService<AppConfig, true>)
     .get('server.port', { infer: true });
-  console.log(port);
+
   await app.listen(port);
 }
 bootstrap();

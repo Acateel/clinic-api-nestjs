@@ -1,31 +1,9 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, IsNumber, validateSync } from 'class-validator';
-
-class EnvironmentConfig {
-  @IsNumber()
-  PORT!: number;
-
-  @IsNumber()
-  PGPORT!: number;
-
-  @IsNotEmpty()
-  PGUSER!: string;
-
-  @IsNotEmpty()
-  PGPASSWORD!: string;
-
-  @IsNotEmpty()
-  PGHOST!: string;
-
-  @IsNotEmpty()
-  PGDATABASE!: string;
-
-  @IsNotEmpty()
-  JWT_SECRET!: string;
-}
+import { validateSync } from 'class-validator';
+import { EnvironmentConfigDto } from './dto/environmentConfig.dto';
 
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentConfig, config, {
+  const validatedConfig = plainToInstance(EnvironmentConfigDto, config, {
     enableImplicitConversion: true,
   });
   const errors = validateSync(validatedConfig, {
