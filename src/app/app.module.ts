@@ -17,6 +17,7 @@ import { jwtConfig } from './config/jwt.config';
 import { databaseConfig } from './config/database.config';
 import { serverConfig } from './config/server.config';
 import { validate } from './config/appConfigValidation';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { validate } from './config/appConfigValidation';
       load: [jwtConfig, databaseConfig, serverConfig],
       validate,
     }),
+    ThrottlerModule.forRoot(),
     UserModule,
     AuthModule,
     PatientModule,

@@ -5,6 +5,7 @@ import {
   Post,
   HttpStatus,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/loginUser.dto';
@@ -14,6 +15,8 @@ import { RecoverPasswordDto } from './dto/recoverPassword.dto';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/response/authResponse.dto';
 import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
+import { Throttle } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller()
 @ApiTags('auth')
@@ -21,6 +24,8 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
   @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
   register(@Body() dto: RegisterUserDto) {
     return this.authService.register(dto);
@@ -28,6 +33,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
   @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
   login(@Body() dto: LoginUserDto) {
     return this.authService.login(dto.email, dto.password);
@@ -42,6 +49,8 @@ export class AuthController {
 
   @Post('recover/:resetToken')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
   @ApiParam({
     name: 'resetToken',
     description: 'v4',
