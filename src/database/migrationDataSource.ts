@@ -1,10 +1,17 @@
 import { DataSource } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
-import { DatabaseOptionsFactory } from './databaseOptionsFactory';
 import * as dotenv from 'dotenv';
-import { AppConfig } from 'src/common/interface';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-const configService = new ConfigService<AppConfig, true>(dotenv.config());
-const optionsFactory = new DatabaseOptionsFactory(configService);
+dotenv.config();
 
-export const dataSource = new DataSource(optionsFactory.createTypeOrmOptions());
+export const dataSource = new DataSource({
+  type: 'postgres',
+  username: process.env.PGUSER,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  host: process.env.PGHOST,
+  port: Number(process.env.PGPORT),
+  entities: ['dist/database/entity/**/*{.ts,.js}'],
+  migrations: ['dist/database/migration/*{.ts,.js}'],
+  namingStrategy: new SnakeNamingStrategy(),
+});
