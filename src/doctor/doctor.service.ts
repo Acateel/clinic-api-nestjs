@@ -7,11 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
 import { UserService } from 'src/user/user.service';
-import {
-  EntityPropertyNotFoundError,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
+import { EntityPropertyNotFoundError, Repository } from 'typeorm';
 import { FindOptions } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
@@ -50,7 +46,6 @@ export class DoctorService {
     options?: FindOptions<DoctorEntity>,
   ) {
     try {
-      // TODO: use request or order manually, how to handle relations
       const queryBuilder = this.doctorRepository
         .createQueryBuilder('doctor')
         .select(
@@ -61,7 +56,7 @@ export class DoctorService {
               .where('appointment.doctorId = doctor.id'),
           'appointments',
         )
-        .orderBy(options?.order as any);
+        .orderBy(options?.order as string);
 
       if (options?.where) {
         queryBuilder.where(options?.where as any);

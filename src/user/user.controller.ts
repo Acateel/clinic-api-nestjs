@@ -4,7 +4,7 @@ import {
   Get,
   Param,
   Post,
-  Put,
+  Patch,
   Query,
   Delete,
   Request,
@@ -69,7 +69,7 @@ export class UserController {
     return this.userService.getById(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })

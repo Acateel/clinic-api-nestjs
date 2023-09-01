@@ -9,29 +9,20 @@ import { PatientService } from 'src/patient/patient.service';
 import { CreateAppointmentDto } from './dto/createAppointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import {
-  DataSource,
-  EntityPropertyNotFoundError,
-  QueryRunner,
-  Repository,
-} from 'typeorm';
+import { DataSource, EntityPropertyNotFoundError, Repository } from 'typeorm';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { FindOptions } from 'src/common/interface';
 import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
 
 @Injectable()
 export class AppointmentService {
-  private readonly queryRunner: QueryRunner;
-
   constructor(
     private readonly doctorService: DoctorService,
     private readonly patientService: PatientService,
     @InjectRepository(AppointmentEntity)
     private readonly appointmentRepository: Repository<AppointmentEntity>,
     private readonly dataSource: DataSource,
-  ) {
-    this.queryRunner = dataSource.createQueryRunner();
-  }
+  ) {}
 
   async create(dto: CreateAppointmentDto) {
     const doctor = await this.doctorService.getById(dto.doctorId);
@@ -42,38 +33,33 @@ export class AppointmentService {
       patient,
     });
 
-    await this.queryRunner.startTransaction();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
 
     try {
-      await this.takeDoctorFreeSlotAndSave(doctor, dto.date);
-      const createdAppointment = await this.queryRunner.manager.save(
-        appointment,
+      const freeSlotIdx = doctor.availableSlots.findIndex(
+        (date) => date.toISOString() === dto.date,
       );
-      await this.queryRunner.commitTransaction();
+
+      if (freeSlotIdx < 0) {
+        throw new ConflictException('Doctor is unavailable');
+      }
+
+      doctor.availableSlots.splice(freeSlotIdx, 1);
+      await queryRunner.manager.save(doctor);
+
+      const createdAppointment = await queryRunner.manager.save(appointment);
+      await queryRunner.commitTransaction();
 
       return this.appointmentRepository.findOneBy({
         id: createdAppointment.id,
       });
     } catch (error) {
-      await this.queryRunner.rollbackTransaction();
+      await queryRunner.rollbackTransaction();
       throw new ConflictException('Doctor is unavailable');
+    } finally {
+      await queryRunner.release();
     }
-  }
-
-  private async takeDoctorFreeSlotAndSave(
-    doctor: DoctorEntity,
-    appointmentDate: string,
-  ) {
-    const freeSlotIdx = doctor.availableSlots.findIndex(
-      (date) => date.toISOString() === appointmentDate,
-    );
-
-    if (freeSlotIdx < 0) {
-      throw new ConflictException('Doctor is unavailable');
-    }
-
-    doctor.availableSlots.splice(freeSlotIdx, 1);
-    await this.queryRunner.manager.save(doctor);
   }
 
   async get(options?: FindOptions<DoctorEntity>) {
@@ -120,24 +106,32 @@ export class AppointmentService {
       appointment.doctor = doctor;
     }
 
-    await this.queryRunner.startTransaction();
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
 
     try {
-      const createdAppointment = await this.queryRunner.manager.save(
-        appointment,
+      const createdAppointment = await queryRunner.manager.save(appointment);
+
+      const freeSlotIdx = createdAppointment.doctor!.availableSlots.findIndex(
+        (date) => date.toISOString() === createdAppointment.date.toISOString(),
       );
-      await this.takeDoctorFreeSlotAndSave(
-        createdAppointment.doctor!,
-        createdAppointment.date.toISOString(),
-      );
-      await this.queryRunner.commitTransaction();
+
+      if (freeSlotIdx < 0) {
+        throw new ConflictException('Doctor is unavailable');
+      }
+
+      createdAppointment.doctor!.availableSlots.splice(freeSlotIdx, 1);
+      await queryRunner.manager.save(createdAppointment.doctor!);
+      await queryRunner.commitTransaction();
 
       return this.appointmentRepository.findOneBy({
         id: createdAppointment.id,
       });
     } catch (error) {
-      await this.queryRunner.rollbackTransaction();
+      await queryRunner.rollbackTransaction();
       throw new ConflictException('Doctor is unavailable');
+    } finally {
+      await queryRunner.release();
     }
   }
 

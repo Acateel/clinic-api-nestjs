@@ -6,7 +6,7 @@ import {
   Get,
   Query,
   Param,
-  Put,
+  Patch,
   Delete,
 } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
@@ -41,7 +41,7 @@ export class AppointmentController {
     return this.appointmentService.getById(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @ApiResponse({ status: HttpStatus.OK, type: AppointmentResponseDto })
   update(@Param('id') id: number, @Body() dto: UpdateAppointmentDto) {
     return this.appointmentService.update(id, dto);

@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
+  Patch,
   Query,
   Request,
   UseGuards,
@@ -73,7 +73,7 @@ export class DoctorController {
     return this.doctorService.getById(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor' })
