@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
+import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as classValidator from 'class-validator';
@@ -30,7 +30,7 @@ async function bootstrap() {
 
   const port = app
     .get(ConfigService<AppConfig, true>)
-    .get('server.port', { infer: true });
+    .get('port', { infer: true });
 
   await app.listen(port);
 }

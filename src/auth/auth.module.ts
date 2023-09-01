@@ -3,15 +3,22 @@ import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtOptionsFactory } from 'src/jwt/jwtOptionsFactory';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppConfig } from 'src/common/interface';
+import { TokenLifetimeEnum } from 'src/common/enum';
 
 @Module({
   imports: [
     JwtModule.registerAsync({
-      useClass: JwtOptionsFactory,
       imports: [ConfigModule],
+      inject: [ConfigService],
       global: true,
+      useFactory: (configService: ConfigService<AppConfig, true>) => ({
+        secret: configService.get('secret', { infer: true }),
+        signOptions: {
+          expiresIn: TokenLifetimeEnum.ACCESS,
+        },
+      }),
     }),
     UserModule,
   ],

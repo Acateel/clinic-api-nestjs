@@ -26,9 +26,8 @@ export interface UserOwnedEntity {
 }
 
 export interface AppConfig {
-  server: {
-    port: number;
-  };
+  port: number;
+  secret: string;
   database: {
     user: string;
     password: string;
@@ -36,5 +35,4 @@ export interface AppConfig {
     host: number;
     port: number;
   };
-  jwt: { secret: string };
 }
