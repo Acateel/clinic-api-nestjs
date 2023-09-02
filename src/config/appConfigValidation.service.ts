@@ -1,10 +1,10 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
-import { EnvironmentConfigDto } from './config.dto';
+import { AppConfigDto } from './appConfig.dto';
 
 export class AppConfigValidationService {
   static validate(config: Record<string, unknown>) {
-    const validatedConfig = plainToInstance(EnvironmentConfigDto, config, {
+    const validatedConfig = plainToInstance(AppConfigDto, config, {
       enableImplicitConversion: true,
     });
     const errors = validateSync(validatedConfig, {

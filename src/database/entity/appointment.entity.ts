@@ -14,17 +14,7 @@ export class AppointmentEntity {
   @PrimaryGeneratedColumn({ name: 'appointment_id' })
   id!: number;
 
-  @Column({
-    type: 'timestamp',
-    transformer: {
-      to(value: Date | string) {
-        return new Date(value);
-      },
-      from(value: string) {
-        return new Date(value);
-      },
-    },
-  })
+  @Column({ type: 'timestamptz' })
   date!: Date;
 
   @ManyToOne(() => PatientEntity, { onDelete: 'CASCADE', nullable: false })
@@ -39,6 +29,6 @@ export class AppointmentEntity {
   @RelationId((appointment: AppointmentEntity) => appointment.doctor)
   doctorId!: number;
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
 }

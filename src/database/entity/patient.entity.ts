@@ -30,6 +30,6 @@ export class PatientEntity {
   @RelationId((patient: PatientEntity) => patient.appointments)
   appointmentIds!: number[];
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
 }

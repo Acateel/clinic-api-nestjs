@@ -18,10 +18,7 @@ export class DoctorEntity {
   @Column()
   speciality!: string;
 
-  @Column({
-    type: 'timestamp',
-    array: true,
-  })
+  @Column({ type: 'timestamptz', array: true })
   availableSlots!: Date[];
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
@@ -36,6 +33,6 @@ export class DoctorEntity {
   @RelationId((doctor: DoctorEntity) => doctor.appointments)
   appointmentIds!: number[];
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
 }

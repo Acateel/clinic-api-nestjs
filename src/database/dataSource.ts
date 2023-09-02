@@ -11,7 +11,7 @@ export const dataSource = new DataSource({
   password: process.env.PGPASSWORD,
   host: process.env.PGHOST,
   port: Number(process.env.PGPORT),
-  entities: ['dist/database/entity/**/*{.ts,.js}'],
-  migrations: ['dist/database/migration/*{.ts,.js}'],
+  entities: ['dist/database/entity/*{.ts,.js}'],
+  migrations: ['src/database/migration/*{.ts,.js}'],
   namingStrategy: new SnakeNamingStrategy(),
 });

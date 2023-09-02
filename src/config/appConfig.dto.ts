@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class EnvironmentConfigDto {
+export class AppConfigDto {
   @IsNumber()
   PORT!: number;
 

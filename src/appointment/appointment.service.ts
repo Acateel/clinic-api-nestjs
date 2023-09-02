@@ -10,7 +10,6 @@ import { CreateAppointmentDto } from './dto/createAppointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DataSource, EntityPropertyNotFoundError, Repository } from 'typeorm';
-import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { FindOptions } from 'src/common/interface';
 import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
 
@@ -62,7 +61,7 @@ export class AppointmentService {
     }
   }
 
-  async get(options?: FindOptions<DoctorEntity>) {
+  async get(options?: FindOptions<AppointmentEntity>) {
     try {
       return await this.appointmentRepository.find(options);
     } catch (error) {
