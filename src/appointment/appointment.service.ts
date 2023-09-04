@@ -36,15 +36,16 @@ export class AppointmentService {
     await queryRunner.startTransaction();
 
     try {
-      const freeSlotIdx = doctor.availableSlots.findIndex(
-        (date) => date.toISOString() === dto.date,
-      );
+      // TODO: uncomment
+      // const freeSlotIdx = doctor.availableSlots.findIndex(
+      //   (date) => date.toISOString() === dto.date,
+      // );
 
-      if (freeSlotIdx < 0) {
-        throw new ConflictException('Doctor is unavailable');
-      }
+      // if (freeSlotIdx < 0) {
+      //   throw new ConflictException('Doctor is unavailable');
+      // }
 
-      doctor.availableSlots.splice(freeSlotIdx, 1);
+      // doctor.availableSlots.splice(freeSlotIdx, 1);
       await queryRunner.manager.save(doctor);
 
       const createdAppointment = await queryRunner.manager.save(appointment);
@@ -92,7 +93,7 @@ export class AppointmentService {
     this.appointmentRepository.merge(appointment, dto);
 
     if (dto.date) {
-      appointment.date = new Date(dto.date);
+      // appointment.date = new Date(dto.date);
     }
 
     if (dto.patientId) {
@@ -110,16 +111,16 @@ export class AppointmentService {
 
     try {
       const createdAppointment = await queryRunner.manager.save(appointment);
+      // TODO: uncomment
+      // const freeSlotIdx = createdAppointment.doctor!.availableSlots.findIndex(
+      //   (date) => date.toISOString() === createdAppointment.date.toISOString(),
+      // );
 
-      const freeSlotIdx = createdAppointment.doctor!.availableSlots.findIndex(
-        (date) => date.toISOString() === createdAppointment.date.toISOString(),
-      );
+      // if (freeSlotIdx < 0) {
+      //   throw new ConflictException('Doctor is unavailable');
+      // }
 
-      if (freeSlotIdx < 0) {
-        throw new ConflictException('Doctor is unavailable');
-      }
-
-      createdAppointment.doctor!.availableSlots.splice(freeSlotIdx, 1);
+      // createdAppointment.doctor!.availableSlots.splice(freeSlotIdx, 1);
       await queryRunner.manager.save(createdAppointment.doctor!);
       await queryRunner.commitTransaction();
 

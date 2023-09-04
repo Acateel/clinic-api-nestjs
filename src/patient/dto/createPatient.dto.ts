@@ -1,8 +1,8 @@
-import { IsPhoneNumber } from 'class-validator';
-import { IsUniquePhoneNumber } from 'src/common/decorator/isUniquePhoneNumber.decorator';
+import { IsPhoneNumber, Validate } from 'class-validator';
+import { UniquePhoneConstraint } from 'src/common/constraint/uniquePhoneConstraint';
 
 export class CreatePatientDto {
   @IsPhoneNumber()
-  @IsUniquePhoneNumber()
+  @Validate(UniquePhoneConstraint)
   readonly phoneNumber!: string;
 }

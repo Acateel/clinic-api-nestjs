@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { AppointmentEntity } from './appointment.entity';
+import { DoctorAvailableSlotEntity } from './doctorAvailableSlots.entity';
 
 @Entity('doctor')
 export class DoctorEntity {
@@ -18,14 +19,22 @@ export class DoctorEntity {
   @Column()
   speciality!: string;
 
-  @Column({ type: 'timestamptz', array: true })
-  availableSlots!: Date[];
-
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
   user?: UserEntity;
 
   @RelationId((doctor: DoctorEntity) => doctor.user)
   userId!: number;
+
+  @OneToMany(
+    () => DoctorAvailableSlotEntity,
+    (doctorAvailableSlots) => doctorAvailableSlots.doctor,
+    {
+      onDelete: 'CASCADE',
+      cascade: true,
+      eager: true,
+    },
+  )
+  availableSlots!: DoctorAvailableSlotEntity[];
 
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.doctor)
   appointments?: AppointmentEntity[];

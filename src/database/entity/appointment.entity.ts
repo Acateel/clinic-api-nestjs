@@ -15,7 +15,10 @@ export class AppointmentEntity {
   id!: number;
 
   @Column({ type: 'timestamptz' })
-  date!: Date;
+  startDate!: Date;
+
+  @Column({ type: 'timestamptz' })
+  endDate!: Date;
 
   @ManyToOne(() => PatientEntity, { onDelete: 'CASCADE', nullable: false })
   patient?: PatientEntity;

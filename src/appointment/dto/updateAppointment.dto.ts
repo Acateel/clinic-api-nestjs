@@ -1,6 +1,5 @@
-import { IsDateString, IsOptional } from 'class-validator';
-import { IsFutureDate } from 'src/common/decorator/isFutureDate.decorator';
-import { IsUtcDate } from 'src/common/decorator/isUtcDate.decorator';
+import { IsOptional, Validate } from 'class-validator';
+import { FutureUtcDateConstraint } from 'src/common/constraint/futureUtcDateConstraint';
 
 export class UpdateAppointmentDto {
   @IsOptional()
@@ -10,8 +9,6 @@ export class UpdateAppointmentDto {
   public readonly doctorId?: number;
 
   @IsOptional()
-  @IsDateString()
-  @IsUtcDate()
-  @IsFutureDate()
-  public readonly date?: string;
+  @Validate(FutureUtcDateConstraint)
+  public readonly date?: Date;
 }

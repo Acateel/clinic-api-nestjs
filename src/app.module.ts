@@ -11,11 +11,11 @@ import { AuthModule } from './auth/auth.module';
 import { PatientModule } from './patient/patient.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { AppointmentModule } from './appointment/appointment.module';
-import { UniqueEmailConstraint } from './common/decorator/isUniqueEmail.decorator';
-import { UniquePhoneNumberConstraint } from './common/decorator/isUniquePhoneNumber.decorator';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { appConfigFactory } from './config/app.config';
 import { AppConfigValidationService } from './config/appConfigValidation.service';
+import { UniqueEmailConstraint } from './common/constraint/uniqueEmailConstraint';
+import { UniquePhoneConstraint } from './common/constraint/uniquePhoneConstraint';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { AppConfigValidationService } from './config/appConfigValidation.service
     DoctorModule,
     AppointmentModule,
   ],
-  providers: [UniqueEmailConstraint, UniquePhoneNumberConstraint],
+  providers: [UniqueEmailConstraint, UniquePhoneConstraint],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

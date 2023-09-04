@@ -14,5 +14,6 @@ export const appConfigFactory: ConfigFactory = () => ({
     entities: ['dist/database/entity/**/*{.ts,.js}'],
     migrations: ['dist/database/migration/*{.ts,.js}'],
     namingStrategy: new SnakeNamingStrategy(),
+    synchronize: true,
   },
 });

@@ -1,6 +1,5 @@
-import { IsDateString, IsNotEmpty } from 'class-validator';
-import { IsFutureDate } from 'src/common/decorator/isFutureDate.decorator';
-import { IsUtcDate } from 'src/common/decorator/isUtcDate.decorator';
+import { IsNotEmpty, Validate } from 'class-validator';
+import { FutureUtcDateConstraint } from 'src/common/constraint/futureUtcDateConstraint';
 
 export class CreateAppointmentDto {
   @IsNotEmpty()
@@ -9,8 +8,6 @@ export class CreateAppointmentDto {
   @IsNotEmpty()
   readonly doctorId!: number;
 
-  @IsDateString()
-  @IsUtcDate()
-  @IsFutureDate()
-  readonly date!: string;
+  @Validate(FutureUtcDateConstraint)
+  readonly date!: Date;
 }

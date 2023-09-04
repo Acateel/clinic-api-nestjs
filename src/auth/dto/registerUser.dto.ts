@@ -1,13 +1,19 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Validate,
+} from 'class-validator';
 import { RoleEnum } from 'src/common/enum';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
-import { IsUniqueEmail } from 'src/common/decorator/isUniqueEmail.decorator';
+import { UniqueEmailConstraint } from 'src/common/constraint/uniqueEmailConstraint';
 
 export class RegisterUserDto {
   @IsEmail()
-  @IsUniqueEmail()
+  @Validate(UniqueEmailConstraint)
   @Transform(({ value }) => (value as string).toLowerCase())
   readonly email!: string;
 
