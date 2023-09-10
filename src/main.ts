@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as classValidator from 'class-validator';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppConfig } from './common/interface';
 
 async function bootstrap() {
@@ -20,17 +20,21 @@ async function bootstrap() {
     fallbackOnErrors: true,
   });
 
+  app.setGlobalPrefix('api');
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+
   const config = new DocumentBuilder()
     .setTitle('clinic-api-nestjs')
-    .setVersion('0.4')
+    .setVersion('0.6')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = app
-    .get(ConfigService<AppConfig, true>)
-    .get('port', { infer: true });
+  const port = app.get(ConfigService<AppConfig, true>).get('port');
 
   await app.listen(port);
 }

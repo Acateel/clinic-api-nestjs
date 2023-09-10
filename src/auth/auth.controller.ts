@@ -18,7 +18,7 @@ import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.d
 import { Throttle } from '@nestjs/throttler';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
-@Controller()
+@Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

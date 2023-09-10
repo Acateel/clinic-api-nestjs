@@ -6,6 +6,9 @@ import * as classValidator from 'class-validator';
 import { ValidationPipe } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.testing', override: true });
 
 describe('App (e2e)', () => {
   let app: INestApplication;
@@ -121,7 +124,7 @@ describe('App (e2e)', () => {
 
       beforeEach(async () => {
         const res = await request(app.getHttpServer())
-          .post('/register')
+          .post('/auth/register')
           .send(adminUserCredentials);
         accessToken = res.body.access_token;
       });
@@ -199,7 +202,7 @@ describe('App (e2e)', () => {
       beforeEach(async () => {
         // TODO: BeforeEach duplicates
         const res = await request(app.getHttpServer())
-          .post('/register')
+          .post('/auth/register')
           .send(userCredentials);
         accessToken = res.body.access_token;
       });

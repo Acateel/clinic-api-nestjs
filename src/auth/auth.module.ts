@@ -14,7 +14,7 @@ import { TokenLifetimeEnum } from 'src/common/enum';
       inject: [ConfigService],
       global: true,
       useFactory: (configService: ConfigService<AppConfig, true>) => ({
-        secret: configService.get('secret', { infer: true }),
+        secret: configService.get('secret'),
         signOptions: {
           expiresIn: TokenLifetimeEnum.ACCESS,
         },
