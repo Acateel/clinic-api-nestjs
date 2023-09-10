@@ -4,11 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  EntityPropertyNotFoundError,
-  FindOptionsWhere,
-  Repository,
-} from 'typeorm';
+import { EntityPropertyNotFoundError, Repository } from 'typeorm';
 import { PatientEntity } from '../database/entity/patient.entity';
 import { CreatePatientDto } from './dto/createPatient.dto';
 import { UserService } from 'src/user/user.service';

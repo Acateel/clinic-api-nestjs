@@ -8,10 +8,16 @@ export const appConfigFactory: ConfigFactory = () => ({
     type: 'postgres',
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD,
-    name: process.env.PGDATABASE,
+    name:
+      process.env.NODE_ENV === 'test'
+        ? process.env.PGDATABASE + '-test'
+        : process.env.PGDATABASE,
     host: process.env.PGHOST,
     port: process.env.PGPORT,
-    entities: ['dist/database/entity/**/*{.ts,.js}'],
+    entities:
+      process.env.NODE_ENV === 'test'
+        ? ['src/database/entity/**/*.ts']
+        : ['dist/database/entity/**/*{.ts,.js}'],
     migrations: ['dist/database/migration/*{.ts,.js}'],
     namingStrategy: new SnakeNamingStrategy(),
     synchronize: true,

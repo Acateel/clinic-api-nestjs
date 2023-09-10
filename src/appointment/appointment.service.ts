@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,7 +8,7 @@ import { PatientService } from 'src/patient/patient.service';
 import { CreateAppointmentDto } from './dto/createAppointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import { DataSource, EntityPropertyNotFoundError, Repository } from 'typeorm';
+import { EntityPropertyNotFoundError, Repository } from 'typeorm';
 import { FindOptions } from 'src/common/interface';
 import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
 
@@ -20,7 +19,6 @@ export class AppointmentService {
     private readonly patientService: PatientService,
     @InjectRepository(AppointmentEntity)
     private readonly appointmentRepository: Repository<AppointmentEntity>,
-    private readonly dataSource: DataSource,
   ) {}
 
   async create(dto: CreateAppointmentDto) {
@@ -32,34 +30,14 @@ export class AppointmentService {
       patient,
     });
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.startTransaction();
+    await this.doctorService.takeAvailableSlot(dto.doctorId, appointment);
+    const createdAppointment = await this.appointmentRepository.save(
+      appointment,
+    );
 
-    try {
-      // TODO: uncomment
-      // const freeSlotIdx = doctor.availableSlots.findIndex(
-      //   (date) => date.toISOString() === dto.date,
-      // );
-
-      // if (freeSlotIdx < 0) {
-      //   throw new ConflictException('Doctor is unavailable');
-      // }
-
-      // doctor.availableSlots.splice(freeSlotIdx, 1);
-      await queryRunner.manager.save(doctor);
-
-      const createdAppointment = await queryRunner.manager.save(appointment);
-      await queryRunner.commitTransaction();
-
-      return this.appointmentRepository.findOneBy({
-        id: createdAppointment.id,
-      });
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new ConflictException('Doctor is unavailable');
-    } finally {
-      await queryRunner.release();
-    }
+    return this.appointmentRepository.findOneBy({
+      id: createdAppointment.id,
+    });
   }
 
   async get(options?: FindOptions<AppointmentEntity>) {
@@ -92,47 +70,21 @@ export class AppointmentService {
     const appointment = await this.getById(id);
     this.appointmentRepository.merge(appointment, dto);
 
-    if (dto.date) {
-      // appointment.date = new Date(dto.date);
-    }
-
     if (dto.patientId) {
       const patient = await this.patientService.getById(dto.patientId);
       appointment.patient = patient;
     }
 
     if (dto.doctorId) {
-      const doctor = await this.doctorService.getById(dto.doctorId);
-      appointment.doctor = doctor;
+      appointment.doctor = await this.doctorService.takeAvailableSlot(
+        dto.doctorId,
+        appointment,
+      );
     }
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.startTransaction();
+    await this.appointmentRepository.save(appointment);
 
-    try {
-      const createdAppointment = await queryRunner.manager.save(appointment);
-      // TODO: uncomment
-      // const freeSlotIdx = createdAppointment.doctor!.availableSlots.findIndex(
-      //   (date) => date.toISOString() === createdAppointment.date.toISOString(),
-      // );
-
-      // if (freeSlotIdx < 0) {
-      //   throw new ConflictException('Doctor is unavailable');
-      // }
-
-      // createdAppointment.doctor!.availableSlots.splice(freeSlotIdx, 1);
-      await queryRunner.manager.save(createdAppointment.doctor!);
-      await queryRunner.commitTransaction();
-
-      return this.appointmentRepository.findOneBy({
-        id: createdAppointment.id,
-      });
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw new ConflictException('Doctor is unavailable');
-    } finally {
-      await queryRunner.release();
-    }
+    return this.appointmentRepository.findOneBy({ id });
   }
 
   async delete(id: number) {

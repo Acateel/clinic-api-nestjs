@@ -9,5 +9,8 @@ export class CreateAppointmentDto {
   readonly doctorId!: number;
 
   @Validate(FutureUtcDateConstraint)
-  readonly date!: Date;
+  readonly startDate!: Date;
+
+  @Validate(FutureUtcDateConstraint)
+  readonly endDate!: Date;
 }

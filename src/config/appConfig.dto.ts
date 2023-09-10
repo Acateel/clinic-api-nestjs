@@ -22,6 +22,5 @@ export class AppConfigDto {
   @IsNotEmpty()
   JWT_SECRET!: string;
 
-  @IsNotEmpty()
-  PGTEST_DATABASE!: string;
+  // todo: new fields
 }

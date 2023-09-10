@@ -36,3 +36,8 @@ export interface AppConfig {
     port: number;
   };
 }
+
+export interface AppointmentTime {
+  startDate: Date;
+  endDate: Date;
+}

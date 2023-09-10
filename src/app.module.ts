@@ -12,7 +12,7 @@ import { PatientModule } from './patient/patient.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { appConfigFactory } from './config/app.config';
+import { appConfigFactory } from './config/appConfigFactory';
 import { AppConfigValidationService } from './config/appConfigValidation.service';
 import { UniqueEmailConstraint } from './common/constraint/uniqueEmailConstraint';
 import { UniquePhoneConstraint } from './common/constraint/uniquePhoneConstraint';

@@ -3,12 +3,16 @@ import { FutureUtcDateConstraint } from 'src/common/constraint/futureUtcDateCons
 
 export class UpdateAppointmentDto {
   @IsOptional()
-  public readonly patientId?: number;
+  readonly patientId?: number;
 
   @IsOptional()
-  public readonly doctorId?: number;
+  readonly doctorId?: number;
 
   @IsOptional()
   @Validate(FutureUtcDateConstraint)
-  public readonly date?: Date;
+  readonly startDate?: Date;
+
+  @IsOptional()
+  @Validate(FutureUtcDateConstraint)
+  readonly endDate?: Date;
 }

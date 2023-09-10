@@ -2,15 +2,18 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
 import { UserService } from 'src/user/user.service';
 import { EntityPropertyNotFoundError, Repository } from 'typeorm';
-import { FindOptions } from 'src/common/interface';
+import { AppointmentTime, FindOptions } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
+import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlots.entity';
+import { checkIntervalsOverlap } from 'src/common/util';
 
 @Injectable()
 export class DoctorService {
@@ -82,6 +85,8 @@ export class DoctorService {
       .where('d.id = :id', { id })
       .addSelect(['d.createdAt'])
       .leftJoinAndSelect('d.user', 'duser')
+      .leftJoinAndSelect('d.appointments', 'dappointments')
+      .leftJoinAndSelect('d.availableSlots', 'davailableSlots')
       .getOne();
 
     if (!doctor) {
@@ -94,6 +99,23 @@ export class DoctorService {
   async update(id: number, dto: UpdateDoctorDto) {
     const doctor = await this.getById(id);
     this.doctorRepository.merge(doctor, dto);
+
+    if (dto.availableSlots) {
+      for (const freeSlot of dto.availableSlots) {
+        const isFreeSlotTaken = doctor.appointments!.some((appointment) =>
+          checkIntervalsOverlap(freeSlot, appointment),
+        );
+
+        if (isFreeSlotTaken) {
+          throw new ConflictException(
+            'Doctor has scheduled appointment on free slot time',
+          );
+        }
+      }
+
+      doctor.availableSlots = dto.availableSlots as DoctorAvailableSlotEntity[];
+    }
+
     const createdDoctor = await this.doctorRepository.save(doctor);
 
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
@@ -101,5 +123,20 @@ export class DoctorService {
 
   async delete(id: number) {
     await this.doctorRepository.delete(id);
+  }
+
+  async takeAvailableSlot(id: number, time: AppointmentTime) {
+    const doctor = await this.getById(id);
+    const freeSlotIdx = doctor.availableSlots.findIndex((slot) =>
+      checkIntervalsOverlap(slot, time),
+    );
+
+    if (freeSlotIdx < 0) {
+      throw new ConflictException('Doctor is unavailable');
+    }
+
+    doctor.availableSlots.splice(freeSlotIdx, 1);
+
+    return this.doctorRepository.save(doctor);
   }
 }
