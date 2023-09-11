@@ -6,10 +6,9 @@ import * as classValidator from 'class-validator';
 import { ValidationPipe } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import * as dotenv from 'dotenv';
-import { UserEntity } from 'src/database/entity/user.entity';
 
-dotenv.config({ path: '.env.testing', override: true });
+// REVIEW:
+// dotenv.config({ path: '.env.testing', override: true });
 
 describe('App (e2e)', () => {
   let app: INestApplication;
@@ -38,8 +37,6 @@ describe('App (e2e)', () => {
     await dataSource.dropDatabase();
     await dataSource.synchronize();
     await dataSource.runMigrations();
-
-    console.log(await dataSource.getRepository(UserEntity).find());
 
     await app.init();
   });

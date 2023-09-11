@@ -22,6 +22,8 @@ import { UniquePhoneConstraint } from './common/constraint/uniquePhoneConstraint
     ConfigModule.forRoot({
       load: [appConfigFactory],
       validate: AppConfigValidationService.validate,
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
     ThrottlerModule.forRoot(),
     UserModule,
@@ -30,7 +32,7 @@ import { UniquePhoneConstraint } from './common/constraint/uniquePhoneConstraint
     DoctorModule,
     AppointmentModule,
   ],
-  providers: [UniqueEmailConstraint, UniquePhoneConstraint],
+  providers: [UniqueEmailConstraint, UniquePhoneConstraint], // TODO: constraint module
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
