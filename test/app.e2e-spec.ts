@@ -7,6 +7,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { UserEntity } from 'src/database/entity/user.entity';
 
 dotenv.config({ path: '.env.testing', override: true });
 
@@ -36,6 +37,9 @@ describe('App (e2e)', () => {
 
     await dataSource.dropDatabase();
     await dataSource.synchronize();
+    await dataSource.runMigrations();
+
+    console.log(await dataSource.getRepository(UserEntity).find());
 
     await app.init();
   });
@@ -116,15 +120,13 @@ describe('App (e2e)', () => {
     describe('when authorized as ADMIN', () => {
       const adminUserCredentials = {
         email: 'admin@test.com',
-        password: 'admin',
-        fullName: 'Name Surname',
-        role: 'ADMIN',
+        password: 'test',
       };
       let accessToken;
 
       beforeEach(async () => {
         const res = await request(app.getHttpServer())
-          .post('/auth/register')
+          .post('/auth/login')
           .send(adminUserCredentials);
         accessToken = res.body.access_token;
       });
@@ -276,12 +278,126 @@ describe('App (e2e)', () => {
     });
   });
 
-  // describe('Patient', () => {
-  //   const rootUser = {
-  //     email: 'test@example.com',
-  //     password: 'test',
-  //     fullName: 'Name Surname',
-  //     role: 'ADMIN',
-  //   };
-  // });
+  describe('Appointment', () => {
+    describe('When authorized', () => {
+      // TODO: repeats
+      const userCredentials = {
+        email: 'guest@test.com',
+        password: 'test',
+        fullName: 'User Name',
+        role: 'ADMIN',
+      };
+      let accessToken;
+
+      beforeEach(async () => {
+        // TODO: BeforeEach duplicates
+        const res = await request(app.getHttpServer())
+          .post('/auth/register')
+          .send(userCredentials);
+        accessToken = res.body.access_token;
+      });
+
+      describe('/POST appointments', () => {
+        it(`should return response with status of ${HttpStatus.CONFLICT} when doctor unavailable`, async () => {
+          const startDate = '2024-01-14T12:00:00.000Z';
+          const endDate = '2024-01-14T13:00:00.000Z';
+
+          const doctorResponse = await request(app.getHttpServer())
+            .post(`/doctors`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              speciality: 'Dentist',
+              availableSlots: [],
+            });
+
+          const patientResponse = await request(app.getHttpServer())
+            .post(`/patients`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              phoneNumber: '+380990000000',
+            });
+
+          const response = await request(app.getHttpServer())
+            .post(`/appointments`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              doctorId: doctorResponse.body.id,
+              patientId: patientResponse.body.id,
+              startDate,
+              endDate,
+            });
+
+          expect(response.status).toBe(HttpStatus.CONFLICT);
+        });
+
+        it(`should return response with status of ${HttpStatus.CREATED} when doctor available`, async () => {
+          const startDate = '2024-01-14T12:00:00.000Z';
+          const endDate = '2024-01-14T13:00:00.000Z';
+
+          const doctorResponse = await request(app.getHttpServer())
+            .post(`/doctors`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              speciality: 'Dentist',
+              availableSlots: [{ startDate, endDate }],
+            });
+
+          const patientResponse = await request(app.getHttpServer())
+            .post(`/patients`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              phoneNumber: '+380990000000',
+            });
+
+          const response = await request(app.getHttpServer())
+            .post(`/appointments`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              doctorId: doctorResponse.body.id,
+              patientId: patientResponse.body.id,
+              startDate,
+              endDate,
+            });
+
+          expect(response.status).toBe(HttpStatus.CREATED);
+        });
+
+        it(`should take doctor available slot after appointment created`, async () => {
+          const startDate = '2024-01-14T12:00:00.000Z';
+          const endDate = '2024-01-14T13:00:00.000Z';
+
+          const doctorResponse = await request(app.getHttpServer())
+            .post(`/doctors`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              speciality: 'Dentist',
+              availableSlots: [],
+            });
+
+          const patientResponse = await request(app.getHttpServer())
+            .post(`/patients`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              phoneNumber: '+380990000000',
+            });
+
+          await request(app.getHttpServer())
+            .post(`/appointments`)
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send({
+              doctorId: doctorResponse.body.id,
+              patientId: patientResponse.body.id,
+              startDate,
+              endDate,
+            });
+
+          const response = await request(app.getHttpServer())
+            .get(`/doctors/${doctorResponse.body.id}`)
+            .set('Authorization', 'Bearer ' + accessToken);
+
+          expect(response.body.availableSlots.length).toBe(0);
+        });
+      });
+    });
+  });
 });
