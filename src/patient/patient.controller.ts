@@ -41,7 +41,7 @@ export class PatientController {
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: PatientResponseDto })
   create(@Request() req: AuthenticatedRequest, @Body() dto: CreatePatientDto) {
-    return this.patientService.create(req.user.sub, dto);
+    return this.patientService.create(req.user.id, dto);
   }
 
   @Get()

@@ -1,20 +1,22 @@
-import { ConfigFactory } from '@nestjs/config';
+import { AppConfig } from 'src/common/interface';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-export const appConfigFactory: ConfigFactory = () => ({
-  port: process.env.PORT,
-  secret: process.env.JWT_SECRET,
+export const appConfigFactory = (): AppConfig => ({
+  port: process.env.PORT!,
+  jwt: {
+    accessSecret: process.env.ACCESS_SECRET!,
+    refreshSecret: process.env.REFRESH_SECRET!,
+  },
   database: {
     type: 'postgres',
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    name: process.env.PGDATABASE,
-    host: process.env.PGHOST,
-    port: process.env.PGPORT,
-    entities: [process.env.PGENTITIES],
-    migrations: [process.env.PGMIGRATIONS],
-    migrationsRun: process.env.PGMIGRATIONS_RUN === 'true' ? true : false,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    name: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    entities: [process.env.ENTITIES!],
+    migrations: [process.env.MIGRATIONS!],
     namingStrategy: new SnakeNamingStrategy(),
-    synchronize: process.env.SYNCHRONIZE === 'true' ? true : false,
+    synchronize: process.env.SYNCHRONIZE === 'true',
   },
 });

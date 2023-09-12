@@ -22,7 +22,7 @@ export class CheckResponseEntityOwnershipByAuthorizedUserInterceptor
         const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
         if (this.roleToCheck === req.user.role) {
-          if (response.userId !== req.user.sub) {
+          if (response.userId !== req.user.id) {
             throw new ForbiddenException('Access to other user data denied');
           }
         }

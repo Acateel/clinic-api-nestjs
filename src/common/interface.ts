@@ -1,6 +1,7 @@
 import { FindManyOptions } from 'typeorm';
 import { RoleEnum } from './enum';
 import { Request } from 'express';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 export type FindOptions<T> = Pick<
   FindManyOptions<T>,
@@ -16,7 +17,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export interface UserPayload {
-  readonly sub: number;
+  readonly id: number;
   readonly email: string;
   readonly role: RoleEnum;
 }
@@ -26,15 +27,12 @@ export interface UserOwnedEntity {
 }
 
 export interface AppConfig {
-  port: number;
-  secret: string;
-  database: {
-    user: string;
-    password: string;
-    name: string;
-    host: number;
-    port: number;
+  port: string;
+  jwt: {
+    accessSecret: string;
+    refreshSecret: string;
   };
+  database: TypeOrmModuleOptions;
 }
 
 export interface AppointmentTime {

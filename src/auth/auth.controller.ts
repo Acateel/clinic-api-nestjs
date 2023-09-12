@@ -6,6 +6,7 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/loginUser.dto';
@@ -17,6 +18,8 @@ import { AuthResponseDto } from './dto/response/authResponse.dto';
 import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
 import { Throttle } from '@nestjs/throttler';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { AuthenticatedRequest } from 'src/common/interface';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -42,10 +45,23 @@ export class AuthController {
 
   @Post('reset')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
   @ApiResponse({ status: HttpStatus.OK, type: ResetPasswordResponseDto })
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.email);
   }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
+  @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
+  refresh(@Body() dto: RefreshTokenDto) {
+    return this.authService.refresh(dto.refreshToken);
+  }
+
+  // TODO: logout
 
   @Post('recover/:resetToken')
   @HttpCode(HttpStatus.OK)
@@ -62,6 +78,4 @@ export class AuthController {
   ) {
     return this.authService.recoverPassword(resetToken, dto.password);
   }
-
-  // TODO: logout
 }

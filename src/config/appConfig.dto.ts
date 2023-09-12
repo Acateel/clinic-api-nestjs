@@ -1,26 +1,36 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class AppConfigDto {
-  @IsNumber()
-  PORT!: number;
-
-  @IsNumber()
-  PGPORT!: number;
+  @IsNotEmpty()
+  readonly PORT;
 
   @IsNotEmpty()
-  PGUSER!: string;
+  readonly DB_USER;
 
   @IsNotEmpty()
-  PGPASSWORD!: string;
+  readonly DB_NAME;
 
   @IsNotEmpty()
-  PGHOST!: string;
+  readonly DB_PASSWORD;
 
   @IsNotEmpty()
-  PGDATABASE!: string;
+  readonly DB_HOST;
 
   @IsNotEmpty()
-  JWT_SECRET!: string;
+  readonly DB_PORT;
 
-  // todo: new fields
+  @IsNotEmpty()
+  readonly ENTITIES;
+
+  @IsNotEmpty()
+  readonly MIGRATIONS;
+
+  @IsNotEmpty()
+  readonly SYNCHRONIZE;
+
+  @IsNotEmpty()
+  readonly ACCESS_SECRET;
+
+  @IsNotEmpty()
+  readonly REFRESH_SECRET;
 }

@@ -57,7 +57,7 @@ export class UserController {
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
   getProfile(@Request() req: AuthenticatedRequest) {
-    return this.userService.getById(req.user.sub);
+    return this.userService.getById(req.user.id);
   }
 
   @Get(':id')

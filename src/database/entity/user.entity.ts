@@ -30,6 +30,9 @@ export class UserEntity {
   @Column({ type: String, select: false, nullable: true })
   resetToken?: string | null;
 
+  @Column({ type: String, select: false, nullable: true })
+  refreshToken?: string | null;
+
   @OneToMany(() => PatientEntity, (patient) => patient.user)
   patients?: PatientEntity[];
 

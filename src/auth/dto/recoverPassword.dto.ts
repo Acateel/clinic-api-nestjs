@@ -6,5 +6,5 @@ import { Transform } from 'class-transformer';
 export class RecoverPasswordDto {
   @IsNotEmpty()
   @Transform(({ value }) => bcrypt.hashSync(value as string, SALT_ROUNDS))
-  password!: string;
+  readonly password!: string;
 }

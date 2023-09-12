@@ -18,7 +18,6 @@ export class UserService {
   ) {}
 
   async create(dto: CreateUserDto) {
-    // TODO: save dto directly?
     const createdUser = await this.userRepository.save(dto);
 
     return this.userRepository.findOneBy({ id: createdUser.id });
@@ -38,7 +37,12 @@ export class UserService {
     const user = await this.userRepository
       .createQueryBuilder('u')
       .where('u.id = :id', { id })
-      .addSelect(['u.password', 'u.createdAt', 'u.resetToken'])
+      .addSelect([
+        'u.password',
+        'u.createdAt',
+        'u.resetToken',
+        'u.refreshToken',
+      ])
       .leftJoinAndSelect('u.patients', 'patients')
       .getOne();
 
@@ -87,5 +91,11 @@ export class UserService {
 
   async delete(id: number) {
     await this.userRepository.delete(id);
+  }
+
+  async setRefreshToken(id: number, token: string | null) {
+    const user = await this.getById(id);
+    user.refreshToken = token;
+    await this.userRepository.save(user);
   }
 }
