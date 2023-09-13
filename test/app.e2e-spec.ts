@@ -126,6 +126,7 @@ describe('App (e2e)', () => {
           .post('/auth/login')
           .send(adminUserCredentials);
         accessToken = res.body.access_token;
+        console.log(res.body);
       });
 
       test('access_token should be recieved', () => {

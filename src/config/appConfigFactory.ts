@@ -11,7 +11,7 @@ export const appConfigFactory = (): AppConfig => ({
     type: 'postgres',
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    name: process.env.DB_NAME,
+    database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     entities: [process.env.ENTITIES!],

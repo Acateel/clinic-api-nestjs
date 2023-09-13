@@ -18,9 +18,14 @@ export class UserService {
   ) {}
 
   async create(dto: CreateUserDto) {
-    const createdUser = await this.userRepository.save(dto);
+    const userDetails = await this.userRepository.save(dto);
+    const user = await this.userRepository.findOneBy({ id: userDetails.id });
 
-    return this.userRepository.findOneBy({ id: createdUser.id });
+    if (!user) {
+      throw new Error('User was not created');
+    }
+
+    return user;
   }
 
   async get(options?: FindOptions<UserEntity>) {
@@ -93,8 +98,8 @@ export class UserService {
     await this.userRepository.delete(id);
   }
 
-  async setRefreshToken(id: number, token: string | null) {
-    const user = await this.getById(id);
+  async setRefreshToken(email: string, token: string | null) {
+    const user = await this.getByEmail(email);
     user.refreshToken = token;
     await this.userRepository.save(user);
   }

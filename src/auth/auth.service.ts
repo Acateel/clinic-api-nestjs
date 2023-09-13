@@ -22,9 +22,9 @@ export class AuthService {
     const user = await this.userService.create(dto);
 
     return {
-      user: user!,
-      accessToken: await this.tokenService.createAccessToken(user!.id),
-      refreshToken: await this.tokenService.createRefreshToken(user!.id),
+      user: user,
+      accessToken: await this.tokenService.createAccessToken(user.id),
+      refreshToken: await this.tokenService.createRefreshToken(user.id),
     };
   }
 
@@ -38,9 +38,9 @@ export class AuthService {
       }
 
       return {
-        user: user!,
-        accessToken: await this.tokenService.createAccessToken(user!.id),
-        refreshToken: await this.tokenService.createRefreshToken(user!.id),
+        user: user,
+        accessToken: await this.tokenService.createAccessToken(user.id),
+        refreshToken: await this.tokenService.createRefreshToken(user.id),
       };
     } catch (error) {
       // TODO:
@@ -58,7 +58,8 @@ export class AuthService {
     const resetToken = uuid.v4();
     const user = await this.userService.getByEmail(email);
     await this.userService.update(user.id, { resetToken });
-    // TODO: logout
+    await this.logout(email);
+
     return { resetToken };
   }
 
@@ -71,12 +72,8 @@ export class AuthService {
   }
 
   async refresh(token: string): Promise<AuthResponseDto> {
-    const decoded = this.tokenService.decode(token);
+    const decoded = await this.tokenService.decodeRefreshToken(token);
     const user = await this.userService.getById(decoded.id);
-
-    if (!user.refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
 
     return {
       user,
@@ -85,7 +82,7 @@ export class AuthService {
     };
   }
 
-  async logout() {
-    // todo: delete refresh token
+  async logout(email: string) {
+    return this.userService.setRefreshToken(email, null);
   }
 }

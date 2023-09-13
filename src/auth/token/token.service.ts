@@ -18,9 +18,9 @@ export class TokenService {
   async createAccessToken(userId: number) {
     const user = await this.userService.getById(userId);
     const payload: UserPayload = {
-      id: user!.id,
-      email: user!.email,
-      role: user!.role,
+      id: user.id,
+      email: user.email,
+      role: user.role,
     };
 
     return this.jwtService.sign(payload);
@@ -29,27 +29,47 @@ export class TokenService {
   async createRefreshToken(userId: number) {
     const user = await this.userService.getById(userId);
     const payload: UserPayload = {
-      id: user!.id,
-      email: user!.email,
-      role: user!.role,
+      id: user.id,
+      email: user.email,
+      role: user.role,
     };
 
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('jwt.refreshSecret', { infer: true }),
     });
     await this.userService.setRefreshToken(
-      user!.id,
+      user.email,
       bcrypt.hashSync(refreshToken, SALT_ROUNDS),
     );
 
     return refreshToken;
   }
 
-  decode(token: string) {
+  decodeAccessToken(token: string): UserPayload {
+    return this.jwtService.verify(token);
+  }
+
+  async decodeRefreshToken(token: string) {
     try {
-      return this.jwtService.verify(token, {
+      const decoded: UserPayload = this.jwtService.verify(token, {
         secret: this.configService.get('jwt.refreshSecret', { infer: true }),
       });
+      const user = await this.userService.getById(decoded.id);
+
+      if (!user.refreshToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      console.log(user.refreshToken);
+      console.log(bcrypt.hashSync(token, SALT_ROUNDS));
+
+      const isValidToken = bcrypt.compareSync(token, user.refreshToken);
+
+      if (!isValidToken) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      return decoded;
     } catch (error) {
       if (
         error instanceof TokenExpiredError ||
