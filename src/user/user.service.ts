@@ -98,6 +98,7 @@ export class UserService {
     await this.userRepository.delete(id);
   }
 
+  // REVIEW:
   async setRefreshToken(email: string, token: string | null) {
     const user = await this.getByEmail(email);
     user.refreshToken = token;

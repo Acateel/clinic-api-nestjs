@@ -5,11 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { TokenService } from '../token/token.service';
+import { JwtService } from '@nestjs/jwt';
+import { UserPayload } from 'src/common/interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly tokenService: TokenService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   canActivate(
     context: ExecutionContext,
@@ -22,7 +23,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = this.tokenService.decodeAccessToken(token);
+      const payload: UserPayload = this.jwtService.verify(token);
       req.user = payload;
     } catch {
       throw new UnauthorizedException();

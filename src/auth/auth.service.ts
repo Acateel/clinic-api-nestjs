@@ -29,29 +29,18 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<AuthResponseDto> {
-    try {
-      const user = await this.userService.getByEmail(email);
-      const isWrongPassword = !bcrypt.compareSync(password, user.password!);
+    const user = await this.userService.getByEmail(email);
+    const isWrongPassword = !bcrypt.compareSync(password, user.password!);
 
-      if (isWrongPassword) {
-        throw new UnauthorizedException('Wrong credentials');
-      }
-
-      return {
-        user: user,
-        accessToken: await this.tokenService.createAccessToken(user.id),
-        refreshToken: await this.tokenService.createRefreshToken(user.id),
-      };
-    } catch (error) {
-      // TODO:
-      if (
-        error instanceof NotFoundException ||
-        error instanceof UnauthorizedException
-      ) {
-        throw new UnauthorizedException('Wrong credentials');
-      }
-      throw error;
+    if (isWrongPassword) {
+      throw new UnauthorizedException('Wrong credentials');
     }
+
+    return {
+      user: user,
+      accessToken: await this.tokenService.createAccessToken(user.id),
+      refreshToken: await this.tokenService.createRefreshToken(user.id),
+    };
   }
 
   async resetPassword(email: string): Promise<ResetPasswordResponseDto> {

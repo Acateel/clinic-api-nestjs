@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Request,
+  UseFilters,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/loginUser.dto';
@@ -21,8 +22,10 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthenticatedRequest } from 'src/common/interface';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { AuthGuard } from './guard/auth.guard';
+import { TokenExceptionFilter } from 'src/auth/filter/tokenException.filter';
 
 @Controller('auth')
+@UseFilters(TokenExceptionFilter)
 @ApiTags('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
