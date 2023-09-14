@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
 import { AuthenticatedRequest, UserOwnedEntity } from '../interface';
-import { RoleEnum } from '../enum';
+import { UserRoleEnum } from '../enum';
 
 export class CheckResponseEntityOwnershipByAuthorizedUserInterceptor
   implements NestInterceptor<UserOwnedEntity>
 {
-  constructor(private readonly roleToCheck: RoleEnum) {}
+  constructor(private readonly roleToCheck: UserRoleEnum) {}
 
   intercept(
     context: ExecutionContext,

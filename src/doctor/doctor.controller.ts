@@ -17,7 +17,7 @@ import { DoctorService } from './doctor.service';
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -29,6 +29,7 @@ import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorDetailsResponseDto } from './dto/response/doctorDetailsResponse.dto';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from 'src/common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
+import { InviteDoctorDto } from './dto/inviteDoctor.dto';
 
 @Controller('doctors')
 @ApiTags('doctors')
@@ -36,7 +37,7 @@ export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: DoctorResponseDto })
@@ -47,7 +48,11 @@ export class DoctorController {
   @Get()
   @UseGuards(
     AuthGuard,
-    new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT),
+    new RolesGuard(
+      UserRoleEnum.ADMIN,
+      UserRoleEnum.DOCTOR,
+      UserRoleEnum.PATIENT,
+    ),
   )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
@@ -56,14 +61,25 @@ export class DoctorController {
     return this.doctorService.get(query.find);
   }
 
+  @Post()
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'admin' })
+  @ApiResponse({ status: HttpStatus.OK })
+  invite(@Body() dto: InviteDoctorDto) {}
+
   @Get(':id')
   @UseGuards(
     AuthGuard,
-    new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT),
+    new RolesGuard(
+      UserRoleEnum.ADMIN,
+      UserRoleEnum.DOCTOR,
+      UserRoleEnum.PATIENT,
+    ),
   )
   @UseInterceptors(
     new CheckResponseEntityOwnershipByAuthorizedUserInterceptor(
-      RoleEnum.DOCTOR,
+      UserRoleEnum.DOCTOR,
     ),
   )
   @ApiBearerAuth()
@@ -74,7 +90,7 @@ export class DoctorController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor' })
   @ApiResponse({ status: HttpStatus.OK, type: DoctorResponseDto })
@@ -83,7 +99,7 @@ export class DoctorController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor' })
   @ApiResponse({ status: HttpStatus.OK })

@@ -6,7 +6,7 @@ import {
   IsEnum,
   Validate,
 } from 'class-validator';
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
 import { UniqueEmailConstraint } from 'src/common/constraint/uniqueEmailConstraint';
@@ -28,9 +28,15 @@ export class UpdateUserDto {
   readonly fullName?: string;
 
   @IsOptional()
-  @IsEnum(RoleEnum)
-  readonly role?: RoleEnum;
+  @IsEnum(UserRoleEnum)
+  readonly role?: UserRoleEnum;
 
-  @IsOptional()
+  // IMPROVE: data below is not directly related to user and should be defined in separate database tables: reset_token, refresh_token
+  // but for simplicity the data is stored directly in user entity.
+  // So the data and operations on that data should not be considered as available *buisiness* operations on user,
+  // but rather as temporary additional user duties.
+
   readonly resetToken?: string | null;
+
+  readonly refreshToken?: string | null;
 }

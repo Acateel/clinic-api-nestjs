@@ -6,7 +6,7 @@ import {
   IsEnum,
   Validate,
 } from 'class-validator';
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
 import { UniqueEmailConstraint } from 'src/common/constraint/uniqueEmailConstraint';
@@ -25,6 +25,6 @@ export class CreateUserDto {
   readonly fullName!: string;
 
   @IsOptional()
-  @IsEnum(RoleEnum)
-  readonly role?: RoleEnum;
+  @IsEnum(UserRoleEnum)
+  readonly role?: UserRoleEnum;
 }

@@ -1,7 +1,7 @@
-import { UserResponseDto } from 'src/user/dto/response/userResponse.dto';
+import { UserPayload } from 'src/common/interface';
 
 export class AuthResponseDto {
-  readonly user!: UserResponseDto;
+  readonly user!: UserPayload;
   readonly accessToken!: string;
   readonly refreshToken!: string;
 }

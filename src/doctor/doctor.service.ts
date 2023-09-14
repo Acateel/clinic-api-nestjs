@@ -14,6 +14,7 @@ import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlots.entity';
 import { checkIntervalsOverlap } from 'src/common/util';
+import { InviteDoctorDto } from './dto/inviteDoctor.dto';
 
 @Injectable()
 export class DoctorService {
@@ -139,4 +140,6 @@ export class DoctorService {
 
     return this.doctorRepository.save(doctor);
   }
+
+  async invite(dto: InviteDoctorDto) {}
 }

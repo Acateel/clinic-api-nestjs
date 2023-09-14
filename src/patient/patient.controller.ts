@@ -15,7 +15,7 @@ import {
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/createPatient.dto';
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
 import {
@@ -36,7 +36,7 @@ export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: PatientResponseDto })
@@ -47,7 +47,11 @@ export class PatientController {
   @Get()
   @UseGuards(
     AuthGuard,
-    new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT),
+    new RolesGuard(
+      UserRoleEnum.ADMIN,
+      UserRoleEnum.DOCTOR,
+      UserRoleEnum.PATIENT,
+    ),
   )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
@@ -59,11 +63,15 @@ export class PatientController {
   @Get(':id')
   @UseGuards(
     AuthGuard,
-    new RolesGuard(RoleEnum.ADMIN, RoleEnum.DOCTOR, RoleEnum.PATIENT),
+    new RolesGuard(
+      UserRoleEnum.ADMIN,
+      UserRoleEnum.DOCTOR,
+      UserRoleEnum.PATIENT,
+    ),
   )
   @UseInterceptors(
     new CheckResponseEntityOwnershipByAuthorizedUserInterceptor(
-      RoleEnum.PATIENT,
+      UserRoleEnum.PATIENT,
     ),
   )
   @ApiBearerAuth()
@@ -74,7 +82,10 @@ export class PatientController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.PATIENT))
+  @UseGuards(
+    AuthGuard,
+    new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT),
+  )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientResponseDto })
@@ -83,7 +94,10 @@ export class PatientController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN, RoleEnum.PATIENT))
+  @UseGuards(
+    AuthGuard,
+    new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT),
+  )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK })

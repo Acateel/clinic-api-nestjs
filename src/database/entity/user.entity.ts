@@ -1,4 +1,4 @@
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import { PatientEntity } from 'src/database/entity/patient.entity';
 import {
   Entity,
@@ -21,8 +21,8 @@ export class UserEntity {
   @Column({ select: false })
   password?: string;
 
-  @Column({ type: 'enum', enum: RoleEnum, default: RoleEnum.GUEST })
-  role!: RoleEnum;
+  @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.GUEST })
+  role!: UserRoleEnum;
 
   @Column()
   fullName!: string;

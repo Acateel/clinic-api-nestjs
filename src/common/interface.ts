@@ -1,5 +1,5 @@
 import { FindManyOptions } from 'typeorm';
-import { RoleEnum } from './enum';
+import { UserRoleEnum } from './enum';
 import { Request } from 'express';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
@@ -19,7 +19,7 @@ export interface AuthenticatedRequest extends Request {
 export interface UserPayload {
   readonly id: number;
   readonly email: string;
-  readonly role: RoleEnum;
+  readonly role: UserRoleEnum;
 }
 
 export interface UserOwnedEntity {
@@ -30,7 +30,9 @@ export interface AppConfig {
   port: string;
   jwt: {
     accessSecret: string;
+    accessLifetime: string;
     refreshSecret: string;
+    refreshLifetime: string;
   };
   database: TypeOrmModuleOptions;
 }

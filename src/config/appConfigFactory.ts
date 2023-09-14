@@ -5,7 +5,9 @@ export const appConfigFactory = (): AppConfig => ({
   port: process.env.PORT!,
   jwt: {
     accessSecret: process.env.ACCESS_SECRET!,
+    accessLifetime: process.env.ACCESS_LIFETIME!,
     refreshSecret: process.env.REFRESH_SECRET!,
+    refreshLifetime: process.env.REFRESH_LIFETIME!,
   },
   database: {
     type: 'postgres',

@@ -1,10 +1,11 @@
-export enum RoleEnum {
+export enum UserRoleEnum {
   GUEST = 'GUEST',
   DOCTOR = 'DOCTOR',
   PATIENT = 'PATIENT',
   ADMIN = 'ADMIN',
 }
 
-export enum TokenLifetimeEnum {
-  ACCESS = '1D',
+export enum RegisterUserRoleEnum {
+  DOCTOR = 'DOCTOR',
+  PATIENT = 'PATIENT',
 }

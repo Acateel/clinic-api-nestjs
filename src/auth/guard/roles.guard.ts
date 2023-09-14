@@ -3,13 +3,13 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import { AuthenticatedRequest } from 'src/common/interface';
 
 export class RolesGuard implements CanActivate {
-  private readonly requiredRoles?: RoleEnum[];
+  private readonly requiredRoles?: UserRoleEnum[];
 
-  constructor(...requiredRoles: RoleEnum[]) {
+  constructor(...requiredRoles: UserRoleEnum[]) {
     this.requiredRoles = requiredRoles;
   }
 

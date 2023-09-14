@@ -16,7 +16,7 @@ import { UserService } from './user.service';
 import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
 import { UserEntity } from '../database/entity/user.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { RoleEnum } from 'src/common/enum';
+import { UserRoleEnum } from 'src/common/enum';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -34,7 +34,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: UserResponseDto })
@@ -43,7 +43,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
@@ -52,7 +52,7 @@ export class UserController {
   }
 
   @Get('profile')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
@@ -61,7 +61,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
@@ -70,7 +70,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
@@ -79,7 +79,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard(RoleEnum.ADMIN))
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })

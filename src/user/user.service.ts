@@ -20,12 +20,7 @@ export class UserService {
   async create(dto: CreateUserDto) {
     const userDetails = await this.userRepository.save(dto);
     const user = await this.userRepository.findOneBy({ id: userDetails.id });
-
-    if (!user) {
-      throw new Error('User was not created');
-    }
-
-    return user;
+    return user!;
   }
 
   async get(options?: FindOptions<UserEntity>) {
@@ -35,6 +30,8 @@ export class UserService {
       if (error instanceof EntityPropertyNotFoundError) {
         throw new BadRequestException(error.message.replaceAll(`"`, `'`));
       }
+
+      throw error;
     }
   }
 
@@ -72,20 +69,6 @@ export class UserService {
     return user;
   }
 
-  async getByResetToken(resetToken: string) {
-    const user = await this.userRepository
-      .createQueryBuilder('u')
-      .where('u.resetToken = :resetToken', { resetToken })
-      .addSelect(['u.resetToken'])
-      .getOne();
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return user;
-  }
-
   async update(id: number, dto: UpdateUserDto) {
     const user = await this.getById(id);
     this.userRepository.merge(user, dto);
@@ -96,12 +79,5 @@ export class UserService {
 
   async delete(id: number) {
     await this.userRepository.delete(id);
-  }
-
-  // REVIEW:
-  async setRefreshToken(email: string, token: string | null) {
-    const user = await this.getByEmail(email);
-    user.refreshToken = token;
-    await this.userRepository.save(user);
   }
 }

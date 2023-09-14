@@ -6,7 +6,7 @@ import {
   IsOptional,
   Validate,
 } from 'class-validator';
-import { RoleEnum } from 'src/common/enum';
+import { RegisterUserRoleEnum, UserRoleEnum } from 'src/common/enum';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
 import { UniqueEmailConstraint } from 'src/common/constraint/uniqueEmailConstraint';
@@ -25,6 +25,7 @@ export class RegisterUserDto {
   readonly fullName!: string;
 
   @IsOptional()
-  @IsEnum(RoleEnum)
-  readonly role?: RoleEnum;
+  @IsEnum(RegisterUserRoleEnum)
+  @Transform(({ value }) => (value as string).toUpperCase())
+  readonly role?: UserRoleEnum;
 }

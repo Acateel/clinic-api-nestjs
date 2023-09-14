@@ -32,5 +32,11 @@ export class AppConfigDto {
   readonly ACCESS_SECRET;
 
   @IsNotEmpty()
+  readonly ACCESS_LIFETIME;
+
+  @IsNotEmpty()
   readonly REFRESH_SECRET;
+
+  @IsNotEmpty()
+  readonly REFRESH_LIFETIME;
 }
