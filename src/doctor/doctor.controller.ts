@@ -61,12 +61,14 @@ export class DoctorController {
     return this.doctorService.get(query.find);
   }
 
-  @Post()
+  @Post('invite')
   @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })
-  invite(@Body() dto: InviteDoctorDto) {}
+  invite(@Body() dto: InviteDoctorDto) {
+    return this.doctorService.invite(dto);
+  }
 
   @Get(':id')
   @UseGuards(

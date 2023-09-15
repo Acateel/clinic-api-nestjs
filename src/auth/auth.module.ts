@@ -6,10 +6,12 @@ import { AuthGuard } from './guard/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from 'src/common/interface';
+import { DoctorModule } from 'src/doctor/doctor.module';
 
 @Module({
   imports: [
     UserModule,
+    DoctorModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       global: true,

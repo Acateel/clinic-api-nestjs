@@ -28,6 +28,7 @@ export interface UserOwnedEntity {
 
 export interface AppConfig {
   port: string;
+  apiUrl: string;
   jwt: {
     accessSecret: string;
     accessLifetime: string;
@@ -35,9 +36,23 @@ export interface AppConfig {
     refreshLifetime: string;
   };
   database: TypeOrmModuleOptions;
+  smtp: {
+    host: string;
+    port: number;
+    secure: boolean;
+    auth: {
+      user: string;
+      pass: string;
+    };
+  };
 }
 
 export interface AppointmentTime {
   startDate: Date;
   endDate: Date;
+}
+
+export interface InviteUserPayload {
+  email: string;
+  role: UserRoleEnum;
 }

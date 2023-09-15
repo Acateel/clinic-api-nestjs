@@ -188,7 +188,6 @@ describe('App (e2e)', () => {
           expect(response.status).toBe(HttpStatus.CREATED);
         });
       });
-      // TODO: not complete test cases for users
     });
 
     describe('when authorized with other role', () => {
@@ -200,7 +199,6 @@ describe('App (e2e)', () => {
       let accessToken;
 
       beforeEach(async () => {
-        // TODO: BeforeEach duplicates
         const res = await request(app.getHttpServer())
           .post('/auth/register')
           .send(userCredentials);
@@ -278,7 +276,6 @@ describe('App (e2e)', () => {
 
   describe('Appointment', () => {
     describe('When authorized', () => {
-      // TODO: repeats
       const userCredentials = {
         email: 'guest@test.com',
         password: 'test',
@@ -288,7 +285,6 @@ describe('App (e2e)', () => {
       let accessToken;
 
       beforeEach(async () => {
-        // TODO: BeforeEach duplicates
         const res = await request(app.getHttpServer())
           .post('/auth/register')
           .send(userCredentials);

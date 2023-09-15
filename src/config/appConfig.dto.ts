@@ -39,4 +39,19 @@ export class AppConfigDto {
 
   @IsNotEmpty()
   readonly REFRESH_LIFETIME;
+
+  @IsNotEmpty()
+  readonly API_URL;
+
+  @IsNotEmpty()
+  readonly SMTP_HOST;
+
+  @IsNotEmpty()
+  readonly SMTP_PORT;
+
+  @IsNotEmpty()
+  readonly SMTP_USER;
+
+  @IsNotEmpty()
+  readonly SMTP_PASSWORD;
 }

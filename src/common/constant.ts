@@ -1,1 +1,2 @@
 export const SALT_ROUNDS = 10;
+export const SMTP_TRANSPORTER = 'SMTP_TRANSPORTER';

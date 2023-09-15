@@ -21,6 +21,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthenticatedRequest } from 'src/common/interface';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { AuthGuard } from './guard/auth.guard';
+import { InviteUserDto } from './dto/inviteUser.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -69,6 +70,17 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
   logout(@Request() req: AuthenticatedRequest) {
     return this.authService.logout(req.user.id);
+  }
+
+  @Post('register/:inviteToken')
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
+  @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
+  registerWithInvite(
+    @Param('inviteToken') inviteToken: string,
+    @Body() dto: InviteUserDto,
+  ) {
+    return this.authService.registerWithInvite(inviteToken, dto);
   }
 
   @Post('recover/:resetToken')

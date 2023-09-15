@@ -9,12 +9,16 @@ import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
 import { UserService } from 'src/user/user.service';
 import { EntityPropertyNotFoundError, Repository } from 'typeorm';
-import { AppointmentTime, FindOptions } from 'src/common/interface';
+import { AppConfig, AppointmentTime, FindOptions } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlots.entity';
 import { checkIntervalsOverlap } from 'src/common/util';
 import { InviteDoctorDto } from './dto/inviteDoctor.dto';
+import { EmailService } from 'src/email/email.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { UserRoleEnum } from 'src/common/enum';
 
 @Injectable()
 export class DoctorService {
@@ -22,6 +26,9 @@ export class DoctorService {
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
     private readonly userService: UserService,
+    private readonly emailService: EmailService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService<AppConfig, true>,
   ) {}
 
   async create(userId: number, dto: CreateDoctorDto) {
@@ -141,5 +148,27 @@ export class DoctorService {
     return this.doctorRepository.save(doctor);
   }
 
-  async invite(dto: InviteDoctorDto) {}
+  async invite(dto: InviteDoctorDto) {
+    // TODO: constraint decorator here and maybe in auth service on inviteUserDto
+    const doctor = await this.doctorRepository.findOne({
+      where: {
+        user: { email: dto.email },
+      },
+      relations: { user: true },
+    });
+
+    if (doctor) {
+      throw new BadRequestException('Doctor is allready invited');
+    }
+
+    const token = this.jwtService.sign({
+      email: dto.email,
+      role: UserRoleEnum.DOCTOR,
+    });
+    const inviteLink = `${this.configService.get(
+      'apiUrl',
+    )}/auth/register/${token}`;
+
+    this.emailService.sendInvite(dto.email, { inviteLink });
+  }
 }

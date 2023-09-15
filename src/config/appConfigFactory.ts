@@ -3,6 +3,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 export const appConfigFactory = (): AppConfig => ({
   port: process.env.PORT!,
+  apiUrl: process.env.API_URL!,
   jwt: {
     accessSecret: process.env.ACCESS_SECRET!,
     accessLifetime: process.env.ACCESS_LIFETIME!,
@@ -20,5 +21,14 @@ export const appConfigFactory = (): AppConfig => ({
     migrations: [process.env.MIGRATIONS!],
     namingStrategy: new SnakeNamingStrategy(),
     synchronize: process.env.SYNCHRONIZE === 'true',
+  },
+  smtp: {
+    host: process.env.SMTP_HOST!,
+    port: Number(process.env.SMTP_PORT),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER!,
+      pass: process.env.SMTP_PASSWORD!,
+    },
   },
 });
