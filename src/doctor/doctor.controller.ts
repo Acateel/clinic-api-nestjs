@@ -30,6 +30,7 @@ import { DoctorDetailsResponseDto } from './dto/response/doctorDetailsResponse.d
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from 'src/common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
 import { InviteDoctorDto } from './dto/inviteDoctor.dto';
+import { UpdateDoctorProfileDto } from './dto/updateDoctorProfile.dto';
 
 @Controller('doctors')
 @ApiTags('doctors')
@@ -68,6 +69,18 @@ export class DoctorController {
   @ApiResponse({ status: HttpStatus.OK })
   invite(@Body() dto: InviteDoctorDto) {
     return this.doctorService.invite(dto);
+  }
+
+  @Patch('profile')
+  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'admin, doctor' })
+  @ApiResponse({ status: HttpStatus.OK, type: DoctorResponseDto })
+  updateProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: UpdateDoctorProfileDto,
+  ) {
+    return this.doctorService.updateProfile(req.user.id, dto);
   }
 
   @Get(':id')

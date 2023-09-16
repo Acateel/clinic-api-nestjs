@@ -17,7 +17,6 @@ import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { UserRoleEnum } from 'src/common/enum';
 import { DoctorService } from 'src/doctor/doctor.service';
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -46,16 +45,23 @@ export class AuthService {
       const decoded: InviteUserPayload = this.jwtService.verify(inviteToken);
 
       if (decoded.role === UserRoleEnum.DOCTOR) {
-        const payload = await this.register({
+        const user = await this.userService.create({
           email: decoded.email,
           password: dto.password,
           fullName: 'Change Name',
+          role: UserRoleEnum.DOCTOR,
         });
-        this.doctorService.create(payload.user.id, {
+        const payload = this.getPayload(user);
+
+        await this.doctorService.create(payload.id, {
           speciality: 'Change speciality',
         });
 
-        return payload;
+        return {
+          user: payload,
+          accessToken: this.jwtService.sign(payload),
+          refreshToken: await this.createRefreshToken(user),
+        };
       }
 
       throw new UnauthorizedException('Invalid user role');

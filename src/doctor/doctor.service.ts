@@ -19,6 +19,7 @@ import { EmailService } from 'src/email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserRoleEnum } from 'src/common/enum';
+import { UpdateDoctorProfileDto } from './dto/updateDoctorProfile.dto';
 
 @Injectable()
 export class DoctorService {
@@ -129,6 +130,19 @@ export class DoctorService {
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
   }
 
+  async updateProfile(userId: number, dto: UpdateDoctorProfileDto) {
+    const doctor = await this.doctorRepository.findOne({
+      where: { user: { id: userId } },
+      relations: { user: true },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    return this.update(doctor.id, dto);
+  }
+
   async delete(id: number) {
     await this.doctorRepository.delete(id);
   }
@@ -149,18 +163,6 @@ export class DoctorService {
   }
 
   async invite(dto: InviteDoctorDto) {
-    // TODO: constraint decorator here and maybe in auth service on inviteUserDto
-    const doctor = await this.doctorRepository.findOne({
-      where: {
-        user: { email: dto.email },
-      },
-      relations: { user: true },
-    });
-
-    if (doctor) {
-      throw new BadRequestException('Doctor is allready invited');
-    }
-
     const token = this.jwtService.sign({
       email: dto.email,
       role: UserRoleEnum.DOCTOR,
