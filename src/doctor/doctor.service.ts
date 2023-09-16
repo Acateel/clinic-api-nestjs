@@ -147,21 +147,6 @@ export class DoctorService {
     await this.doctorRepository.delete(id);
   }
 
-  async takeAvailableSlot(id: number, time: AppointmentTime) {
-    const doctor = await this.getById(id);
-    const freeSlotIdx = doctor.availableSlots.findIndex((slot) =>
-      checkIntervalsOverlap(slot, time),
-    );
-
-    if (freeSlotIdx < 0) {
-      throw new ConflictException('Doctor is unavailable');
-    }
-
-    doctor.availableSlots.splice(freeSlotIdx, 1);
-
-    return this.doctorRepository.save(doctor);
-  }
-
   async invite(dto: InviteDoctorDto) {
     const token = this.jwtService.sign({
       email: dto.email,
