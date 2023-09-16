@@ -22,7 +22,7 @@ import { checkIntervalsOverlap } from 'src/common/util';
 
 @Injectable()
 export class AppointmentService {
-  private readonly queryRunner: QueryRunner;
+  private queryRunner: QueryRunner;
 
   constructor(
     private readonly doctorService: DoctorService,
@@ -45,12 +45,11 @@ export class AppointmentService {
       patient,
     });
 
-    // TODO: connection not returned
-    // await this.queryRunner.connect();
+    this.queryRunner.release();
+    this.queryRunner = this.dataSource.createQueryRunner();
     await this.queryRunner.startTransaction();
 
     try {
-      await this.takeDoctorAvailableSlot(doctor, appointment);
       const createdAppointment = await this.queryRunner.manager.save(
         appointment,
       );
@@ -63,7 +62,7 @@ export class AppointmentService {
       await this.queryRunner.rollbackTransaction();
       throw new ConflictException('Doctor is unavailable');
     } finally {
-      // await this.queryRunner.release();
+      await this.queryRunner.release();
     }
   }
 
@@ -105,7 +104,8 @@ export class AppointmentService {
       appointment.doctor = await this.doctorService.getById(dto.doctorId);
     }
 
-    // await this.queryRunner.connect();
+    this.queryRunner.release();
+    this.queryRunner = this.dataSource.createQueryRunner();
     await this.queryRunner.startTransaction();
 
     try {
@@ -125,7 +125,7 @@ export class AppointmentService {
       await this.queryRunner.rollbackTransaction();
       throw new ConflictException('Doctor is unavailable');
     } finally {
-      // await this.queryRunner.release();
+      await this.queryRunner.release();
     }
   }
 
@@ -146,6 +146,10 @@ export class AppointmentService {
     }
 
     doctor.availableSlots.splice(freeSlotIdx, 1);
+
+    if (this.queryRunner.isReleased) {
+      this.queryRunner = this.dataSource.createQueryRunner();
+    }
 
     await this.queryRunner.manager.save(doctor);
   }

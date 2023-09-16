@@ -9,7 +9,7 @@ import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
 import { UserService } from 'src/user/user.service';
 import { EntityPropertyNotFoundError, Repository } from 'typeorm';
-import { AppConfig, AppointmentTime, FindOptions } from 'src/common/interface';
+import { AppConfig, FindOptions } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlots.entity';
