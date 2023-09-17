@@ -60,7 +60,12 @@ export class AppointmentService {
       });
     } catch (error) {
       await this.queryRunner.rollbackTransaction();
-      throw new ConflictException('Doctor is unavailable');
+
+      if (error instanceof ConflictException) {
+        throw new ConflictException('Doctor is unavailable');
+      }
+
+      throw error;
     } finally {
       await this.queryRunner.release();
     }
@@ -73,6 +78,8 @@ export class AppointmentService {
       if (error instanceof EntityPropertyNotFoundError) {
         throw new BadRequestException(error.message.replaceAll(`"`, `'`));
       }
+
+      throw error;
     }
   }
 
@@ -123,7 +130,12 @@ export class AppointmentService {
       });
     } catch (error) {
       await this.queryRunner.rollbackTransaction();
-      throw new ConflictException('Doctor is unavailable');
+
+      if (error instanceof ConflictException) {
+        throw new ConflictException('Doctor is unavailable');
+      }
+
+      throw error;
     } finally {
       await this.queryRunner.release();
     }

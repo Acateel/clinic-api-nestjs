@@ -34,6 +34,8 @@ export class PatientService {
       if (error instanceof EntityPropertyNotFoundError) {
         throw new BadRequestException(error.message.replaceAll(`"`, `'`));
       }
+
+      throw error;
     }
   }
 

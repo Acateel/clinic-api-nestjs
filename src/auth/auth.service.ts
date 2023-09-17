@@ -17,6 +17,7 @@ import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { UserRoleEnum } from 'src/common/enum';
 import { DoctorService } from 'src/doctor/doctor.service';
+
 @Injectable()
 export class AuthService {
   constructor(

@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import {
   ValidationArguments,
   ValidatorConstraint,
@@ -14,7 +15,11 @@ export class UniqueEmailConstraint implements ValidatorConstraintInterface {
       await this.userService.getByEmail(value as string);
       return false;
     } catch (error) {
-      return true;
+      if (error instanceof NotFoundException) {
+        return true;
+      }
+
+      throw error;
     }
   }
 

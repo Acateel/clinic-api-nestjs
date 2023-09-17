@@ -51,6 +51,8 @@ export class DoctorService {
       if (error instanceof EntityPropertyNotFoundError) {
         throw new BadRequestException(error.message.replaceAll(`"`, `'`));
       }
+
+      throw error;
     }
   }
 
@@ -85,6 +87,8 @@ export class DoctorService {
       if (error instanceof EntityPropertyNotFoundError) {
         throw new BadRequestException('Unknown property');
       }
+
+      throw error;
     }
   }
 
