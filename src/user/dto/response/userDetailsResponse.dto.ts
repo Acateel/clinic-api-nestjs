@@ -1,4 +1,5 @@
 import { UserRoleEnum } from 'src/common/enum';
+import { DoctorResponseDto } from 'src/doctor/dto/response/doctorResponse.dto';
 import { PatientResponseDto } from 'src/patient/dto/response/patientResponse.dto';
 
 export class UserDetailsResponseDto {
@@ -10,5 +11,7 @@ export class UserDetailsResponseDto {
   readonly resetToken!: string | null;
   readonly patients!: PatientResponseDto[];
   readonly patientIds!: number[];
+  readonly doctors!: DoctorResponseDto[];
+  readonly doctorIds!: number[];
   readonly createdAt!: Date;
 }

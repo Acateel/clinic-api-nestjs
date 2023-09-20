@@ -1,11 +1,5 @@
-import {
-  Module,
-  NestModule,
-  MiddlewareConsumer,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
-import { typeOrmFindOptionsQueryMapperMiddleware } from './common/middleware/TypeOrmFindOptionsQueryMapper.middleware';
 import { AuthModule } from './auth/auth.module';
 import { PatientModule } from './patient/patient.module';
 import { DoctorModule } from './doctor/doctor.module';
@@ -26,10 +20,4 @@ import { ConstraintModule } from './common/constraint/constraint.module';
     ConstraintModule,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(typeOrmFindOptionsQueryMapperMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.GET });
-  }
-}
+export class AppModule {}

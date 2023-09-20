@@ -27,5 +27,5 @@ export class RegisterUserDto {
   @IsOptional()
   @IsEnum(RegisterUserRoleEnum)
   @Transform(({ value }) => (value as string).toUpperCase())
-  readonly role?: UserRoleEnum;
+  readonly role!: UserRoleEnum;
 }

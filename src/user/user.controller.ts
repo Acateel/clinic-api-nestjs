@@ -5,16 +5,13 @@ import {
   Param,
   Post,
   Patch,
-  Query,
   Delete,
-  Request,
   UseGuards,
   HttpStatus,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserService } from './user.service';
-import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
-import { UserEntity } from '../database/entity/user.entity';
+import { AccessTokenPayload } from 'src/common/interface';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { UserRoleEnum } from 'src/common/enum';
 import {
@@ -27,6 +24,7 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { UserResponseDto } from './dto/response/userResponse.dto';
 import { UserDetailsResponseDto } from './dto/response/userDetailsResponse.dto';
+import { User } from 'src/common/decorator/user.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -46,9 +44,9 @@ export class UserController {
   @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
-  @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
-  get(@Query() query: ReadOptions<UserEntity>) {
-    return this.userService.get(query.find);
+  @ApiResponse({ status: HttpStatus.OK, type: [UserResponseDto] })
+  get() {
+    return this.userService.get();
   }
 
   @Get('profile')
@@ -56,8 +54,8 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
-  getProfile(@Request() req: AuthenticatedRequest) {
-    return this.userService.getById(req.user.id);
+  getProfile(@User() user: AccessTokenPayload) {
+    return this.userService.getById(user.id);
   }
 
   @Get(':id')

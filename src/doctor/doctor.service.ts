@@ -7,7 +7,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
-import { UserService } from 'src/user/user.service';
 import { EntityPropertyNotFoundError, Repository } from 'typeorm';
 import { AppConfig, FindOptions } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
@@ -20,20 +19,27 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserRoleEnum } from 'src/common/enum';
 import { UpdateDoctorProfileDto } from './dto/updateDoctorProfile.dto';
+import { UserEntity } from 'src/database/entity/user.entity';
 
 @Injectable()
 export class DoctorService {
   constructor(
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
-    private readonly userService: UserService,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<AppConfig, true>,
   ) {}
 
   async create(userId: number, dto: CreateDoctorDto) {
-    const user = await this.userService.getById(userId);
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const doctor = this.doctorRepository.create({ ...dto, user });
     const createdDoctor = await this.doctorRepository.save(doctor);
 

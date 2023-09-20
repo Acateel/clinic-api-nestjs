@@ -6,13 +6,14 @@ import {
 } from 'class-validator';
 import { UserService } from 'src/user/user.service';
 
+// TODO: delete constraint
 @ValidatorConstraint({ async: true })
 export class UniqueEmailConstraint implements ValidatorConstraintInterface {
   constructor(private readonly userService: UserService) {}
 
   async validate(value: unknown) {
     try {
-      await this.userService.getByEmail(value as string);
+      // await this.userService.getByEmail(value as string);
       return false;
     } catch (error) {
       if (error instanceof NotFoundException) {

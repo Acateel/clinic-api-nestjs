@@ -17,11 +17,15 @@ import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { InviteUserDto } from './dto/inviteUser.dto';
 import { UserRoleEnum } from 'src/common/enum';
 import { DoctorService } from 'src/doctor/doctor.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly doctorService: DoctorService,
     private readonly configService: ConfigService<AppConfig, true>,
     private readonly jwtService: JwtService,
@@ -32,7 +36,6 @@ export class AuthService {
     const payload = this.getPayload(user);
 
     return {
-      user: payload,
       accessToken: this.jwtService.sign(payload),
       refreshToken: await this.createRefreshToken(user),
     };
@@ -59,7 +62,6 @@ export class AuthService {
         });
 
         return {
-          user: payload,
           accessToken: this.jwtService.sign(payload),
           refreshToken: await this.createRefreshToken(user),
         };
@@ -79,7 +81,16 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<AuthResponseDto> {
-    const user = await this.userService.getByEmail(email);
+    const user = await this.userRepository
+      .createQueryBuilder('u')
+      .where('u.email = :email', { email })
+      .addSelect(['u.password'])
+      .getOne();
+
+    if (!user) {
+      throw new UnauthorizedException('Wrong credentials');
+    }
+
     const isWrongPassword = !bcrypt.compareSync(password, user.password!);
 
     if (isWrongPassword) {
@@ -89,14 +100,22 @@ export class AuthService {
     const payload = this.getPayload(user);
 
     return {
-      user: payload,
       accessToken: this.jwtService.sign(payload),
       refreshToken: await this.createRefreshToken(user),
     };
   }
 
   async resetPassword(email: string): Promise<ResetPasswordResponseDto> {
-    const user = await this.userService.getByEmail(email);
+    const user = await this.userRepository
+      .createQueryBuilder('u')
+      .where('u.email = :email', { email })
+      .addSelect(['u.password'])
+      .getOne();
+
+    if (!user) {
+      throw new UnauthorizedException('Wrong credentials');
+    }
+
     const resetToken = this.jwtService.sign(this.getPayload(user));
     await this.userService.update(user.id, { resetToken });
     await this.logout(user.id);
@@ -128,9 +147,13 @@ export class AuthService {
       const decoded: UserPayload = this.jwtService.verify(token, {
         secret: this.configService.get('jwt.refreshSecret', { infer: true }),
       });
-      const user = await this.userService.getById(decoded.id);
+      const user = await this.userRepository
+        .createQueryBuilder('u')
+        .where('u.id = :id', { id: decoded.id })
+        .addSelect(['u.refreshToken'])
+        .getOne();
 
-      if (!user.refreshToken) {
+      if (!user || !user.refreshToken) {
         throw new UnauthorizedException('Invalid token');
       }
 
@@ -143,7 +166,6 @@ export class AuthService {
       const payload = this.getPayload(user);
 
       return {
-        user: payload,
         accessToken: this.jwtService.sign(payload),
         refreshToken: await this.createRefreshToken(user),
       };

@@ -21,7 +21,7 @@ export class UserEntity {
   @Column({ select: false })
   password?: string;
 
-  @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.GUEST })
+  @Column({ type: 'enum', enum: UserRoleEnum })
   role!: UserRoleEnum;
 
   @Column()

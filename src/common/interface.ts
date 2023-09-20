@@ -56,3 +56,10 @@ export interface InviteUserPayload {
   email: string;
   role: UserRoleEnum;
 }
+
+// TODO: migrate to AccessTokenPayload interface, decorator for user from request
+export interface AccessTokenPayload {
+  readonly id: number;
+  readonly email: string;
+  readonly role: UserRoleEnum;
+}

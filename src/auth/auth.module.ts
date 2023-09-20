@@ -7,9 +7,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from 'src/common/interface';
 import { DoctorModule } from 'src/doctor/doctor.module';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   imports: [
+    DatabaseModule,
     UserModule,
     DoctorModule,
     JwtModule.registerAsync({

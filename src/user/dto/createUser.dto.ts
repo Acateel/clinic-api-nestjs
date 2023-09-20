@@ -1,30 +1,18 @@
 import { Transform } from 'class-transformer';
-import {
-  IsOptional,
-  IsEmail,
-  IsNotEmpty,
-  IsEnum,
-  Validate,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsEnum } from 'class-validator';
 import { UserRoleEnum } from 'src/common/enum';
-import * as bcrypt from 'bcrypt';
-import { SALT_ROUNDS } from 'src/common/constant';
-import { UniqueEmailConstraint } from 'src/common/constraint/uniqueEmailConstraint';
 
 export class CreateUserDto {
   @IsEmail()
-  @Validate(UniqueEmailConstraint)
-  @Transform(({ value }) => (value as string).toLowerCase())
   readonly email!: string;
 
   @IsNotEmpty()
-  @Transform(({ value }) => bcrypt.hashSync(value as string, SALT_ROUNDS))
   readonly password!: string;
 
   @IsNotEmpty()
   readonly fullName!: string;
 
-  @IsOptional()
   @IsEnum(UserRoleEnum)
-  readonly role?: UserRoleEnum;
+  @Transform(({ value }) => (value as string).toUpperCase())
+  readonly role!: UserRoleEnum;
 }
