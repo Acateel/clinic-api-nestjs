@@ -166,20 +166,16 @@ export class AppointmentService {
     doctor: DoctorEntity,
     time: AppointmentTime,
   ) {
-    const freeSlotIdx = doctor.availableSlots.findIndex((slot) =>
-      checkIntervalsOverlap(slot, time),
-    );
-
-    if (freeSlotIdx < 0) {
-      throw new ConflictException('Doctor is unavailable');
-    }
-
-    doctor.availableSlots.splice(freeSlotIdx, 1);
-
-    if (this.queryRunner.isReleased) {
-      this.queryRunner = this.dataSource.createQueryRunner();
-    }
-
-    await this.queryRunner.manager.save(doctor);
+    // const freeSlotIdx = doctor.availableSlots.findIndex((slot) =>
+    //   checkIntervalsOverlap(slot, time),
+    // );
+    // if (freeSlotIdx < 0) {
+    //   throw new ConflictException('Doctor is unavailable');
+    // }
+    // doctor.availableSlots.splice(freeSlotIdx, 1);
+    // if (this.queryRunner.isReleased) {
+    //   this.queryRunner = this.dataSource.createQueryRunner();
+    // }
+    // await this.queryRunner.manager.save(doctor);
   }
 }

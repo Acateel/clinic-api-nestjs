@@ -22,7 +22,7 @@ export class PatientService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(payload: AccessTokenPayload, dto: CreatePatientDto) {
+  async create(dto: CreatePatientDto, payload: AccessTokenPayload) {
     const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {

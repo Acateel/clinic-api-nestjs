@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
   ConflictException,
@@ -7,8 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
-import { EntityPropertyNotFoundError, Repository } from 'typeorm';
-import { AppConfig, FindOptions } from 'src/common/interface';
+import { Repository } from 'typeorm';
+import { AccessTokenPayload, AppConfig } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlots.entity';
@@ -18,7 +17,6 @@ import { EmailService } from 'src/email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserRoleEnum } from 'src/common/enum';
-import { UpdateDoctorProfileDto } from './dto/updateDoctorProfile.dto';
 import { UserEntity } from 'src/database/entity/user.entity';
 
 @Injectable()
@@ -28,13 +26,13 @@ export class DoctorService {
     private readonly doctorRepository: Repository<DoctorEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly emailService: EmailService,
-    private readonly jwtService: JwtService,
     private readonly configService: ConfigService<AppConfig, true>,
+    private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
-  async create(userId: number, dto: CreateDoctorDto) {
-    const user = await this.userRepository.findOneBy({ id: userId });
+  async create(dto: CreateDoctorDto, payload: AccessTokenPayload) {
+    const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -46,56 +44,36 @@ export class DoctorService {
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
   }
 
-  async get(options?: FindOptions<DoctorEntity>) {
-    if (options?.order?.appointments) {
-      return this.getOrderedByAppointmentCount();
+  async get(options) {
+    const queryBuilder = this.doctorRepository.createQueryBuilder('d');
+
+    if (options.speciality) {
+      queryBuilder.andWhere('d.speciality = :speciality', {
+        speciality: options.speciality,
+      });
     }
 
-    try {
-      return await this.doctorRepository.find(options);
-    } catch (error) {
-      if (error instanceof EntityPropertyNotFoundError) {
-        throw new BadRequestException(error.message.replaceAll(`"`, `'`));
-      }
-
-      throw error;
+    if (options.fullName) {
+      queryBuilder.leftJoin('d.user', 'du');
+      queryBuilder.andWhere('du.fullName = :fullName', {
+        fullName: options.fullName,
+      });
     }
-  }
 
-  private async getOrderedByAppointmentCount(
-    options?: FindOptions<DoctorEntity>,
-  ) {
-    try {
-      const queryBuilder = this.doctorRepository
-        .createQueryBuilder('doctor')
+    if (options.sort === 'appointments') {
+      queryBuilder
         .select(
           (subQuery) =>
             subQuery
-              .select('COUNT(appointment_id)', 'appointments_count')
-              .from(AppointmentEntity, 'appointment')
-              .where('appointment.doctorId = doctor.id'),
-          'appointments',
+              .select('COUNT(appointment_id)', 'ac')
+              .from(AppointmentEntity, 'a')
+              .where('a.id = d.id'),
+          'a',
         )
-        .orderBy(options?.order as string);
-
-      if (options?.where) {
-        queryBuilder.where(options?.where as any);
-      }
-      if (options?.skip) {
-        queryBuilder.skip(options?.skip as any);
-      }
-      if (options?.take) {
-        queryBuilder.take(options?.take as any);
-      }
-
-      return await queryBuilder.getMany();
-    } catch (error) {
-      if (error instanceof EntityPropertyNotFoundError) {
-        throw new BadRequestException('Unknown property');
-      }
-
-      throw error;
+        .addOrderBy('a', 'DESC');
     }
+
+    return queryBuilder.getMany();
   }
 
   async getById(id: number) {
@@ -103,9 +81,9 @@ export class DoctorService {
       .createQueryBuilder('d')
       .where('d.id = :id', { id })
       .addSelect(['d.createdAt'])
-      .leftJoinAndSelect('d.user', 'duser')
-      .leftJoinAndSelect('d.appointments', 'dappointments')
-      .leftJoinAndSelect('d.availableSlots', 'davailableSlots')
+      .leftJoinAndSelect('d.user', 'du')
+      .leftJoinAndSelect('d.appointments', 'dap')
+      .leftJoinAndSelect('d.availableSlots', 'dav')
       .getOne();
 
     if (!doctor) {
@@ -116,19 +94,29 @@ export class DoctorService {
   }
 
   async update(id: number, dto: UpdateDoctorDto) {
-    const doctor = await this.getById(id);
+    const doctor = await this.doctorRepository.findOne({
+      where: { id },
+      relations: { appointments: true },
+    });
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
     this.doctorRepository.merge(doctor, dto);
 
     if (dto.availableSlots) {
-      for (const freeSlot of dto.availableSlots) {
-        const isFreeSlotTaken = doctor.appointments!.some((appointment) =>
-          checkIntervalsOverlap(freeSlot, appointment),
-        );
-
-        if (isFreeSlotTaken) {
-          throw new ConflictException(
-            'Doctor has scheduled appointment on free slot time',
+      if (doctor.appointments) {
+        for (const slot of dto.availableSlots) {
+          const isFreeSlotTaken = doctor.appointments.some((appointment) =>
+            checkIntervalsOverlap(slot, appointment),
           );
+
+          if (isFreeSlotTaken) {
+            throw new ConflictException(
+              'Doctor has scheduled appointment on free slot time',
+            );
+          }
         }
       }
 
@@ -140,32 +128,34 @@ export class DoctorService {
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
   }
 
-  async updateProfile(userId: number, dto: UpdateDoctorProfileDto) {
-    const doctor = await this.doctorRepository.findOne({
-      where: { user: { id: userId } },
-      relations: { user: true },
-    });
+  async delete(id: number) {
+    const doctor = await this.doctorRepository.findOneBy({ id });
 
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
+    if (doctor) {
+      doctor.availableSlots = [];
+      this.doctorRepository.save(doctor);
     }
 
-    return this.update(doctor.id, dto);
-  }
-
-  async delete(id: number) {
     await this.doctorRepository.delete(id);
   }
 
   async invite(dto: InviteDoctorDto) {
-    const token = this.jwtService.sign({
-      email: dto.email,
-      role: UserRoleEnum.DOCTOR,
-    });
+    const inviteToken = this.jwtService.sign(
+      {
+        email: dto.email.toLowerCase(),
+        role: UserRoleEnum.DOCTOR,
+      },
+      {
+        secret: this.configService.get('jwt.inviteSecret', { infer: true }),
+        expiresIn: this.configService.get('jwt.inviteLifetime', {
+          infer: true,
+        }),
+      },
+    );
     const inviteLink = `${this.configService.get(
       'apiUrl',
-    )}/auth/register/${token}`;
+    )}/auth/register/${inviteToken}`;
 
-    this.emailService.sendInvite(dto.email, { inviteLink });
+    this.emailService.sendInvite(dto.email, inviteLink);
   }
 }

@@ -41,6 +41,12 @@ export class AppConfigDto {
   readonly REFRESH_LIFETIME;
 
   @IsNotEmpty()
+  readonly INVITE_SECRET;
+
+  @IsNotEmpty()
+  readonly INVITE_LIFETIME;
+
+  @IsNotEmpty()
   readonly API_URL;
 
   @IsNotEmpty()

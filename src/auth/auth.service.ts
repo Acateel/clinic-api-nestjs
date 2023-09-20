@@ -6,7 +6,7 @@ import { AuthResponseDto } from './dto/response/authResponse.dto';
 import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
 import {
   AppConfig,
-  InviteUserPayload,
+  InviteTokenPayload,
   UserPayload,
 } from 'src/common/interface';
 import { UserEntity } from 'src/database/entity/user.entity';
@@ -19,6 +19,8 @@ import { UserRoleEnum } from 'src/common/enum';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+// Role is now required when creating user. (check consiquenses in auth)
 
 @Injectable()
 export class AuthService {
@@ -46,7 +48,7 @@ export class AuthService {
     dto: InviteUserDto,
   ): Promise<AuthResponseDto> {
     try {
-      const decoded: InviteUserPayload = this.jwtService.verify(inviteToken);
+      const decoded: InviteTokenPayload = this.jwtService.verify(inviteToken);
 
       if (decoded.role === UserRoleEnum.DOCTOR) {
         const user = await this.userService.create({
@@ -57,9 +59,12 @@ export class AuthService {
         });
         const payload = this.getPayload(user);
 
-        await this.doctorService.create(payload.id, {
-          speciality: 'Change speciality',
-        });
+        await this.doctorService.create(
+          {
+            speciality: 'Change speciality',
+          },
+          payload,
+        );
 
         return {
           accessToken: this.jwtService.sign(payload),

@@ -8,12 +8,12 @@ import {
   Post,
   Patch,
   Query,
-  Request,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
 import { DoctorService } from './doctor.service';
-import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
+import { AccessTokenPayload } from 'src/common/interface';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { UserRoleEnum } from 'src/common/enum';
@@ -24,11 +24,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { DoctorResponseDto } from './dto/response/doctorResponse.dto';
-import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorDetailsResponseDto } from './dto/response/doctorDetailsResponse.dto';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { InviteDoctorDto } from './dto/inviteDoctor.dto';
-import { UpdateDoctorProfileDto } from './dto/updateDoctorProfile.dto';
+import { User } from 'src/common/decorator/user.decorator';
 
 @Controller('doctors')
 @ApiTags('doctors')
@@ -40,8 +39,8 @@ export class DoctorController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: DoctorResponseDto })
-  create(@Request() req: AuthenticatedRequest, @Body() dto: CreateDoctorDto) {
-    return this.doctorService.create(req.user.id, dto);
+  create(@Body() dto: CreateDoctorDto, @User() user: AccessTokenPayload) {
+    return this.doctorService.create(dto, user);
   }
 
   @Get()
@@ -55,30 +54,19 @@ export class DoctorController {
   )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
-  @ApiResponse({ status: HttpStatus.OK, type: DoctorResponseDto })
-  get(@Query() query: ReadOptions<DoctorEntity>) {
-    return this.doctorService.get(query.find);
+  @ApiResponse({ status: HttpStatus.OK, type: [DoctorResponseDto] })
+  get(@Query() query) {
+    return this.doctorService.get(query);
   }
 
   @Post('invite')
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })
   invite(@Body() dto: InviteDoctorDto) {
     return this.doctorService.invite(dto);
-  }
-
-  @Patch('profile')
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR))
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'admin, doctor' })
-  @ApiResponse({ status: HttpStatus.OK, type: DoctorResponseDto })
-  updateProfile(
-    @Request() req: AuthenticatedRequest,
-    @Body() dto: UpdateDoctorProfileDto,
-  ) {
-    return this.doctorService.updateProfile(req.user.id, dto);
   }
 
   @Get(':id')

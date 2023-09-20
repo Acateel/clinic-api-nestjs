@@ -7,10 +7,6 @@ import * as handlebars from 'handlebars';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from 'src/common/interface';
 
-interface InviteMailContext {
-  inviteLink: string;
-}
-
 @Injectable()
 export class EmailService {
   constructor(
@@ -18,14 +14,14 @@ export class EmailService {
     @Inject(SMTP_TRANSPORTER) private readonly transporter: Transporter,
   ) {}
 
-  async sendInvite(to: string, context: InviteMailContext) {
+  async sendInvite(to: string, inviteLink: string) {
     const template = fs.readFileSync(
       path.join(__dirname, 'template', 'invite.hbs'),
       'utf8',
     );
 
     const compiledTemplate = handlebars.compile(template);
-    const html = compiledTemplate(context);
+    const html = compiledTemplate({ inviteLink });
 
     const mailOptions = {
       from: this.configService.get('smtp.auth.user', { infer: true }),

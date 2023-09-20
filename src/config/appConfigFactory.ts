@@ -9,6 +9,8 @@ export const appConfigFactory = (): AppConfig => ({
     accessLifetime: process.env.ACCESS_LIFETIME!,
     refreshSecret: process.env.REFRESH_SECRET!,
     refreshLifetime: process.env.REFRESH_LIFETIME!,
+    inviteSecret: process.env.INVITE_SECRET!,
+    inviteLifetime: process.env.INVITE_LIFETIME!,
   },
   database: {
     type: 'postgres',

@@ -6,7 +6,6 @@ import { DoctorModule } from './doctor/doctor.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigurationModule } from './config/configuration.module';
-import { ConstraintModule } from './common/constraint/constraint.module';
 
 @Module({
   imports: [
@@ -17,7 +16,6 @@ import { ConstraintModule } from './common/constraint/constraint.module';
     PatientModule,
     DoctorModule,
     AppointmentModule,
-    ConstraintModule,
   ],
 })
 export class AppModule {}

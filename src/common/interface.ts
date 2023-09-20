@@ -35,6 +35,8 @@ export interface AppConfig {
     accessLifetime: string;
     refreshSecret: string;
     refreshLifetime: string;
+    inviteSecret: string;
+    inviteLifetime: string;
   };
   database: TypeOrmModuleOptions;
   smtp: {
@@ -53,7 +55,7 @@ export interface AppointmentTime {
   endDate: Date;
 }
 
-export interface InviteUserPayload {
+export interface InviteTokenPayload {
   email: string;
   role: UserRoleEnum;
 }
