@@ -1,16 +1,6 @@
-import { FindManyOptions } from 'typeorm';
 import { UserRoleEnum } from './enum';
 import { Request } from 'express';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-
-export type FindOptions<T> = Pick<
-  FindManyOptions<T>,
-  'where' | 'order' | 'take' | 'skip'
->;
-
-export interface ReadOptions<T> {
-  find: FindOptions<T>;
-}
 
 // TODO: delete
 export interface AuthenticatedRequest extends Request {
@@ -21,10 +11,6 @@ export interface UserPayload {
   readonly id: number;
   readonly email: string;
   readonly role: UserRoleEnum;
-}
-
-export interface UserOwnedEntity {
-  readonly userId: number;
 }
 
 export interface AppConfig {

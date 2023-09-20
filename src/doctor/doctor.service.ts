@@ -129,13 +129,6 @@ export class DoctorService {
   }
 
   async delete(id: number) {
-    const doctor = await this.doctorRepository.findOneBy({ id });
-
-    if (doctor) {
-      doctor.availableSlots = [];
-      this.doctorRepository.save(doctor);
-    }
-
     await this.doctorRepository.delete(id);
   }
 

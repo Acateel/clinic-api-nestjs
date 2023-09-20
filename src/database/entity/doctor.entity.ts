@@ -29,7 +29,7 @@ export class DoctorEntity {
     () => DoctorAvailableSlotEntity,
     (doctorAvailableSlots) => doctorAvailableSlots.doctor,
     {
-      onDelete: 'CASCADE',
+      // onDelete: 'CASCADE',
       cascade: true,
       eager: true,
     },

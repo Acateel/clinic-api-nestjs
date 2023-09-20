@@ -15,6 +15,7 @@ export class DoctorAvailableSlotEntity {
   @ManyToOne(() => DoctorEntity, {
     nullable: false,
     orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
   })
   doctor?: DoctorEntity;
 }

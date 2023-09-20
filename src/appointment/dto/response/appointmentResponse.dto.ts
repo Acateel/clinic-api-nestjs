@@ -1,6 +1,7 @@
 export class AppointmentResponseDto {
   readonly id!: number;
-  readonly date!: Date;
+  readonly startDate!: Date;
+  readonly endDate!: Date;
   readonly patientId!: number;
   readonly doctorId!: number;
 }

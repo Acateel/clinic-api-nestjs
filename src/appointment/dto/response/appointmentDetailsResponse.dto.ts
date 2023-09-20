@@ -3,7 +3,8 @@ import { PatientResponseDto } from 'src/patient/dto/response/patientResponse.dto
 
 export class AppointmentDetailsResponseDto {
   readonly id!: number;
-  readonly date!: Date;
+  readonly startDate!: Date;
+  readonly endDate!: Date;
   readonly patient!: PatientResponseDto;
   readonly patientId!: number;
   readonly doctor!: DoctorResponseDto;

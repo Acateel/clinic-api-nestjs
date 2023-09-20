@@ -13,8 +13,6 @@ import { AppointmentService } from './appointment.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppointmentResponseDto } from './dto/response/appointmentResponse.dto';
 import { CreateAppointmentDto } from './dto/createAppointment.dto';
-import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import { ReadOptions } from 'src/common/interface';
 import { AppointmentDetailsResponseDto } from './dto/response/appointmentDetailsResponse.dto';
 import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
 
@@ -31,12 +29,12 @@ export class AppointmentController {
 
   @Get()
   @ApiResponse({ status: HttpStatus.OK, type: AppointmentResponseDto })
-  get(@Query() query: ReadOptions<AppointmentEntity>) {
-    return this.appointmentService.get(query.find);
+  get(@Query() query) {
+    return this.appointmentService.get(query);
   }
 
   @Get(':id')
-  @ApiResponse({ status: HttpStatus.OK, type: AppointmentDetailsResponseDto })
+  @ApiResponse({ status: HttpStatus.OK, type: [AppointmentDetailsResponseDto] })
   getById(@Param('id') id: number) {
     return this.appointmentService.getById(id);
   }
