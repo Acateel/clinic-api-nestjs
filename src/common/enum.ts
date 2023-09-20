@@ -7,4 +7,5 @@ export enum UserRoleEnum {
 export enum RegisterUserRoleEnum {
   DOCTOR = 'DOCTOR',
   PATIENT = 'PATIENT',
+  ADMIN = 'ADMIN',
 }

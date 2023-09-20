@@ -5,12 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityPropertyNotFoundError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PatientEntity } from '../database/entity/patient.entity';
 import { CreatePatientDto } from './dto/createPatient.dto';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
-import { FindOptions } from '../common/interface';
+import { AccessTokenPayload } from '../common/interface';
 import { UserEntity } from 'src/database/entity/user.entity';
+import { UserRoleEnum } from 'src/common/enum';
 
 @Injectable()
 export class PatientService {
@@ -21,11 +22,19 @@ export class PatientService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(userId: number, dto: CreatePatientDto) {
-    const user = await this.userRepository.findOneBy({ id: userId });
+  async create(payload: AccessTokenPayload, dto: CreatePatientDto) {
+    const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    const patientWithSamePhone = await this.patientRepository.findOneBy({
+      phoneNumber: dto.phoneNumber,
+    });
+
+    if (patientWithSamePhone) {
+      throw new BadRequestException('Phone number is allready in use');
     }
 
     const patient = this.patientRepository.create({ ...dto, user });
@@ -34,65 +43,65 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
 
-  async get(options?: FindOptions<PatientEntity>) {
-    try {
-      return await this.patientRepository.find(options);
-    } catch (error) {
-      if (error instanceof EntityPropertyNotFoundError) {
-        throw new BadRequestException(error.message.replaceAll(`"`, `'`));
-      }
+  async get(options) {
+    const queryBuilder = this.patientRepository.createQueryBuilder('p');
 
-      throw error;
+    if (options.phoneNumber) {
+      queryBuilder.andWhere('p.phoneNumber = :phoneNumber', {
+        phoneNumber: `+${options.phoneNumber}`,
+      });
     }
+
+    if (options.fullName) {
+      queryBuilder.leftJoin('p.user', 'pu');
+      queryBuilder.andWhere('pu.fullName = :fullName', {
+        fullName: options.fullName,
+      });
+    }
+
+    return queryBuilder.getMany();
   }
 
-  async getById(id: number) {
+  async getById(id: number, payload: AccessTokenPayload) {
     const patient = await this.patientRepository
       .createQueryBuilder('p')
       .where('p.id = :id', { id })
       .addSelect(['p.createdAt'])
-      .leftJoinAndSelect('p.user', 'puser')
+      .leftJoinAndSelect('p.user', 'pu')
+      .leftJoinAndSelect('p.appointments', 'pa')
       .getOne();
 
     if (!patient) {
       throw new NotFoundException('Patient not found');
     }
 
-    return patient;
-  }
-
-  // TODO: example
-  async getByIdRestrictedToUserOwnership(userId: number, patientId: number) {
-    const patient = await this.patientRepository
-      .createQueryBuilder('p')
-      .where('p.id = :id', { patientId })
-      .addSelect(['p.createdAt'])
-      .leftJoinAndSelect('p.user', 'puser')
-      .getOne();
-
-    if (!patient) {
-      throw new NotFoundException('Patient not found');
-    }
-
-    if (patient.user!.id !== userId) {
-      throw new ForbiddenException('Access to other user data denied');
-    }
-
-    return patient;
-  }
-
-  async getByPhoneNumber(phoneNumber: string) {
-    const patient = await this.patientRepository.findOneBy({ phoneNumber });
-
-    if (!patient) {
-      throw new NotFoundException('Patient not found');
+    if (
+      payload.role === UserRoleEnum.PATIENT &&
+      patient.userId !== payload.id
+    ) {
+      throw new ForbiddenException('Cannot access other user data');
     }
 
     return patient;
   }
 
   async update(id: number, dto: UpdatePatientDto) {
-    const patient = await this.getById(id);
+    const patient = await this.patientRepository.findOneBy({ id });
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
+
+    if (dto.phoneNumber) {
+      const patientWithSamePhone = await this.patientRepository.findOneBy({
+        phoneNumber: dto.phoneNumber,
+      });
+
+      if (patientWithSamePhone) {
+        throw new BadRequestException('Phone number is allready in use');
+      }
+    }
+
     this.patientRepository.merge(patient, dto);
     const createdPatient = await this.patientRepository.save(patient);
 

@@ -12,6 +12,7 @@ export interface ReadOptions<T> {
   find: FindOptions<T>;
 }
 
+// TODO: delete
 export interface AuthenticatedRequest extends Request {
   readonly user: UserPayload;
 }

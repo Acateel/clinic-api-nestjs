@@ -10,7 +10,6 @@ import {
   Query,
   Request,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { CreateDoctorDto } from './dto/createDoctor.dto';
 import { DoctorService } from './doctor.service';
@@ -28,7 +27,6 @@ import { DoctorResponseDto } from './dto/response/doctorResponse.dto';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorDetailsResponseDto } from './dto/response/doctorDetailsResponse.dto';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
-import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from 'src/common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
 import { InviteDoctorDto } from './dto/inviteDoctor.dto';
 import { UpdateDoctorProfileDto } from './dto/updateDoctorProfile.dto';
 
@@ -90,11 +88,6 @@ export class DoctorController {
       UserRoleEnum.ADMIN,
       UserRoleEnum.DOCTOR,
       UserRoleEnum.PATIENT,
-    ),
-  )
-  @UseInterceptors(
-    new CheckResponseEntityOwnershipByAuthorizedUserInterceptor(
-      UserRoleEnum.DOCTOR,
     ),
   )
   @ApiBearerAuth()

@@ -1,8 +1,6 @@
-import { IsPhoneNumber, Validate } from 'class-validator';
-import { UniquePhoneConstraint } from 'src/common/constraint/uniquePhoneConstraint';
+import { IsPhoneNumber } from 'class-validator';
 
 export class UpdatePatientDto {
   @IsPhoneNumber()
-  @Validate(UniquePhoneConstraint)
   readonly phoneNumber!: string;
 }

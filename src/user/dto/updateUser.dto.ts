@@ -19,10 +19,4 @@ export class UpdateUserDto {
   @IsEnum(UserRoleEnum)
   @Transform(({ value }) => (value as string).toUpperCase())
   readonly role?: UserRoleEnum;
-
-  // TODO: delete
-
-  readonly resetToken?: string | null;
-
-  readonly refreshToken?: string | null;
 }

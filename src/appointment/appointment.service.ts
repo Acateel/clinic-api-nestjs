@@ -19,6 +19,7 @@ import { AppointmentTime, FindOptions } from 'src/common/interface';
 import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { checkIntervalsOverlap } from 'src/common/util';
+import { PatientEntity } from 'src/database/entity/patient.entity';
 
 @Injectable()
 export class AppointmentService {
@@ -29,6 +30,8 @@ export class AppointmentService {
     private readonly patientService: PatientService,
     @InjectRepository(AppointmentEntity)
     private readonly appointmentRepository: Repository<AppointmentEntity>,
+    @InjectRepository(PatientEntity)
+    private readonly patientRepository: Repository<PatientEntity>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {
@@ -37,7 +40,13 @@ export class AppointmentService {
 
   async create(dto: CreateAppointmentDto) {
     const doctor = await this.doctorService.getById(dto.doctorId);
-    const patient = await this.patientService.getById(dto.patientId);
+    const patient = await this.patientRepository.findOneBy({
+      id: dto.patientId,
+    });
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found');
+    }
 
     const appointment = this.appointmentRepository.create({
       ...dto,
@@ -104,7 +113,15 @@ export class AppointmentService {
     this.appointmentRepository.merge(appointment, dto);
 
     if (dto.patientId) {
-      appointment.patient = await this.patientService.getById(dto.patientId);
+      const patient = await this.patientRepository.findOneBy({
+        id: dto.patientId,
+      });
+
+      if (!patient) {
+        throw new NotFoundException('Patient not found');
+      }
+
+      appointment.patient = patient;
     }
 
     if (dto.doctorId) {

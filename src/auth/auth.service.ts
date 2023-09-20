@@ -117,7 +117,7 @@ export class AuthService {
     }
 
     const resetToken = this.jwtService.sign(this.getPayload(user));
-    await this.userService.update(user.id, { resetToken });
+    // await this.userService.update(user.id, { resetToken });
     await this.logout(user.id);
 
     return { resetToken };
@@ -126,10 +126,10 @@ export class AuthService {
   async recoverPassword(resetToken: string, newPassword: string) {
     try {
       const decoded = this.jwtService.verify(resetToken);
-      await this.userService.update(decoded.id, {
-        password: newPassword,
-        refreshToken: null,
-      });
+      // await this.userService.update(decoded.id, {
+      //   password: newPassword,
+      //   refreshToken: null,
+      // });
     } catch (error) {
       if (
         error instanceof TokenExpiredError ||
@@ -182,7 +182,7 @@ export class AuthService {
   }
 
   async logout(userId: number) {
-    await this.userService.update(userId, { refreshToken: null });
+    // await this.userService.update(userId, { refreshToken: null });
   }
 
   private getPayload(user: UserEntity): UserPayload {
@@ -198,9 +198,9 @@ export class AuthService {
       secret: this.configService.get('jwt.refreshSecret', { infer: true }),
       expiresIn: this.configService.get('jwt.refreshLifetime', { infer: true }),
     });
-    await this.userService.update(user.id, {
-      refreshToken: bcrypt.hashSync(refreshToken, SALT_ROUNDS),
-    });
+    // await this.userService.update(user.id, {
+    //   refreshToken: bcrypt.hashSync(refreshToken, SALT_ROUNDS),
+    // });
 
     return refreshToken;
   }

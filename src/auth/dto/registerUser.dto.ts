@@ -13,7 +13,7 @@ import { UniqueEmailConstraint } from 'src/common/constraint/uniqueEmailConstrai
 
 export class RegisterUserDto {
   @IsEmail()
-  @Validate(UniqueEmailConstraint)
+  // @Validate(UniqueEmailConstraint)
   @Transform(({ value }) => (value as string).toLowerCase())
   readonly email!: string;
 

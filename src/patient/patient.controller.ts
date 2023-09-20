@@ -7,16 +7,13 @@ import {
   Patch,
   Query,
   Delete,
-  Request,
   UseGuards,
   HttpStatus,
-  UseInterceptors,
 } from '@nestjs/common';
-import { AuthenticatedRequest, ReadOptions } from 'src/common/interface';
+import { AccessTokenPayload } from 'src/common/interface';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/createPatient.dto';
 import { UserRoleEnum } from 'src/common/enum';
-import { UserEntity } from 'src/database/entity/user.entity';
 import { UpdatePatientDto } from './dto/updatePatient.dto';
 import {
   ApiBearerAuth,
@@ -28,7 +25,7 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { PatientResponseDto } from './dto/response/patientResponse.dto';
 import { PatientDetailsResponseDto } from './dto/response/patientDetailsResponse.dto';
-import { CheckResponseEntityOwnershipByAuthorizedUserInterceptor } from 'src/common/interceptor/checkResponseEntityOwnershipByAuthorizedUser.interceptor';
+import { User } from 'src/common/decorator/user.decorator';
 
 @Controller('patients')
 @ApiTags('patients')
@@ -40,8 +37,8 @@ export class PatientController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: PatientResponseDto })
-  create(@Request() req: AuthenticatedRequest, @Body() dto: CreatePatientDto) {
-    return this.patientService.create(req.user.id, dto);
+  create(@Body() dto: CreatePatientDto, @User() user: AccessTokenPayload) {
+    return this.patientService.create(user, dto);
   }
 
   @Get()
@@ -55,9 +52,9 @@ export class PatientController {
   )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
-  @ApiResponse({ status: HttpStatus.OK, type: PatientResponseDto })
-  get(@Query() query: ReadOptions<UserEntity>) {
-    return this.patientService.get(query.find);
+  @ApiResponse({ status: HttpStatus.OK, type: [PatientResponseDto] })
+  get(@Query() query) {
+    return this.patientService.get(query);
   }
 
   @Get(':id')
@@ -69,16 +66,11 @@ export class PatientController {
       UserRoleEnum.PATIENT,
     ),
   )
-  @UseInterceptors(
-    new CheckResponseEntityOwnershipByAuthorizedUserInterceptor(
-      UserRoleEnum.PATIENT,
-    ),
-  )
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientDetailsResponseDto })
-  getById(@Param('id') id: number) {
-    return this.patientService.getById(id);
+  getById(@Param('id') id: number, @User() user: AccessTokenPayload) {
+    return this.patientService.getById(id, user);
   }
 
   @Patch(':id')

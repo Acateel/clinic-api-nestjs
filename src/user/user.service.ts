@@ -20,9 +20,9 @@ export class UserService {
 
   async create(dto: CreateUserDto) {
     const email = dto.email.toLowerCase();
-    const isExists = await this.userRepository.findOneBy({ email });
+    const userWithSameEmail = await this.userRepository.findOneBy({ email });
 
-    if (isExists) {
+    if (userWithSameEmail) {
       throw new BadRequestException('Email adress is allready in use');
     }
 
@@ -73,11 +73,11 @@ export class UserService {
         ...dto,
         email: dto.email.toLowerCase(),
       };
-      const isEmailTaken = await this.userRepository.findOneBy({
+      const userWithSameEmail = await this.userRepository.findOneBy({
         email: dto.email,
       });
 
-      if (isEmailTaken) {
+      if (userWithSameEmail) {
         throw new BadRequestException('Email adress is allready in use');
       }
     }
@@ -99,7 +99,3 @@ export class UserService {
     await this.userRepository.delete(id);
   }
 }
-
-// TODO: dont use UniqueMail, UniquePhone decorators. Then delete them and constraint module
-// Dont transform email and password in dto in other modules.
-// Role is now required when creating user. (check consiquenses in auth)
