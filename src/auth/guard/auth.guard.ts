@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
-import { UserPayload } from 'src/common/interface';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { AccessTokenPayload } from 'src/common/interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload: UserPayload = this.jwtService.verify(token);
+      const payload: AccessTokenPayload = this.jwtService.verify(token);
       req.user = payload;
     } catch (error) {
       if (

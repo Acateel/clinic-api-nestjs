@@ -2,17 +2,6 @@ import { UserRoleEnum } from './enum';
 import { Request } from 'express';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-// TODO: delete
-export interface AuthenticatedRequest extends Request {
-  readonly user: UserPayload;
-}
-
-export interface UserPayload {
-  readonly id: number;
-  readonly email: string;
-  readonly role: UserRoleEnum;
-}
-
 export interface AppConfig {
   port: string;
   apiUrl: string;
@@ -23,6 +12,8 @@ export interface AppConfig {
     refreshLifetime: string;
     inviteSecret: string;
     inviteLifetime: string;
+    resetSecret: string;
+    resetLifetime: string;
   };
   database: TypeOrmModuleOptions;
   smtp: {
@@ -36,9 +27,8 @@ export interface AppConfig {
   };
 }
 
-export interface AppointmentTime {
-  startDate: Date;
-  endDate: Date;
+export interface AuthenticatedRequest extends Request {
+  readonly user: AccessTokenPayload;
 }
 
 export interface InviteTokenPayload {
@@ -46,9 +36,21 @@ export interface InviteTokenPayload {
   role: UserRoleEnum;
 }
 
-// TODO: migrate to AccessTokenPayload interface, decorator for user from request
 export interface AccessTokenPayload {
   readonly id: number;
   readonly email: string;
   readonly role: UserRoleEnum;
+}
+
+export interface ResetTokenPayload {
+  readonly id: number;
+}
+
+export interface RefreshTokenPayload {
+  readonly id: number;
+}
+
+export interface AppointmentTime {
+  startDate: Date;
+  endDate: Date;
 }

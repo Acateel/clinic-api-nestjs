@@ -3,7 +3,6 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { DateTime } from 'luxon';
 
 @ValidatorConstraint()
 export class FutureUtcDateConstraint implements ValidatorConstraintInterface {
@@ -12,7 +11,7 @@ export class FutureUtcDateConstraint implements ValidatorConstraintInterface {
     if (!isValidDate) {
       return false;
     }
-    return DateTime.fromJSDate(value).toUTC() > DateTime.utc();
+    return value.getTime() > Date.now();
   }
 
   defaultMessage(args?: ValidationArguments) {

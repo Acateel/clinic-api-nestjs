@@ -6,7 +6,6 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/loginUser.dto';
@@ -18,10 +17,11 @@ import { AuthResponseDto } from './dto/response/authResponse.dto';
 import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
 import { Throttle } from '@nestjs/throttler';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AuthenticatedRequest } from 'src/common/interface';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { AuthGuard } from './guard/auth.guard';
 import { InviteUserDto } from './dto/inviteUser.dto';
+import { User } from 'src/common/decorator/user.decorator';
+import { AccessTokenPayload } from 'src/common/interface';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -68,19 +68,8 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
-  logout(@Request() req: AuthenticatedRequest) {
-    return this.authService.logout(req.user.id);
-  }
-
-  @Post('register/:inviteToken')
-  @UseGuards(ThrottlerGuard)
-  @Throttle(5, 5)
-  @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
-  registerWithInvite(
-    @Param('inviteToken') inviteToken: string,
-    @Body() dto: InviteUserDto,
-  ) {
-    return this.authService.registerWithInvite(inviteToken, dto);
+  logout(@User() user: AccessTokenPayload) {
+    return this.authService.logout(user);
   }
 
   @Post('recover/:resetToken')
@@ -92,5 +81,16 @@ export class AuthController {
     @Body() dto: RecoverPasswordDto,
   ) {
     return this.authService.recoverPassword(resetToken, dto.password);
+  }
+
+  @Post('register/:inviteToken')
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
+  @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
+  registerWithInvite(
+    @Param('inviteToken') inviteToken: string,
+    @Body() dto: InviteUserDto,
+  ) {
+    return this.authService.registerWithInvite(inviteToken, dto);
   }
 }
