@@ -28,7 +28,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('clinic-api-nestjs')
-    .setVersion('0.6')
+    .setVersion('0.9')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
