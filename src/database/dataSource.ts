@@ -6,12 +6,12 @@ dotenv.config({ path: '.env.develop' });
 
 export const dataSource = new DataSource({
   type: 'postgres',
-  username: process.env.PGUSER,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  host: process.env.PGHOST,
-  port: Number(process.env.PGPORT),
-  entities: ['dist/database/entity/*{.ts,.js}'],
-  migrations: ['src/database/migration/*{.ts,.js}'],
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  entities: [process.env.ENTITIES!],
+  migrations: [process.env.MIGRATIONS!],
   namingStrategy: new SnakeNamingStrategy(),
 });
