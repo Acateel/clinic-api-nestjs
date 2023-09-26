@@ -1,84 +1,43 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { UserEntity } from '../entity/user.entity';
+import { PatientEntity } from '../entity/patient.entity';
 
 export class PopulatePatients1695466278360 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const users = [
-      {
-        id: 10,
-        fullName: 'Patient 1',
-        role: 'PATIENT',
-        email: 'patient-1@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 20,
-        fullName: 'Patient 2',
-        role: 'PATIENT',
-        email: 'patient-2@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 30,
-        fullName: 'Patient 3',
-        role: 'PATIENT',
-        email: 'patient-3@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 40,
-        fullName: 'Patient 4',
-        role: 'PATIENT',
-        email: 'patient-4@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 50,
-        fullName: 'Patient 5',
-        role: 'PATIENT',
-        email: 'patient-5@clinic.com',
-        password: '1234567',
-      },
-    ];
+    await queryRunner.connection.synchronize();
 
-    const patients = [
-      {
-        phoneNumber: '+380990768001',
-        userId: 10,
-      },
-      {
-        phoneNumber: '+380990768002',
-        userId: 20,
-      },
-      {
-        phoneNumber: '+380990768003',
-        userId: 30,
-      },
-      {
-        phoneNumber: '+380990768004',
-        userId: 40,
-      },
-      {
-        phoneNumber: '+380990768005',
-        userId: 50,
-      },
-    ];
+    const seedDataPath = path.join(
+      __dirname,
+      '../../../seed/',
+      'patientsSeedData.json',
+    );
+    const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
+    const patientsData: [{ user: UserEntity } & PatientEntity] =
+      JSON.parse(seedData);
 
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      user.password = bcrypt.hashSync(user.password, SALT_ROUNDS);
-      await queryRunner.query(`
-        INSERT INTO public."user" (user_id, full_name, "role", email, password)
-        VALUES (${user.id}, '${user.fullName}', '${user.role}', '${user.email}', '${user.password}');
-      `);
+    const users: UserEntity[] = patientsData.map((p) => ({
+      ...p.user,
+      password: bcrypt.hashSync(p.user.password!, SALT_ROUNDS),
+    }));
+    const userRepository = queryRunner.connection.getRepository(UserEntity);
+    await userRepository.insert(users);
 
-      const patient = patients[i];
-      await queryRunner.query(`
-        INSERT INTO patient (user_id, phone_number)
-        VALUES (${patient.userId}, '${patient.phoneNumber}');
-    `);
-    }
+    const patients: PatientEntity[] = await Promise.all(
+      patientsData.map(
+        async (p) =>
+          ({
+            ...p,
+            user: await userRepository.findOneBy({ email: p.user.email })!,
+          } as PatientEntity),
+      ),
+    );
+    const patientRepository =
+      queryRunner.connection.getRepository(PatientEntity);
+    await patientRepository.insert(patients);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {}

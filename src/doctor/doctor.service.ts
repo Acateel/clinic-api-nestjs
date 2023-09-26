@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { AccessTokenPayload, AppConfig } from 'src/common/interface';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlots.entity';
+import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlot.entity';
 import { checkIntervalsOverlap } from 'src/common/util';
 import { InviteDoctorDto } from './dto/inviteDoctor.dto';
 import { EmailService } from 'src/email/email.service';

@@ -1,79 +1,40 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { UserEntity } from '../entity/user.entity';
+import { DoctorEntity } from '../entity/doctor.entity';
 
 export class PopulateDoctors1695467542782 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const users = [
-      {
-        id: 60,
-        fullName: 'Doctor 1',
-        role: 'DOCTOR',
-        email: 'doctor-1@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 70,
-        fullName: 'Doctor 2',
-        role: 'DOCTOR',
-        email: 'doctor-2@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 80,
-        fullName: 'Doctor 3',
-        role: 'DOCTOR',
-        email: 'doctor-3@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 90,
-        fullName: 'Doctor 4',
-        role: 'DOCTOR',
-        email: 'doctor-4@clinic.com',
-        password: '1234567',
-      },
-      {
-        id: 100,
-        fullName: 'Doctor 5',
-        role: 'DOCTOR',
-        email: 'doctor-5@clinic.com',
-        password: '1234567',
-      },
-    ];
+    const seedDataPath = path.join(
+      __dirname,
+      '../../../seed/',
+      'doctorsSeedData.json',
+    );
+    const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
+    const doctorsData: [{ user: UserEntity } & DoctorEntity] =
+      JSON.parse(seedData);
 
-    const doctors = [
-      {
-        speciality: 'Dentist',
-      },
-      {
-        speciality: 'Psychologist',
-      },
-      {
-        speciality: 'Therapeft',
-      },
-      {
-        speciality: 'Dentist',
-      },
-      {
-        speciality: 'Veterinar',
-      },
-    ];
+    const users: UserEntity[] = doctorsData.map((d) => ({
+      ...d.user,
+      password: bcrypt.hashSync(d.user.password!, SALT_ROUNDS),
+    }));
+    const userRepository = queryRunner.connection.getRepository(UserEntity);
+    await userRepository.insert(users);
 
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      user.password = bcrypt.hashSync(user.password, SALT_ROUNDS);
-      await queryRunner.query(`
-              INSERT INTO public."user" (user_id, full_name, "role", email, password)
-              VALUES (${user.id}, '${user.fullName}', '${user.role}', '${user.email}', '${user.password}');
-            `);
-
-      const doctor = doctors[i];
-      await queryRunner.query(`
-              INSERT INTO doctor (user_id, speciality)
-              VALUES (${user.id}, '${doctor.speciality}');
-          `);
-    }
+    const doctors: DoctorEntity[] = await Promise.all(
+      doctorsData.map(
+        async (d) =>
+          ({
+            ...d,
+            user: await userRepository.findOneBy({ email: d.user.email })!,
+          } as DoctorEntity),
+      ),
+    );
+    const doctorRepository = queryRunner.connection.getRepository(DoctorEntity);
+    await doctorRepository.insert(doctors);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {}

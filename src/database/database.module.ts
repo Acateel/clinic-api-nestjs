@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { DoctorEntity } from './entity/doctor.entity';
 import { AppointmentEntity } from './entity/appointment.entity';
 import { AppConfig } from 'src/common/interface';
-import { DoctorAvailableSlotEntity } from './entity/doctorAvailableSlots.entity';
+import { DoctorAvailableSlotEntity } from './entity/doctorAvailableSlot.entity';
 
 @Module({
   imports: [
