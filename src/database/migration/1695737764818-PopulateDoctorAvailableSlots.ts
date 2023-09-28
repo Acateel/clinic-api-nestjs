@@ -10,8 +10,8 @@ export class PopulateDoctorAvailableSlots1695737764818
   public async up(queryRunner: QueryRunner): Promise<void> {
     const seedDataPath = path.join(
       __dirname,
-      '../../../seed/',
-      'appointmentsSeedData.json',
+      '../seed/',
+      'doctorAvailableSlots.seed.json',
     );
     const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
     const availableSlotsData = JSON.parse(seedData);

@@ -8,11 +8,7 @@ import { DoctorEntity } from '../entity/doctor.entity';
 
 export class PopulateDoctors1695467542782 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const seedDataPath = path.join(
-      __dirname,
-      '../../../seed/',
-      'doctorsSeedData.json',
-    );
+    const seedDataPath = path.join(__dirname, '../seed/', 'doctors.seed.json');
     const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
     const doctorsData: [{ user: UserEntity } & DoctorEntity] =
       JSON.parse(seedData);
