@@ -6,6 +6,7 @@ import { DoctorModule } from './doctor/doctor.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigurationModule } from './config/configuration.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigurationModule } from './config/configuration.module';
     PatientModule,
     DoctorModule,
     AppointmentModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
