@@ -1,7 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
-import { FromDate } from 'src/common/decorator/fromDate.decorator';
-import { ToDate } from 'src/common/decorator/toDate.decorator';
+import { ParseDatePipe } from 'src/common/pipe/parseDate.pipe';
 
 @Controller('analytics')
 export class AnalyticsController {
@@ -13,7 +12,10 @@ export class AnalyticsController {
   }
 
   @Get('popular-doctors')
-  getPopularDoctors(@FromDate() fromDate?: Date, @ToDate() toDate?: Date) {
+  getPopularDoctors(
+    @Query('fromDate', ParseDatePipe) fromDate?: Date,
+    @Query('toDate', ParseDatePipe) toDate?: Date,
+  ) {
     return this.analyticsService.getPopularDoctorsInTimeframe({
       fromDate,
       toDate,
