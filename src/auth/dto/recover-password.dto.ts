@@ -1,7 +1,7 @@
-import { IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcrypt';
-import { SALT_ROUNDS } from 'src/common/constant';
 import { Transform } from 'class-transformer';
+import { IsNotEmpty } from 'class-validator';
+import { SALT_ROUNDS } from 'src/common/constant';
 
 export class RecoverPasswordDto {
   @IsNotEmpty()

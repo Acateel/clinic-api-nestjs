@@ -1,9 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { MigrationInterface, QueryRunner } from 'typeorm';
+import { AppointmentEntity } from '../entity/appointment.entity';
 import { DoctorEntity } from '../entity/doctor.entity';
 import { PatientEntity } from '../entity/patient.entity';
-import { AppointmentEntity } from '../entity/appointment.entity';
 
 export class PopulateAppointments1695737781537 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

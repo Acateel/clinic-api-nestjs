@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppConfig } from 'src/common/interface';
+import { AppointmentEntity } from './entity/appointment.entity';
+import { DoctorAvailableSlotEntity } from './entity/doctor-available-slot.entity';
+import { DoctorEntity } from './entity/doctor.entity';
 import { PatientEntity } from './entity/patient.entity';
 import { UserEntity } from './entity/user.entity';
-import { ConfigService } from '@nestjs/config';
-import { DoctorEntity } from './entity/doctor.entity';
-import { AppointmentEntity } from './entity/appointment.entity';
-import { AppConfig } from 'src/common/interface';
-import { DoctorAvailableSlotEntity } from './entity/doctorAvailableSlot.entity';
 
 @Module({
   imports: [

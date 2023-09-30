@@ -1,23 +1,23 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DoctorEntity } from 'src/database/entity/doctor.entity';
-import { CreateDoctorDto } from './dto/createDoctor.dto';
-import { Repository } from 'typeorm';
-import { AccessTokenPayload, AppConfig } from 'src/common/interface';
-import { UpdateDoctorDto } from './dto/updateDoctor.dto';
-import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import { DoctorAvailableSlotEntity } from 'src/database/entity/doctorAvailableSlot.entity';
-import { checkIntervalsOverlap } from 'src/common/util';
-import { InviteDoctorDto } from './dto/inviteDoctor.dto';
-import { EmailService } from 'src/email/email.service';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { UserRoleEnum } from 'src/common/enum';
+import { AccessTokenPayload, AppConfig } from 'src/common/interface';
+import { checkIntervalsOverlap } from 'src/common/util';
+import { AppointmentEntity } from 'src/database/entity/appointment.entity';
+import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
+import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
+import { EmailService } from 'src/email/email.service';
+import { Repository } from 'typeorm';
+import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { InviteDoctorDto } from './dto/invite-doctor.dto';
+import { UpdateDoctorDto } from './dto/update-doctor.dto';
 
 @Injectable()
 export class DoctorService {

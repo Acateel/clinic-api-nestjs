@@ -1,14 +1,16 @@
 import {
-  Injectable,
-  UnauthorizedException,
-  NotFoundException,
   BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
-import { RegisterUserDto } from './dto/registerUser.dto';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { AuthResponseDto } from './dto/response/authResponse.dto';
-import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { SALT_ROUNDS } from 'src/common/constant';
+import { UserRoleEnum } from 'src/common/enum';
 import {
   AccessTokenPayload,
   AppConfig,
@@ -16,16 +18,14 @@ import {
   RefreshTokenPayload,
   ResetTokenPayload,
 } from 'src/common/interface';
-import { UserEntity } from 'src/database/entity/user.entity';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { InviteUserDto } from './dto/inviteUser.dto';
-import { UserRoleEnum } from 'src/common/enum';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
-import { SALT_ROUNDS } from 'src/common/constant';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
+import { UserEntity } from 'src/database/entity/user.entity';
+import { UserService } from 'src/user/user.service';
+import { DataSource, Repository } from 'typeorm';
+import { InviteUserDto } from './dto/invite-user.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { AuthResponseDto } from './dto/response/auth-response.dto';
+import { ResetPasswordResponseDto } from './dto/response/reset-password-response.dto';
 
 @Injectable()
 export class AuthService {

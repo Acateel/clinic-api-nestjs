@@ -1,20 +1,15 @@
 import {
   Body,
   Controller,
-  Get,
-  Param,
-  Post,
-  Patch,
-  Query,
   Delete,
-  UseGuards,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { AccessTokenPayload } from 'src/common/interface';
-import { PatientService } from './patient.service';
-import { CreatePatientDto } from './dto/createPatient.dto';
-import { UserRoleEnum } from 'src/common/enum';
-import { UpdatePatientDto } from './dto/updatePatient.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -23,9 +18,14 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { PatientResponseDto } from './dto/response/patientResponse.dto';
-import { PatientDetailsResponseDto } from './dto/response/patientDetailsResponse.dto';
 import { User } from 'src/common/decorator/user.decorator';
+import { UserRoleEnum } from 'src/common/enum';
+import { AccessTokenPayload } from 'src/common/interface';
+import { CreatePatientDto } from './dto/create-patient.dto';
+import { PatientDetailsResponseDto } from './dto/response/patient-details-response.dto';
+import { PatientResponseDto } from './dto/response/patient-response.dto';
+import { UpdatePatientDto } from './dto/update-patient.dto';
+import { PatientService } from './patient.service';
 
 @Controller('patients')
 @ApiTags('patients')

@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { SALT_ROUNDS } from 'src/common/constant';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { UserEntity } from '../entity/user.entity';
+import { SALT_ROUNDS } from 'src/common/constant';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 import { PatientEntity } from '../entity/patient.entity';
+import { UserEntity } from '../entity/user.entity';
 
 export class PopulatePatients1695466278360 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

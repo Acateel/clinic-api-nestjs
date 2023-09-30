@@ -1,19 +1,14 @@
 import {
   Body,
   Controller,
-  Get,
-  Param,
-  Post,
-  Patch,
   Delete,
-  UseGuards,
+  Get,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/createUser.dto';
-import { UserService } from './user.service';
-import { AccessTokenPayload } from 'src/common/interface';
-import { UpdateUserDto } from './dto/updateUser.dto';
-import { UserRoleEnum } from 'src/common/enum';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -22,9 +17,14 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { UserResponseDto } from './dto/response/userResponse.dto';
-import { UserDetailsResponseDto } from './dto/response/userDetailsResponse.dto';
 import { User } from 'src/common/decorator/user.decorator';
+import { UserRoleEnum } from 'src/common/enum';
+import { AccessTokenPayload } from 'src/common/interface';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserDetailsResponseDto } from './dto/response/user-details-response.dto';
+import { UserResponseDto } from './dto/response/user-response.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @ApiTags('users')
 @Controller('users')

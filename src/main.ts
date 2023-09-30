@@ -1,9 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as classValidator from 'class-validator';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { AppModule } from './app.module';
 import { AppConfig } from './common/interface';
 
 async function bootstrap() {

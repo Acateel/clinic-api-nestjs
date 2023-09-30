@@ -1,11 +1,11 @@
 import { UserRoleEnum } from 'src/common/enum';
 import { PatientEntity } from 'src/database/entity/patient.entity';
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  Entity,
   OneToMany,
+  PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';

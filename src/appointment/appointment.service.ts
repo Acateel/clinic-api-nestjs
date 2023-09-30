@@ -1,17 +1,17 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  ConflictException,
 } from '@nestjs/common';
-import { CreateAppointmentDto } from './dto/createAppointment.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { AppointmentTime } from 'src/common/interface';
-import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
-import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { checkIntervalsOverlap } from 'src/common/util';
+import { AppointmentEntity } from 'src/database/entity/appointment.entity';
+import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { PatientEntity } from 'src/database/entity/patient.entity';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Injectable()
 export class AppointmentService {

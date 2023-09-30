@@ -1,7 +1,7 @@
-import { IsArray, IsOptional, Validate, ValidateNested } from 'class-validator';
-import { DoctorAvailableSlotDto } from './doctorAvailableSlot.dto';
 import { Type } from 'class-transformer';
-import { DatesNotOverlapConstraint } from 'src/common/constraint/datesNotOverlapConstraint';
+import { IsArray, IsOptional, Validate, ValidateNested } from 'class-validator';
+import { DatesNotOverlapConstraint } from 'src/common/constraint/dates-not-overlap-constraint';
+import { DoctorAvailableSlotDto } from './doctor-available-slot.dto';
 
 export class UpdateDoctorDto {
   @IsOptional()

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
-import { EmailService } from './email.service';
-import { AppConfig } from 'src/common/interface';
 import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
 import { SMTP_TRANSPORTER } from 'src/common/constant';
+import { AppConfig } from 'src/common/interface';
+import { EmailService } from './email.service';
 
 @Module({
   providers: [

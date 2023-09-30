@@ -1,27 +1,26 @@
 import {
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
-  HttpStatus,
-  HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/loginUser.dto';
-import { RegisterUserDto } from './dto/registerUser.dto';
-import { ResetPasswordDto } from './dto/resetPassword.dto';
-import { RecoverPasswordDto } from './dto/recoverPassword.dto';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthResponseDto } from './dto/response/authResponse.dto';
-import { ResetPasswordResponseDto } from './dto/response/resetPasswordResponse.dto';
-import { Throttle } from '@nestjs/throttler';
-import { ThrottlerGuard } from '@nestjs/throttler';
-import { RefreshTokenDto } from './dto/refreshToken.dto';
-import { AuthGuard } from './guard/auth.guard';
-import { InviteUserDto } from './dto/inviteUser.dto';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { User } from 'src/common/decorator/user.decorator';
 import { AccessTokenPayload } from 'src/common/interface';
+import { AuthService } from './auth.service';
+import { InviteUserDto } from './dto/invite-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthResponseDto } from './dto/response/auth-response.dto';
+import { ResetPasswordResponseDto } from './dto/response/reset-password-response.dto';
+import { AuthGuard } from './guard/auth.guard';
 
 @Controller('auth')
 @ApiTags('auth')

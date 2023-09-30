@@ -1,4 +1,4 @@
-import { DoctorAvailableSlotDto } from '../doctorAvailableSlot.dto';
+import { DoctorAvailableSlotDto } from '../doctor-available-slot.dto';
 
 export class DoctorResponseDto {
   readonly id!: number;

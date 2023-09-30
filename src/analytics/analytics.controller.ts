@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
+import { ParseDatePipe } from 'src/common/pipe/parse-date.pipe';
 import { AnalyticsService } from './analytics.service';
-import { ParseDatePipe } from 'src/common/pipe/parseDate.pipe';
 
 @Controller('analytics')
 export class AnalyticsController {

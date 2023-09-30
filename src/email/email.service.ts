@@ -1,10 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { Transporter } from 'nodemailer';
-import { SMTP_TRANSPORTER } from 'src/common/constant';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as handlebars from 'handlebars';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as handlebars from 'handlebars';
+import { Transporter } from 'nodemailer';
+import * as path from 'path';
+import { SMTP_TRANSPORTER } from 'src/common/constant';
 import { AppConfig } from 'src/common/interface';
 
 @Injectable()

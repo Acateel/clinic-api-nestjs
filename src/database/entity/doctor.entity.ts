@@ -7,9 +7,9 @@ import {
   PrimaryGeneratedColumn,
   RelationId,
 } from 'typeorm';
-import { UserEntity } from './user.entity';
 import { AppointmentEntity } from './appointment.entity';
-import { DoctorAvailableSlotEntity } from './doctorAvailableSlot.entity';
+import { DoctorAvailableSlotEntity } from './doctor-available-slot.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('doctor')
 export class DoctorEntity {

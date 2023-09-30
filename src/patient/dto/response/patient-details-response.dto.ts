@@ -1,5 +1,5 @@
-import { AppointmentResponseDto } from 'src/appointment/dto/response/appointmentResponse.dto';
-import { UserDetailsResponseDto } from 'src/user/dto/response/userDetailsResponse.dto';
+import { AppointmentResponseDto } from 'src/appointment/dto/response/appointment-response.dto';
+import { UserDetailsResponseDto } from 'src/user/dto/response/user-details-response.dto';
 
 export class PatientDetailsResponseDto {
   readonly id!: number;

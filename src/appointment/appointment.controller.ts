@@ -1,20 +1,20 @@
 import {
-  Controller,
-  HttpStatus,
-  Post,
   Body,
+  Controller,
+  Delete,
   Get,
-  Query,
+  HttpStatus,
   Param,
   Patch,
-  Delete,
+  Post,
+  Query,
 } from '@nestjs/common';
-import { AppointmentService } from './appointment.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AppointmentResponseDto } from './dto/response/appointmentResponse.dto';
-import { CreateAppointmentDto } from './dto/createAppointment.dto';
-import { AppointmentDetailsResponseDto } from './dto/response/appointmentDetailsResponse.dto';
-import { UpdateAppointmentDto } from './dto/updateAppointment.dto';
+import { AppointmentService } from './appointment.service';
+import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { AppointmentDetailsResponseDto } from './dto/response/appointment-details-response.dto';
+import { AppointmentResponseDto } from './dto/response/appointment-response.dto';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Controller('appointments')
 @ApiTags('appointments')

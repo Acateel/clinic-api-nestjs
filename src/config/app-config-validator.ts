@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
-import { AppConfigDto } from './appConfig.dto';
+import { AppConfigDto } from './app-config.dto';
 
 export class AppConfigValidator {
   static validate(config: Record<string, unknown>) {

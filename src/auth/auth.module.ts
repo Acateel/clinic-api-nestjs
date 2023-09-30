@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { AppConfig } from 'src/common/interface';
+import { DatabaseModule } from 'src/database/database.module';
+import { DoctorModule } from 'src/doctor/doctor.module';
 import { UserModule } from 'src/user/user.module';
+import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guard/auth.guard';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { AppConfig } from 'src/common/interface';
-import { DoctorModule } from 'src/doctor/doctor.module';
-import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   imports: [

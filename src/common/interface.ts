@@ -1,6 +1,6 @@
-import { UserRoleEnum } from './enum';
-import { Request } from 'express';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { Request } from 'express';
+import { UserRoleEnum } from './enum';
 
 export interface AppConfig {
   port: string;

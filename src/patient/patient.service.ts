@@ -5,13 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PatientEntity } from '../database/entity/patient.entity';
-import { CreatePatientDto } from './dto/createPatient.dto';
-import { UpdatePatientDto } from './dto/updatePatient.dto';
-import { AccessTokenPayload } from '../common/interface';
-import { UserEntity } from 'src/database/entity/user.entity';
 import { UserRoleEnum } from 'src/common/enum';
+import { UserEntity } from 'src/database/entity/user.entity';
+import { Repository } from 'typeorm';
+import { AccessTokenPayload } from '../common/interface';
+import { PatientEntity } from '../database/entity/patient.entity';
+import { CreatePatientDto } from './dto/create-patient.dto';
+import { UpdatePatientDto } from './dto/update-patient.dto';
 
 @Injectable()
 export class PatientService {

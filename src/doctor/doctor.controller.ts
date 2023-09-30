@@ -3,31 +3,31 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
-  Post,
   Patch,
+  Post,
   Query,
   UseGuards,
-  HttpCode,
 } from '@nestjs/common';
-import { CreateDoctorDto } from './dto/createDoctor.dto';
-import { DoctorService } from './doctor.service';
-import { AccessTokenPayload } from 'src/common/interface';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
-import { UserRoleEnum } from 'src/common/enum';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { DoctorResponseDto } from './dto/response/doctorResponse.dto';
-import { DoctorDetailsResponseDto } from './dto/response/doctorDetailsResponse.dto';
-import { UpdateDoctorDto } from './dto/updateDoctor.dto';
-import { InviteDoctorDto } from './dto/inviteDoctor.dto';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { User } from 'src/common/decorator/user.decorator';
+import { UserRoleEnum } from 'src/common/enum';
+import { AccessTokenPayload } from 'src/common/interface';
+import { DoctorService } from './doctor.service';
+import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { InviteDoctorDto } from './dto/invite-doctor.dto';
+import { DoctorDetailsResponseDto } from './dto/response/doctor-details-response.dto';
+import { DoctorResponseDto } from './dto/response/doctor-response.dto';
+import { UpdateDoctorDto } from './dto/update-doctor.dto';
 
 @Controller('doctors')
 @ApiTags('doctors')

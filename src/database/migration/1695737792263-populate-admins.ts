@@ -1,9 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { UserEntity } from '../entity/user.entity';
-import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
+import { MigrationInterface, QueryRunner } from 'typeorm';
+import { UserEntity } from '../entity/user.entity';
 
 export class PopulateAdmins1695737792263 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
