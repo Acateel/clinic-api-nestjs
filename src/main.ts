@@ -1,10 +1,10 @@
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as classValidator from 'class-validator';
 import { AppModule } from './app.module';
 import { AppConfig } from './common/interface';
+import { setupSwagger } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,13 +26,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('clinic-api-nestjs')
-    .setVersion('0.9')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  setupSwagger(app);
 
   const port = app.get(ConfigService<AppConfig, true>).get('port');
 
