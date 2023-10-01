@@ -37,8 +37,7 @@ export class PatientService {
       throw new BadRequestException('Phone number is allready in use');
     }
 
-    const patient = this.patientRepository.create({ ...dto, user });
-    const createdPatient = await this.patientRepository.save(patient);
+    const createdPatient = await this.patientRepository.save({ ...dto, user });
 
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
@@ -100,12 +99,16 @@ export class PatientService {
       if (patientWithSamePhone) {
         throw new BadRequestException('Phone number is allready in use');
       }
+
+      patient.phoneNumber = dto.phoneNumber;
     }
 
-    this.patientRepository.merge(patient, dto);
-    const createdPatient = await this.patientRepository.save(patient);
+    // TODO:
+    const { userId, appointmentIds, ...updateData } = patient;
 
-    return this.patientRepository.findOneBy({ id: createdPatient.id });
+    await this.patientRepository.update(patient.id, updateData);
+
+    return this.patientRepository.findOneBy({ id: patient.id });
   }
 
   async delete(id: number) {

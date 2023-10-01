@@ -68,13 +68,14 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
+    user.fullName = dto.fullName ?? user.fullName;
+    user.role = dto.role ?? user.role;
+
     if (dto.email) {
-      dto = {
-        ...dto,
-        email: dto.email.toLowerCase(),
-      };
+      user.email = dto.email.toLowerCase();
+
       const userWithSameEmail = await this.userRepository.findOneBy({
-        email: dto.email,
+        email: user.email,
       });
 
       if (userWithSameEmail) {
@@ -83,16 +84,18 @@ export class UserService {
     }
 
     if (dto.password) {
-      dto = {
-        ...dto,
-        password: bcrypt.hashSync(dto.password, SALT_ROUNDS),
-      };
+      user.password = bcrypt.hashSync(dto.password, SALT_ROUNDS);
     }
 
-    this.userRepository.merge(user, dto);
-    const createdUser = await this.userRepository.save(user);
+    // TODO: в таблице пользователя нет patientIds, doctorIds
+    // поэтому update при обновлении с ними ругается.
+    // удалить эти поля из сущности или удалять их здесь с ключ словом delete?
+    // удалять с delete не удобно если поле requered как у меня в сущности.
+    const { patientIds, doctorIds, ...updateData } = user;
 
-    return this.userRepository.findOneBy({ id: createdUser.id });
+    await this.userRepository.update(user.id, updateData);
+
+    return this.userRepository.findOneBy({ id: user.id });
   }
 
   async delete(id: number) {

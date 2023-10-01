@@ -38,8 +38,7 @@ export class DoctorService {
       throw new NotFoundException('User not found');
     }
 
-    const doctor = this.doctorRepository.create({ ...dto, user });
-    const createdDoctor = await this.doctorRepository.save(doctor);
+    const createdDoctor = await this.doctorRepository.save({ ...dto, user });
 
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
   }
@@ -96,19 +95,28 @@ export class DoctorService {
   async update(id: number, dto: UpdateDoctorDto) {
     const doctor = await this.doctorRepository.findOne({
       where: { id },
-      relations: { appointments: true },
+      // relations: { appointments: true },
     });
 
     if (!doctor) {
       throw new NotFoundException('Doctor not found');
     }
 
-    this.doctorRepository.merge(doctor, dto);
+    doctor.speciality = dto.speciality ?? doctor.speciality;
 
     if (dto.availableSlots) {
-      if (doctor.appointments) {
+      // TODO: использовать preload для джоина после условия? Вместо сразу в findOne
+      const doctorWithAppointments = await this.doctorRepository.preload({
+        ...doctor,
+        appointments: doctor.appointmentIds.map((id) => ({
+          id,
+        })) as AppointmentEntity[],
+      });
+      const doctorAppointments = doctorWithAppointments?.appointments;
+
+      if (doctorAppointments) {
         for (const slot of dto.availableSlots) {
-          const isFreeSlotTaken = doctor.appointments.some((appointment) =>
+          const isFreeSlotTaken = doctorAppointments.some((appointment) =>
             checkIntervalsOverlap(slot, appointment),
           );
 
@@ -123,9 +131,10 @@ export class DoctorService {
       doctor.availableSlots = dto.availableSlots as DoctorAvailableSlotEntity[];
     }
 
-    const createdDoctor = await this.doctorRepository.save(doctor);
+    // TODO: обновление сущности с каскадными отношениями только через save?
+    const updatedDoctor = await this.doctorRepository.save(doctor);
 
-    return this.doctorRepository.findOneBy({ id: createdDoctor.id });
+    return this.doctorRepository.findOneBy({ id: updatedDoctor.id });
   }
 
   async delete(id: number) {

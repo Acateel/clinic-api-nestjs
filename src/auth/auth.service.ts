@@ -44,7 +44,7 @@ export class AuthService {
 
     return {
       accessToken: this.jwtService.sign(this.getAccessTokenPayload(user)),
-      refreshToken: await this.createRefreshToken(user),
+      refreshToken: await this.createAndSetRefreshTokenToUser(user),
     };
   }
 
@@ -67,7 +67,7 @@ export class AuthService {
 
     return {
       accessToken: this.jwtService.sign(this.getAccessTokenPayload(user)),
-      refreshToken: await this.createRefreshToken(user),
+      refreshToken: await this.createAndSetRefreshTokenToUser(user),
     };
   }
 
@@ -90,7 +90,10 @@ export class AuthService {
       },
     );
     user.resetToken = resetToken;
-    await this.userRepository.save(user);
+
+    const { patientIds, doctorIds, ...updateData } = user;
+
+    await this.userRepository.update(user.id, updateData);
     await this.logout(user);
 
     return { resetToken };
@@ -110,7 +113,9 @@ export class AuthService {
       user.password = newPassword;
       user.refreshToken = null;
 
-      await this.userRepository.save(user);
+      const { patientIds, doctorIds, ...updateData } = user;
+
+      await this.userRepository.update(user.id, updateData);
     } catch (error) {
       if (
         error instanceof TokenExpiredError ||
@@ -146,7 +151,7 @@ export class AuthService {
 
       return {
         accessToken: this.jwtService.sign(this.getAccessTokenPayload(user)),
-        refreshToken: await this.createRefreshToken(user),
+        refreshToken: await this.createAndSetRefreshTokenToUser(user),
       };
     } catch (error) {
       if (
@@ -168,7 +173,10 @@ export class AuthService {
     }
 
     user.refreshToken = null;
-    await this.userRepository.save(user);
+
+    const { patientIds, doctorIds, ...updateData } = user;
+
+    await this.userRepository.update(user.id, updateData);
   }
 
   async registerWithInvite(
@@ -203,13 +211,13 @@ export class AuthService {
 
         const doctorRepository =
           queryRunner.manager.getRepository(DoctorEntity);
-        doctorRepository.save({ user, speciality: 'Change' });
+        await doctorRepository.insert({ user, speciality: 'Change' });
 
         await queryRunner.commitTransaction();
 
         return {
           accessToken: this.jwtService.sign(this.getAccessTokenPayload(user)),
-          refreshToken: await this.createRefreshToken(user),
+          refreshToken: await this.createAndSetRefreshTokenToUser(user),
         };
       }
 
@@ -238,7 +246,7 @@ export class AuthService {
     };
   }
 
-  private async createRefreshToken(user: UserEntity) {
+  private async createAndSetRefreshTokenToUser(user: UserEntity) {
     const refreshToken = this.jwtService.sign(
       {
         id: user.id,
@@ -252,7 +260,11 @@ export class AuthService {
     );
 
     user.refreshToken = bcrypt.hashSync(refreshToken, SALT_ROUNDS);
-    await this.userRepository.save(user);
+
+    // TODO: make relations ids column
+    const { patientIds, doctorIds, ...updateData } = user;
+
+    await this.userRepository.update(user.id, updateData);
 
     return refreshToken;
   }

@@ -3,19 +3,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentTime } from 'src/common/interface';
 import { checkIntervalsOverlap } from 'src/common/util';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { PatientEntity } from 'src/database/entity/patient.entity';
-import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Injectable()
 export class AppointmentService {
-  private queryRunner: QueryRunner;
+  private queryRunner!: QueryRunner;
 
   constructor(
     @InjectRepository(AppointmentEntity)
@@ -24,11 +24,7 @@ export class AppointmentService {
     private readonly patientRepository: Repository<PatientEntity>,
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
-    @InjectDataSource()
-    private readonly dataSource: DataSource,
-  ) {
-    this.queryRunner = dataSource.createQueryRunner();
-  }
+  ) {}
 
   async create(dto: CreateAppointmentDto) {
     const doctor = await this.doctorRepository.findOneBy({ id: dto.doctorId });
@@ -45,14 +41,15 @@ export class AppointmentService {
       throw new NotFoundException('Patient not found');
     }
 
-    const appointment = this.appointmentRepository.create({
-      ...dto,
-      doctor,
-      patient,
-    });
+    const appointment = new AppointmentEntity();
+    appointment.startDate = dto.startDate;
+    appointment.endDate = dto.endDate;
+    appointment.doctor = doctor;
+    appointment.patient = patient;
 
-    this.queryRunner.release();
-    this.queryRunner = this.dataSource.createQueryRunner();
+    this.queryRunner =
+      this.appointmentRepository.manager.connection.createQueryRunner();
+
     await this.queryRunner.startTransaction();
 
     try {
@@ -60,6 +57,7 @@ export class AppointmentService {
       const createdAppointment = await this.queryRunner.manager.save(
         appointment,
       );
+
       await this.queryRunner.commitTransaction();
 
       return this.appointmentRepository.findOneBy({
@@ -117,7 +115,8 @@ export class AppointmentService {
       throw new NotFoundException('Appointment not found');
     }
 
-    this.appointmentRepository.merge(appointment, dto);
+    appointment.startDate = dto.startDate ?? appointment.startDate;
+    appointment.endDate = dto.endDate ?? appointment.endDate;
 
     if (dto.patientId) {
       const patient = await this.patientRepository.findOneBy({
@@ -143,8 +142,8 @@ export class AppointmentService {
       appointment.doctor = doctor;
     }
 
-    this.queryRunner.release();
-    this.queryRunner = this.dataSource.createQueryRunner();
+    this.queryRunner =
+      this.appointmentRepository.manager.connection.createQueryRunner();
     await this.queryRunner.startTransaction();
 
     try {
@@ -155,14 +154,19 @@ export class AppointmentService {
         await this.takeDoctorAvailableSlot(appointment.doctor!, appointment);
       }
 
-      const createdAppointment = await this.queryRunner.manager.save(
-        appointment,
+      // TODO: убирать отношения для обновления?
+      const { patientId, doctorId, ...updateData } = appointment;
+
+      await this.queryRunner.manager.update(
+        AppointmentEntity,
+        appointment.id,
+        updateData,
       );
 
       await this.queryRunner.commitTransaction();
 
       return this.appointmentRepository.findOneBy({
-        id: createdAppointment.id,
+        id: appointment.id,
       });
     } catch (error) {
       await this.queryRunner.rollbackTransaction();
@@ -190,10 +194,7 @@ export class AppointmentService {
 
     doctor.availableSlots.splice(freeSlotIdx, 1);
 
-    if (this.queryRunner.isReleased) {
-      this.queryRunner = this.dataSource.createQueryRunner();
-    }
-
+    // TODO: update only appointments, its not about updating doctor. And maybe can rid of save method
     await this.queryRunner.manager.save(doctor);
   }
 }
