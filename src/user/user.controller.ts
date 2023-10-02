@@ -15,7 +15,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { User } from 'src/common/decorator/user.decorator';
 import { UserRoleEnum } from 'src/common/enum';
@@ -32,7 +32,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: UserResponseDto })
@@ -41,7 +41,7 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: [UserResponseDto] })
@@ -50,7 +50,7 @@ export class UserController {
   }
 
   @Get('profile')
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
@@ -59,7 +59,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
@@ -68,7 +68,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
@@ -77,7 +77,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })

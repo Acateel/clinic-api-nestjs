@@ -20,7 +20,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthResponseDto } from './dto/response/auth-response.dto';
 import { ResetPasswordResponseDto } from './dto/response/reset-password-response.dto';
-import { AuthGuard } from './guard/auth.guard';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -64,7 +64,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
   logout(@User() user: AccessTokenPayload) {

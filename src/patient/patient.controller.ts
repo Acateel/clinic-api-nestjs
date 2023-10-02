@@ -16,7 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { User } from 'src/common/decorator/user.decorator';
 import { UserRoleEnum } from 'src/common/enum';
@@ -33,7 +33,7 @@ export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
   @Post()
-  @UseGuards(AuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: PatientResponseDto })
@@ -43,7 +43,7 @@ export class PatientController {
 
   @Get()
   @UseGuards(
-    AuthGuard,
+    JwtAuthGuard,
     new RolesGuard(
       UserRoleEnum.ADMIN,
       UserRoleEnum.DOCTOR,
@@ -59,7 +59,7 @@ export class PatientController {
 
   @Get(':id')
   @UseGuards(
-    AuthGuard,
+    JwtAuthGuard,
     new RolesGuard(
       UserRoleEnum.ADMIN,
       UserRoleEnum.DOCTOR,
@@ -75,7 +75,7 @@ export class PatientController {
 
   @Patch(':id')
   @UseGuards(
-    AuthGuard,
+    JwtAuthGuard,
     new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT),
   )
   @ApiBearerAuth()
@@ -87,7 +87,7 @@ export class PatientController {
 
   @Delete(':id')
   @UseGuards(
-    AuthGuard,
+    JwtAuthGuard,
     new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT),
   )
   @ApiBearerAuth()
