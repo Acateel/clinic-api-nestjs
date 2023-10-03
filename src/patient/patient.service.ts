@@ -22,7 +22,10 @@ export class PatientService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(dto: CreatePatientDto, payload: AccessTokenPayload) {
+  async create(
+    dto: CreatePatientDto,
+    payload: AccessTokenPayload,
+  ): Promise<PatientEntity | null> {
     const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
@@ -42,7 +45,7 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
 
-  async get(options) {
+  async get(options): Promise<PatientEntity[]> {
     const queryBuilder = this.patientRepository.createQueryBuilder('patient');
 
     if (options.phoneNumber) {
@@ -61,7 +64,10 @@ export class PatientService {
     return queryBuilder.getMany();
   }
 
-  async getById(id: number, payload: AccessTokenPayload) {
+  async getById(
+    id: number,
+    payload: AccessTokenPayload,
+  ): Promise<PatientEntity> {
     const patient = await this.patientRepository
       .createQueryBuilder('patient')
       .where('patient.id = :id', { id })
@@ -84,7 +90,10 @@ export class PatientService {
     return patient;
   }
 
-  async update(id: number, dto: UpdatePatientDto) {
+  async update(
+    id: number,
+    dto: UpdatePatientDto,
+  ): Promise<PatientEntity | null> {
     const patient = await this.patientRepository.findOneBy({ id });
 
     if (!patient) {
@@ -111,7 +120,7 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: patient.id });
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     await this.patientRepository.delete(id);
   }
 }

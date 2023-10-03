@@ -12,6 +12,7 @@ import { PatientEntity } from 'src/database/entity/patient.entity';
 import { QueryRunner, Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { time } from 'console';
 
 @Injectable()
 export class AppointmentService {
@@ -26,7 +27,7 @@ export class AppointmentService {
     private readonly doctorRepository: Repository<DoctorEntity>,
   ) {}
 
-  async create(dto: CreateAppointmentDto) {
+  async create(dto: CreateAppointmentDto): Promise<AppointmentEntity | null> {
     const doctor = await this.doctorRepository.findOneBy({ id: dto.doctorId });
 
     if (!doctor) {
@@ -71,7 +72,7 @@ export class AppointmentService {
     }
   }
 
-  async get(options) {
+  async get(options): Promise<AppointmentEntity[]> {
     const queryBuilder =
       this.appointmentRepository.createQueryBuilder('appointment');
 
@@ -90,7 +91,7 @@ export class AppointmentService {
     return queryBuilder.getMany();
   }
 
-  async getById(id: number) {
+  async getById(id: number): Promise<AppointmentEntity> {
     const appointment = await this.appointmentRepository
       .createQueryBuilder('appointment')
       .where('appointment.id = :id', { id })
@@ -106,7 +107,10 @@ export class AppointmentService {
     return appointment;
   }
 
-  async update(id: number, dto: UpdateAppointmentDto) {
+  async update(
+    id: number,
+    dto: UpdateAppointmentDto,
+  ): Promise<AppointmentEntity | null> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
       relations: { doctor: true },
@@ -177,14 +181,14 @@ export class AppointmentService {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     await this.appointmentRepository.delete(id);
   }
 
   private async takeDoctorAvailableSlot(
     doctor: DoctorEntity,
     time: AppointmentTime,
-  ) {
+  ): Promise<void> {
     const freeSlotIdx = doctor.availableSlots.findIndex((slot) =>
       checkIntervalsOverlap(slot, time),
     );

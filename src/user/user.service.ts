@@ -18,7 +18,7 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(dto: CreateUserDto) {
+  async create(dto: CreateUserDto): Promise<UserEntity> {
     const email = dto.email.toLowerCase();
     const userWithSameEmail = await this.userRepository.findOneBy({ email });
 
@@ -36,11 +36,11 @@ export class UserService {
     return user!;
   }
 
-  async get() {
+  async get(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
 
-  async getById(id: number) {
+  async getById(id: number): Promise<UserEntity> {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.id = :id', { id })
@@ -61,7 +61,7 @@ export class UserService {
     return user;
   }
 
-  async update(id: number, dto: UpdateUserDto) {
+  async update(id: number, dto: UpdateUserDto): Promise<UserEntity | null> {
     const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
@@ -98,7 +98,7 @@ export class UserService {
     return this.userRepository.findOneBy({ id: user.id });
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     await this.userRepository.delete(id);
   }
 }

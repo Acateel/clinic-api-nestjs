@@ -99,7 +99,10 @@ export class AuthService {
     return { resetToken };
   }
 
-  async recoverPassword(resetToken: string, newPassword: string) {
+  async recoverPassword(
+    resetToken: string,
+    newPassword: string,
+  ): Promise<void> {
     try {
       const payload: ResetTokenPayload = this.jwtService.verify(resetToken, {
         secret: this.configService.get('jwt.resetSecret', { infer: true }),
@@ -165,7 +168,7 @@ export class AuthService {
     }
   }
 
-  async logout(payload: AccessTokenPayload) {
+  async logout(payload: AccessTokenPayload): Promise<void> {
     const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
@@ -246,7 +249,9 @@ export class AuthService {
     };
   }
 
-  private async createAndSetRefreshTokenToUser(user: UserEntity) {
+  private async createAndSetRefreshTokenToUser(
+    user: UserEntity,
+  ): Promise<string> {
     const refreshToken = this.jwtService.sign(
       {
         id: user.id,

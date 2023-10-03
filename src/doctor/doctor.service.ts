@@ -31,7 +31,10 @@ export class DoctorService {
     private readonly emailService: EmailService,
   ) {}
 
-  async create(dto: CreateDoctorDto, payload: AccessTokenPayload) {
+  async create(
+    dto: CreateDoctorDto,
+    payload: AccessTokenPayload,
+  ): Promise<DoctorEntity | null> {
     const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
@@ -43,7 +46,7 @@ export class DoctorService {
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
   }
 
-  async get(options) {
+  async get(options): Promise<DoctorEntity[]> {
     const queryBuilder = this.doctorRepository.createQueryBuilder('doctor');
 
     if (options.speciality) {
@@ -73,7 +76,7 @@ export class DoctorService {
     return queryBuilder.getMany();
   }
 
-  async getById(id: number) {
+  async getById(id: number): Promise<DoctorEntity> {
     const doctor = await this.doctorRepository
       .createQueryBuilder('doctor')
       .where('doctor.id = :id', { id })
@@ -90,7 +93,7 @@ export class DoctorService {
     return doctor;
   }
 
-  async update(id: number, dto: UpdateDoctorDto) {
+  async update(id: number, dto: UpdateDoctorDto): Promise<DoctorEntity | null> {
     const doctor = await this.doctorRepository.findOne({
       where: { id },
       // relations: { appointments: true },
@@ -135,11 +138,11 @@ export class DoctorService {
     return this.doctorRepository.findOneBy({ id: updatedDoctor.id });
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     await this.doctorRepository.delete(id);
   }
 
-  async invite(dto: InviteDoctorDto) {
+  async invite(dto: InviteDoctorDto): Promise<void> {
     const inviteToken = this.jwtService.sign(
       {
         email: dto.email.toLowerCase(),
@@ -156,6 +159,6 @@ export class DoctorService {
       'apiUrl',
     )}/auth/register/${inviteToken}`;
 
-    this.emailService.sendInvite(dto.email, inviteLink);
+    await this.emailService.sendInvite(dto.email, inviteLink);
   }
 }

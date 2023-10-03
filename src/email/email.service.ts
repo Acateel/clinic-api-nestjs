@@ -14,7 +14,7 @@ export class EmailService {
     @Inject(SMTP_TRANSPORTER) private readonly transporter: Transporter,
   ) {}
 
-  async sendInvite(to: string, inviteLink: string) {
+  async sendInvite(to: string, inviteLink: string): Promise<void> {
     const template = fs.readFileSync(
       path.join(__dirname, 'template', 'invite.hbs'),
       'utf8',
