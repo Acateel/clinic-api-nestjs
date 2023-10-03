@@ -1,5 +1,5 @@
 import { IsOptional, Validate } from 'class-validator';
-import { FutureUtcDateConstraint } from 'src/common/constraint/future-utc-date-constraint';
+import { FutureUtcDateConstraint } from 'src/common/constraint/future-utc-date.constraint';
 
 export class UpdateAppointmentDto {
   @IsOptional()
