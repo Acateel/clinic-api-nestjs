@@ -43,17 +43,17 @@ export class PatientService {
   }
 
   async get(options) {
-    const queryBuilder = this.patientRepository.createQueryBuilder('p');
+    const queryBuilder = this.patientRepository.createQueryBuilder('patient');
 
     if (options.phoneNumber) {
-      queryBuilder.andWhere('p.phoneNumber = :phoneNumber', {
+      queryBuilder.andWhere('patient.phoneNumber = :phoneNumber', {
         phoneNumber: `+${options.phoneNumber}`,
       });
     }
 
     if (options.fullName) {
-      queryBuilder.leftJoin('p.user', 'pu');
-      queryBuilder.andWhere('pu.fullName = :fullName', {
+      queryBuilder.leftJoin('patient.user', 'user');
+      queryBuilder.andWhere('user.fullName = :fullName', {
         fullName: options.fullName,
       });
     }
@@ -63,11 +63,11 @@ export class PatientService {
 
   async getById(id: number, payload: AccessTokenPayload) {
     const patient = await this.patientRepository
-      .createQueryBuilder('p')
-      .where('p.id = :id', { id })
-      .addSelect(['p.createdAt'])
-      .leftJoinAndSelect('p.user', 'pu')
-      .leftJoinAndSelect('p.appointments', 'pa')
+      .createQueryBuilder('patient')
+      .where('patient.id = :id', { id })
+      .addSelect(['patient.createdAt'])
+      .leftJoinAndSelect('patient.user', 'user')
+      .leftJoinAndSelect('patient.appointments', 'appointment')
       .getOne();
 
     if (!patient) {

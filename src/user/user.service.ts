@@ -42,16 +42,16 @@ export class UserService {
 
   async getById(id: number) {
     const user = await this.userRepository
-      .createQueryBuilder('u')
-      .where('u.id = :id', { id })
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
       .addSelect([
-        'u.password',
-        'u.createdAt',
-        'u.resetToken',
-        'u.refreshToken',
+        'user.password',
+        'user.createdAt',
+        'user.resetToken',
+        'user.refreshToken',
       ])
-      .leftJoinAndSelect('u.patients', 'up')
-      .leftJoinAndSelect('u.doctors', 'ud')
+      .leftJoinAndSelect('user.patients', 'patient')
+      .leftJoinAndSelect('user.doctors', 'doctor')
       .getOne();
 
     if (!user) {

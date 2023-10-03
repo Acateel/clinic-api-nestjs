@@ -44,32 +44,30 @@ export class DoctorService {
   }
 
   async get(options) {
-    const queryBuilder = this.doctorRepository.createQueryBuilder('d');
+    const queryBuilder = this.doctorRepository.createQueryBuilder('doctor');
 
     if (options.speciality) {
-      queryBuilder.andWhere('d.speciality = :speciality', {
+      queryBuilder.andWhere('doctor.speciality = :speciality', {
         speciality: options.speciality,
       });
     }
 
     if (options.fullName) {
-      queryBuilder.leftJoin('d.user', 'du');
-      queryBuilder.andWhere('du.fullName = :fullName', {
+      queryBuilder.leftJoin('doctor.user', 'user');
+      queryBuilder.andWhere('user.fullName = :fullName', {
         fullName: options.fullName,
       });
     }
 
     if (options.sort === 'appointments') {
       queryBuilder
-        .select(
-          (subQuery) =>
-            subQuery
-              .select('COUNT(appointment_id)', 'ac')
-              .from(AppointmentEntity, 'a')
-              .where('a.id = d.id'),
-          'a',
+        .select((subQuery) =>
+          subQuery
+            .select('COUNT(appointment_id)', 'appointment_count')
+            .from(AppointmentEntity, 'appointment')
+            .where('appointment.id = doctor.id'),
         )
-        .addOrderBy('a', 'DESC');
+        .addOrderBy('appointment_count', 'DESC');
     }
 
     return queryBuilder.getMany();
@@ -77,12 +75,12 @@ export class DoctorService {
 
   async getById(id: number) {
     const doctor = await this.doctorRepository
-      .createQueryBuilder('d')
-      .where('d.id = :id', { id })
-      .addSelect(['d.createdAt'])
-      .leftJoinAndSelect('d.user', 'du')
-      .leftJoinAndSelect('d.appointments', 'dap')
-      .leftJoinAndSelect('d.availableSlots', 'dav')
+      .createQueryBuilder('doctor')
+      .where('doctor.id = :id', { id })
+      .addSelect(['doctor.createdAt'])
+      .leftJoinAndSelect('doctor.user', 'user')
+      .leftJoinAndSelect('doctor.appointments', 'appointment')
+      .leftJoinAndSelect('doctor.availableSlots', 'available_slot')
       .getOne();
 
     if (!doctor) {

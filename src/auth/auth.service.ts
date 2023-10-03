@@ -50,9 +50,9 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<AuthResponseDto> {
     const user = await this.userRepository
-      .createQueryBuilder('u')
-      .where('u.email = :email', { email: email.toLowerCase() })
-      .addSelect(['u.password'])
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email: email.toLowerCase() })
+      .addSelect(['user.password'])
       .getOne();
 
     if (!user) {
@@ -73,9 +73,9 @@ export class AuthService {
 
   async resetPassword(email: string): Promise<ResetPasswordResponseDto> {
     const user = await this.userRepository
-      .createQueryBuilder('u')
-      .where('u.email = :email', { email: email.toLowerCase() })
-      .addSelect(['u.password'])
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email: email.toLowerCase() })
+      .addSelect(['user.password'])
       .getOne();
 
     if (!user) {
@@ -134,9 +134,9 @@ export class AuthService {
         secret: this.configService.get('jwt.refreshSecret', { infer: true }),
       });
       const user = await this.userRepository
-        .createQueryBuilder('u')
-        .where('u.id = :id', { id: payload.id })
-        .addSelect(['u.refreshToken'])
+        .createQueryBuilder('user')
+        .where('user.id = :id', { id: payload.id })
+        .addSelect(['user.refreshToken'])
         .getOne();
 
       if (!user || !user.refreshToken) {

@@ -72,16 +72,17 @@ export class AppointmentService {
   }
 
   async get(options) {
-    const queryBuilder = this.appointmentRepository.createQueryBuilder('a');
+    const queryBuilder =
+      this.appointmentRepository.createQueryBuilder('appointment');
 
     if (options.doctor) {
-      queryBuilder.andWhere('a.doctor_id = :doctorId', {
+      queryBuilder.andWhere('appointment.doctor_id = :doctorId', {
         doctorId: options.doctor,
       });
     }
 
     if (options.patient) {
-      queryBuilder.andWhere('a.patient_id = :patientId', {
+      queryBuilder.andWhere('appointment.patient_id = :patientId', {
         patientId: options.patient,
       });
     }
@@ -91,11 +92,11 @@ export class AppointmentService {
 
   async getById(id: number) {
     const appointment = await this.appointmentRepository
-      .createQueryBuilder('a')
-      .where('a.id = :id', { id })
-      .addSelect(['a.createdAt'])
-      .leftJoinAndSelect('a.doctor', 'adoctor')
-      .leftJoinAndSelect('a.patient', 'apatient')
+      .createQueryBuilder('appointment')
+      .where('appointment.id = :id', { id })
+      .addSelect(['appointment.createdAt'])
+      .leftJoinAndSelect('appointment.doctor', 'doctor')
+      .leftJoinAndSelect('appointment.patient', 'patient')
       .getOne();
 
     if (!appointment) {
