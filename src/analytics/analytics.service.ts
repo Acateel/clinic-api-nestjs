@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as datefns from 'date-fns';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { Repository } from 'typeorm';
 
@@ -10,41 +11,76 @@ export class AnalyticsService {
     private readonly doctorRepository: Repository<DoctorEntity>,
   ) {}
 
-  getPopularSpecialities() {
-    return this.doctorRepository
-      .createQueryBuilder('d')
-      .select('speciality')
-      .addSelect('COUNT(*)', 'doctors_count')
-      .groupBy('speciality')
-      .orderBy('doctors_count', 'DESC')
-      .limit(10)
-      .getRawMany();
+  async getTopDoctorsByPeriodReport(options: {
+    fromDate: Date;
+    toDate: Date;
+    doctorIds?: number[];
+  }) {
+    const currentPeriod = await this.getDataForPeriod(
+      options.fromDate,
+      options.toDate,
+      options.doctorIds,
+    );
+
+    const periodDaysCount = datefns.differenceInCalendarDays(
+      options.toDate,
+      options.fromDate,
+    );
+    const previousPeriod = await this.getDataForPeriod(
+      datefns.subDays(options.fromDate, periodDaysCount),
+      datefns.subDays(options.toDate, periodDaysCount),
+      options.doctorIds,
+    );
+
+    return {
+      topDoctor: currentPeriod[0],
+      currentPeriod: this.groupByWeeks(currentPeriod),
+      previousPeriod: this.groupByWeeks(previousPeriod),
+    };
   }
 
-  getPopularDoctorsInTimeframe(query: { fromDate?: Date; toDate?: Date }) {
+  private getDataForPeriod(fromDate: Date, toDate: Date, doctorIds?: number[]) {
     const queryBuilder = this.doctorRepository
-      .createQueryBuilder('d')
-      .select('full_name')
-      .addSelect('COUNT(appointment_id)', 'appointments_count')
-      .innerJoin('d.user', 'du')
-      .innerJoin('d.appointments', 'da');
+      .createQueryBuilder('doctor')
+      .select('doctor.doctor_id, user.full_name')
+      .addSelect(`date_trunc('week', start_date::date) AS week_date`)
+      .addSelect(
+        'COUNT(appointment.appointment_id)::integer AS appointment_count',
+      )
+      .innerJoin('doctor.appointments', 'appointment')
+      .innerJoin('doctor.user', 'user')
+      .andWhere(
+        `date_trunc('week', start_date::date) BETWEEN :fromDate AND :toDate`,
+        { fromDate, toDate },
+      )
+      .groupBy('doctor.doctor_id, user.full_name, week_date')
+      .orderBy('week_date', 'ASC')
+      .addOrderBy('COUNT(appointment.appointment_id)::integer', 'DESC');
 
-    if (query.fromDate) {
-      queryBuilder.andWhere('da.created_at >= :fromDate', {
-        fromDate: query.fromDate.toISOString(),
-      });
+    if (doctorIds) {
+      queryBuilder.andWhere('doctor.id IN (:doctorIds)', { doctorIds });
     }
 
-    if (query.toDate) {
-      queryBuilder.andWhere('da.created_at <= :toDate', {
-        toDate: query.toDate.toISOString(),
-      });
-    }
+    return queryBuilder.getRawMany();
+  }
 
-    return queryBuilder
-      .groupBy('d.doctor_id, du.full_name')
-      .orderBy('appointments_count', 'DESC')
-      .limit(10)
-      .getRawMany();
+  private groupByWeeks(period) {
+    return period.reduce((period, doctorAppointmentsInfo) => {
+      const year = doctorAppointmentsInfo.week_date.getFullYear();
+      const month = doctorAppointmentsInfo.week_date.getMonth() + 1;
+      const groupKey = `${year}-${month} week ${datefns.getWeekOfMonth(
+        doctorAppointmentsInfo.week_date,
+      )}`;
+
+      if (!period[groupKey]?.length) {
+        period[groupKey] = [];
+      }
+
+      delete doctorAppointmentsInfo.week_date;
+      period[groupKey].push({
+        ...doctorAppointmentsInfo,
+      });
+      return period;
+    }, {});
   }
 }
