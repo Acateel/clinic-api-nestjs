@@ -91,9 +91,7 @@ export class AuthService {
     );
     user.resetToken = resetToken;
 
-    const { patientIds, doctorIds, ...updateData } = user;
-
-    await this.userRepository.update(user.id, updateData);
+    await this.userRepository.update(user.id, user);
     await this.logout(user);
 
     return { resetToken };
@@ -116,9 +114,7 @@ export class AuthService {
       user.password = newPassword;
       user.refreshToken = null;
 
-      const { patientIds, doctorIds, ...updateData } = user;
-
-      await this.userRepository.update(user.id, updateData);
+      await this.userRepository.update(user.id, user);
     } catch (error) {
       if (
         error instanceof TokenExpiredError ||
@@ -177,9 +173,7 @@ export class AuthService {
 
     user.refreshToken = null;
 
-    const { patientIds, doctorIds, ...updateData } = user;
-
-    await this.userRepository.update(user.id, updateData);
+    await this.userRepository.update(user.id, user);
   }
 
   async registerWithInvite(
@@ -266,10 +260,7 @@ export class AuthService {
 
     user.refreshToken = bcrypt.hashSync(refreshToken, SALT_ROUNDS);
 
-    // TODO: make relations ids column
-    const { patientIds, doctorIds, ...updateData } = user;
-
-    await this.userRepository.update(user.id, updateData);
+    await this.userRepository.update(user.id, user);
 
     return refreshToken;
   }

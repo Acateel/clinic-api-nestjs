@@ -6,7 +6,6 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
 
@@ -36,14 +35,8 @@ export class UserEntity {
   @OneToMany(() => PatientEntity, (patient) => patient.user)
   patients?: PatientEntity[];
 
-  @RelationId((user: UserEntity) => user.patients)
-  patientIds!: number[];
-
   @OneToMany(() => DoctorEntity, (doctor) => doctor.user)
   doctors?: DoctorEntity[];
-
-  @RelationId((user: UserEntity) => user.patients)
-  doctorIds!: number[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

@@ -112,10 +112,7 @@ export class PatientService {
       patient.phoneNumber = dto.phoneNumber;
     }
 
-    // TODO:
-    const { userId, appointmentIds, ...updateData } = patient;
-
-    await this.patientRepository.update(patient.id, updateData);
+    await this.patientRepository.update(patient.id, patient);
 
     return this.patientRepository.findOneBy({ id: patient.id });
   }

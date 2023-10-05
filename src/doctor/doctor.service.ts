@@ -96,7 +96,7 @@ export class DoctorService {
   async update(id: number, dto: UpdateDoctorDto): Promise<DoctorEntity | null> {
     const doctor = await this.doctorRepository.findOne({
       where: { id },
-      // relations: { appointments: true },
+      relations: ['appointments'],
     });
 
     if (!doctor) {
@@ -106,18 +106,9 @@ export class DoctorService {
     doctor.speciality = dto.speciality ?? doctor.speciality;
 
     if (dto.availableSlots) {
-      // TODO: использовать preload для джоина после условия? Вместо сразу в findOne
-      const doctorWithAppointments = await this.doctorRepository.preload({
-        ...doctor,
-        appointments: doctor.appointmentIds.map((id) => ({
-          id,
-        })) as AppointmentEntity[],
-      });
-      const doctorAppointments = doctorWithAppointments?.appointments;
-
-      if (doctorAppointments) {
+      if (doctor.appointments) {
         for (const slot of dto.availableSlots) {
-          const isFreeSlotTaken = doctorAppointments.some((appointment) =>
+          const isFreeSlotTaken = doctor.appointments.some((appointment) =>
             checkIntervalsOverlap(slot, appointment),
           );
 
@@ -132,7 +123,6 @@ export class DoctorService {
       doctor.availableSlots = dto.availableSlots as DoctorAvailableSlotEntity[];
     }
 
-    // TODO: обновление сущности с каскадными отношениями только через save?
     const updatedDoctor = await this.doctorRepository.save(doctor);
 
     return this.doctorRepository.findOneBy({ id: updatedDoctor.id });

@@ -87,13 +87,7 @@ export class UserService {
       user.password = bcrypt.hashSync(dto.password, SALT_ROUNDS);
     }
 
-    // TODO: в таблице пользователя нет patientIds, doctorIds
-    // поэтому update при обновлении с ними ругается.
-    // удалить эти поля из сущности или удалять их здесь с ключ словом delete?
-    // удалять с delete не удобно если поле requered как у меня в сущности.
-    const { patientIds, doctorIds, ...updateData } = user;
-
-    await this.userRepository.update(user.id, updateData);
+    await this.userRepository.update(user.id, user);
 
     return this.userRepository.findOneBy({ id: user.id });
   }

@@ -12,7 +12,6 @@ import { PatientEntity } from 'src/database/entity/patient.entity';
 import { QueryRunner, Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { time } from 'console';
 
 @Injectable()
 export class AppointmentService {
@@ -159,13 +158,10 @@ export class AppointmentService {
         await this.takeDoctorAvailableSlot(appointment.doctor!, appointment);
       }
 
-      // TODO: убирать отношения для обновления?
-      const { patientId, doctorId, ...updateData } = appointment;
-
       await this.queryRunner.manager.update(
         AppointmentEntity,
         appointment.id,
-        updateData,
+        appointment,
       );
 
       await this.queryRunner.commitTransaction();

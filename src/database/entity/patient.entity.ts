@@ -3,10 +3,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
 
@@ -19,16 +19,14 @@ export class PatientEntity {
   phoneNumber!: string;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
+  @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 
-  @RelationId((patient: PatientEntity) => patient.user)
+  @Column({ name: 'user_id' })
   userId!: number;
 
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.patient)
   appointments?: AppointmentEntity[];
-
-  @RelationId((patient: PatientEntity) => patient.appointments)
-  appointmentIds!: number[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
