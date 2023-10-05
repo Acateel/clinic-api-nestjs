@@ -49,7 +49,12 @@ export class UserController {
     return this.userService.get();
   }
 
-  @Get('profile')
+  // REVIEW: ты на митинге приводил примеры ендпоинтов:
+  // => /courses/list/filters
+  // => /courses/unregistered
+  // Скорее всего (я додумываю) есть и ендпоинт /courses/:id
+  // как тогда различать когда передают id, а когда "unregistered", условием?
+  @Get(':current/profile')
   @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
