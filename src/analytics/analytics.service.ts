@@ -32,9 +32,21 @@ export class AnalyticsService {
       options.doctorIds,
     );
 
+    const currentPeriodGroupedByWeeks = this.groupByWeeks(currentPeriod);
+
+    const topDoctor = currentPeriod[0];
+    topDoctor.bestInWeeks = this.getDoctorBestWeeks(
+      topDoctor,
+      currentPeriodGroupedByWeeks,
+    );
+    topDoctor.demandGrowth = this.calcInDemandGrowthForDoctor(
+      topDoctor,
+      previousPeriod,
+    );
+
     return {
-      topDoctor: currentPeriod[0],
-      currentPeriod: this.groupByWeeks(currentPeriod),
+      topDoctor,
+      currentPeriod: currentPeriodGroupedByWeeks,
       previousPeriod: this.groupByWeeks(previousPeriod),
     };
   }
@@ -58,7 +70,7 @@ export class AnalyticsService {
       .addOrderBy('COUNT(appointment.appointment_id)::integer', 'DESC');
 
     if (doctorIds) {
-      queryBuilder.andWhere('doctor.id IN (:doctorIds)', { doctorIds });
+      queryBuilder.andWhere('doctor.id IN (:...doctorIds)', { doctorIds });
     }
 
     return queryBuilder.getRawMany();
@@ -82,5 +94,28 @@ export class AnalyticsService {
       });
       return period;
     }, {});
+  }
+
+  private getDoctorBestWeeks(doctor, period) {
+    const bestWeeks = {};
+    for (const [week, doctors] of Object.entries(period)) {
+      const doctorsInfo = doctors as Array<any>;
+      const topDoctorOfWeek = doctorsInfo[0];
+      if (topDoctorOfWeek.doctor_id === doctor.doctor_id) {
+        bestWeeks[week] = topDoctorOfWeek.appointment_count;
+      }
+    }
+    return bestWeeks;
+  }
+
+  private calcInDemandGrowthForDoctor(doctor, prevPeriod) {
+    const topPrevPeriodResults = prevPeriod.filter(
+      (d) => d.doctor_id === doctor.doctor_id,
+    );
+    const prevMaxRes = Math.max(
+      ...topPrevPeriodResults.map((res) => res.appointment_count),
+    );
+
+    return ((doctor.appointment_count - prevMaxRes) / prevMaxRes) * 100;
   }
 }
