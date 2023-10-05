@@ -17,6 +17,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { User } from 'src/common/decorator/user.decorator';
@@ -35,7 +36,8 @@ export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: DoctorResponseDto })
@@ -44,14 +46,8 @@ export class DoctorController {
   }
 
   @Get()
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(
-      UserRoleEnum.ADMIN,
-      UserRoleEnum.DOCTOR,
-      UserRoleEnum.PATIENT,
-    ),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: [DoctorResponseDto] })
@@ -59,9 +55,11 @@ export class DoctorController {
     return this.doctorService.get(query);
   }
 
+  // REVIEW: нужно ли как и с profile ендпоинтом изменить путь /:any/invite
   @Post('invite')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.OK })
@@ -70,14 +68,8 @@ export class DoctorController {
   }
 
   @Get(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(
-      UserRoleEnum.ADMIN,
-      UserRoleEnum.DOCTOR,
-      UserRoleEnum.PATIENT,
-    ),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: DoctorDetailsResponseDto })
@@ -86,10 +78,8 @@ export class DoctorController {
   }
 
   @Patch(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor' })
   @ApiResponse({ status: HttpStatus.OK, type: DoctorResponseDto })
@@ -98,10 +88,8 @@ export class DoctorController {
   }
 
   @Delete(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor' })
   @ApiResponse({ status: HttpStatus.OK })

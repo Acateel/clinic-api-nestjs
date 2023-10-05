@@ -16,6 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guard/roles.guard';
 import { User } from 'src/common/decorator/user.decorator';
@@ -33,7 +34,8 @@ export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, new RolesGuard(UserRoleEnum.ADMIN))
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
   @ApiResponse({ status: HttpStatus.CREATED, type: PatientResponseDto })
@@ -42,14 +44,8 @@ export class PatientController {
   }
 
   @Get()
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(
-      UserRoleEnum.ADMIN,
-      UserRoleEnum.DOCTOR,
-      UserRoleEnum.PATIENT,
-    ),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: [PatientResponseDto] })
@@ -58,14 +54,8 @@ export class PatientController {
   }
 
   @Get(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(
-      UserRoleEnum.ADMIN,
-      UserRoleEnum.DOCTOR,
-      UserRoleEnum.PATIENT,
-    ),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientDetailsResponseDto })
@@ -74,10 +64,8 @@ export class PatientController {
   }
 
   @Patch(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: PatientResponseDto })
@@ -86,10 +74,8 @@ export class PatientController {
   }
 
   @Delete(':id')
-  @UseGuards(
-    JwtAuthGuard,
-    new RolesGuard(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT),
-  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, patient' })
   @ApiResponse({ status: HttpStatus.OK })

@@ -3,18 +3,21 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { UserRoleEnum } from 'src/common/enum';
 import { AuthenticatedRequest } from 'src/common/interface';
 
 export class RolesGuard implements CanActivate {
-  private readonly requiredRoles?: UserRoleEnum[];
-
-  constructor(...requiredRoles: UserRoleEnum[]) {
-    this.requiredRoles = requiredRoles;
-  }
+  constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    if (!this.requiredRoles) {
+    const requiredRoles = this.reflector.getAllAndOverride<UserRoleEnum[]>(
+      // Review: use enum for metadata keys?
+      'ROLES',
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (!requiredRoles) {
       return true;
     }
 
@@ -24,6 +27,6 @@ export class RolesGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    return this.requiredRoles.includes(req.user.role);
+    return requiredRoles.includes(req.user.role);
   }
 }
