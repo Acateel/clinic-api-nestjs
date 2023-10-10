@@ -19,4 +19,7 @@ export class CreateDoctorDto {
   @Validate(DatesNotOverlapConstraint)
   @ValidateNested({ each: true })
   readonly availableSlots?: DoctorAvailableSlotDto[];
+
+  @IsOptional()
+  readonly departmentId?: number;
 }

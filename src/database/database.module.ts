@@ -7,6 +7,7 @@ import { DoctorAvailableSlotEntity } from './entity/doctor-available-slot.entity
 import { DoctorEntity } from './entity/doctor.entity';
 import { PatientEntity } from './entity/patient.entity';
 import { UserEntity } from './entity/user.entity';
+import { DepartmentEntity } from './entity/department.entity';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserEntity } from './entity/user.entity';
       DoctorEntity,
       AppointmentEntity,
       DoctorAvailableSlotEntity,
+      DepartmentEntity,
     ]),
   ],
   exports: [TypeOrmModule],

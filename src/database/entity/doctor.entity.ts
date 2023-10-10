@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
+import { DepartmentEntity } from './department.entity';
 import { DoctorAvailableSlotEntity } from './doctor-available-slot.entity';
 import { UserEntity } from './user.entity';
 
@@ -36,6 +37,9 @@ export class DoctorEntity {
 
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.doctor)
   appointments?: AppointmentEntity[];
+
+  @ManyToOne(() => DepartmentEntity, { onDelete: 'NO ACTION' })
+  department?: DepartmentEntity;
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
