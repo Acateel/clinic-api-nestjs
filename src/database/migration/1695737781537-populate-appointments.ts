@@ -9,7 +9,7 @@ export class PopulateAppointments1695737781537 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const seedDataPath = path.join(
       __dirname,
-      '../seed/',
+      '../../../seed/',
       'appointments.seed.json',
     );
     const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });

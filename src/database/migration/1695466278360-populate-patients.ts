@@ -10,7 +10,11 @@ export class PopulatePatients1695466278360 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.connection.synchronize();
 
-    const seedDataPath = path.join(__dirname, '../seed/', 'patients.seed.json');
+    const seedDataPath = path.join(
+      __dirname,
+      '../../../seed/',
+      'patients.seed.json',
+    );
     const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
     const patientsData: [{ user: UserEntity } & PatientEntity] =
       JSON.parse(seedData);

@@ -10,6 +10,7 @@ import { UserRoleEnum } from 'src/common/enum';
 import { AccessTokenPayload, AppConfig } from 'src/common/interface';
 import { checkIntervalsOverlap } from 'src/common/util';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
+import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
@@ -26,6 +27,8 @@ export class DoctorService {
     private readonly doctorRepository: Repository<DoctorEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(DepartmentEntity)
+    private readonly departmentRepository: Repository<DepartmentEntity>,
     private readonly configService: ConfigService<AppConfig, true>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
@@ -35,13 +38,34 @@ export class DoctorService {
     dto: CreateDoctorDto,
     payload: AccessTokenPayload,
   ): Promise<DoctorEntity | null> {
+    const doctor = new DoctorEntity();
+    doctor.speciality = dto.speciality;
+
+    if (dto.availableSlots) {
+      doctor.availableSlots = dto.availableSlots as DoctorAvailableSlotEntity[];
+    }
+
     const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const createdDoctor = await this.doctorRepository.save({ ...dto, user });
+    doctor.user = user;
+
+    if (dto.departmentId) {
+      const department = await this.departmentRepository.findOneBy({
+        id: dto.departmentId,
+      });
+
+      if (!department) {
+        throw new NotFoundException('Department not found');
+      }
+
+      doctor.department = department;
+    }
+
+    const createdDoctor = await this.doctorRepository.save(doctor);
 
     return this.doctorRepository.findOneBy({ id: createdDoctor.id });
   }

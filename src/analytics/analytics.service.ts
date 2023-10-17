@@ -1,121 +1,218 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as datefns from 'date-fns';
+import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
-import { Repository } from 'typeorm';
+import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
+import { Between, Repository } from 'typeorm';
+import { TopDoctorAnalytics } from './interface';
 
 @Injectable()
 export class AnalyticsService {
   constructor(
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
+    @InjectRepository(DepartmentEntity)
+    private readonly departmentRepository: Repository<DepartmentEntity>,
   ) {}
 
-  async getTopDoctorsByPeriodReport(options: {
-    fromDate: Date;
-    toDate: Date;
-    doctorIds?: number[];
-  }) {
-    const currentPeriod = await this.getDataForPeriod(
-      options.fromDate,
-      options.toDate,
-      options.doctorIds,
+  async getForDoctorAppointmentsWithDepartmentHierarchy(
+    // TODO:
+    fromDate: Date,
+    toDate: Date,
+    doctorIds?: number[],
+    isIncludeEmptyValues = false,
+  ) {
+    const currPeriodSummary = await this.doctorRepository.manager.find(
+      DoctorAppointmentsSummaryEntity,
+      {
+        where: {
+          weekMinDate: Between(fromDate, toDate),
+        },
+      },
     );
 
-    const periodDaysCount = datefns.differenceInCalendarDays(
-      options.toDate,
-      options.fromDate,
-    );
-    const previousPeriod = await this.getDataForPeriod(
-      datefns.subDays(options.fromDate, periodDaysCount),
-      datefns.subDays(options.toDate, periodDaysCount),
-      options.doctorIds,
-    );
+    const periodDaysCount = datefns.differenceInCalendarDays(toDate, fromDate);
 
-    const currentPeriodGroupedByWeeks = this.groupByWeeks(currentPeriod);
-
-    const topDoctor = currentPeriod[0];
-    topDoctor.bestInWeeks = this.getDoctorBestWeeks(
-      topDoctor,
-      currentPeriodGroupedByWeeks,
-    );
-    topDoctor.demandGrowth = this.calcInDemandGrowthForDoctor(
-      topDoctor,
-      previousPeriod,
+    const prevPeriodSummary = await this.doctorRepository.manager.find(
+      DoctorAppointmentsSummaryEntity,
+      {
+        where: {
+          weekMinDate: Between(
+            datefns.subDays(fromDate, periodDaysCount),
+            datefns.subDays(toDate, periodDaysCount),
+          ),
+        },
+      },
     );
 
-    return {
-      topDoctor,
-      currentPeriod: currentPeriodGroupedByWeeks,
-      previousPeriod: this.groupByWeeks(previousPeriod),
-    };
-  }
+    const currPeriodGroupedSummary =
+      this.groupDoctorAppointmentsSummaryByWeeks(currPeriodSummary);
 
-  private getDataForPeriod(fromDate: Date, toDate: Date, doctorIds?: number[]) {
-    const queryBuilder = this.doctorRepository
-      .createQueryBuilder('doctor')
-      .select('doctor.doctor_id, user.full_name')
-      .addSelect(`date_trunc('week', start_date::date) AS week_date`)
-      .addSelect(
-        'COUNT(appointment.appointment_id)::integer AS appointment_count',
-      )
-      .innerJoin('doctor.appointments', 'appointment')
-      .innerJoin('doctor.user', 'user')
-      .andWhere(
-        `date_trunc('week', start_date::date) BETWEEN :fromDate AND :toDate`,
-        { fromDate, toDate },
-      )
-      .groupBy('doctor.doctor_id, user.full_name, week_date')
-      .orderBy('week_date', 'ASC')
-      .addOrderBy('COUNT(appointment.appointment_id)::integer', 'DESC');
+    const departments = await this.departmentRepository.find();
 
-    if (doctorIds) {
-      queryBuilder.andWhere('doctor.id IN (:...doctorIds)', { doctorIds });
+    for (const [period, summary] of Object.entries<
+      DoctorAppointmentsSummaryEntity[]
+    >(currPeriodGroupedSummary)) {
+      const hierarchy = this.buildDepartmentHierarchyForSummary(
+        departments,
+        null,
+        summary,
+        isIncludeEmptyValues,
+      );
+
+      currPeriodGroupedSummary[period] =
+        this.omitDepartmentHierarchyDetails(hierarchy);
     }
 
-    return queryBuilder.getRawMany();
+    const prevPeriodGroupedSummary =
+      this.groupDoctorAppointmentsSummaryByWeeks(prevPeriodSummary);
+
+    for (const [period, summary] of Object.entries<
+      DoctorAppointmentsSummaryEntity[]
+    >(prevPeriodGroupedSummary)) {
+      const hierarchy = this.buildDepartmentHierarchyForSummary(
+        departments,
+        null,
+        summary,
+        isIncludeEmptyValues,
+      );
+
+      prevPeriodGroupedSummary[period] =
+        this.omitDepartmentHierarchyDetails(hierarchy);
+    }
+
+    const topDoctor = (await this.doctorRepository
+      .createQueryBuilder('doctor')
+      .select([
+        'doctor.doctor_id as "doctorId"',
+        'count(*)::integer as "appointmentCount"',
+      ])
+      .innerJoin('doctor.appointments', 'appointments')
+      .groupBy('doctor.doctor_id')
+      .orderBy('"appointmentCount"', 'DESC')
+      .getRawOne()) as TopDoctorAnalytics;
+
+    topDoctor.productivityGrowth = this.calcProductivityGrowthForDoctor(
+      topDoctor.doctorId,
+      prevPeriodSummary,
+      currPeriodSummary,
+    );
+
+    return { topDoctor, currPeriodGroupedSummary, prevPeriodGroupedSummary };
   }
 
-  private groupByWeeks(period) {
-    return period.reduce((period, doctorAppointmentsInfo) => {
-      const year = doctorAppointmentsInfo.week_date.getFullYear();
-      const month = doctorAppointmentsInfo.week_date.getMonth() + 1;
-      const groupKey = `${year}-${month} week ${datefns.getWeekOfMonth(
-        doctorAppointmentsInfo.week_date,
-      )}`;
+  private groupDoctorAppointmentsSummaryByWeeks(
+    summaryForPeriod: DoctorAppointmentsSummaryEntity[],
+  ) {
+    return summaryForPeriod.reduce((acc, summary) => {
+      const groupKey = datefns.format(
+        summary.weekMinDate,
+        `Y-MM:${datefns.getWeekOfMonth(summary.weekMinDate)}`,
+      );
 
-      if (!period[groupKey]?.length) {
-        period[groupKey] = [];
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
       }
 
-      delete doctorAppointmentsInfo.week_date;
-      period[groupKey].push({
-        ...doctorAppointmentsInfo,
+      acc[groupKey].push({
+        ...summary,
       });
-      return period;
+
+      return acc;
     }, {});
   }
 
-  private getDoctorBestWeeks(doctor, period) {
-    const bestWeeks = {};
-    for (const [week, doctors] of Object.entries(period)) {
-      const doctorsInfo = doctors as Array<any>;
-      const topDoctorOfWeek = doctorsInfo[0];
-      if (topDoctorOfWeek.doctor_id === doctor.doctor_id) {
-        bestWeeks[week] = topDoctorOfWeek.appointment_count;
+  private buildDepartmentHierarchyForSummary(
+    departments: DepartmentEntity[],
+    parentDepartmentId: number | null = null,
+    summary: DoctorAppointmentsSummaryEntity[],
+    isIncludeEmptyValues: boolean,
+  ) {
+    const departmentsWithChildren: DepartmentEntity[] = [];
+
+    for (const department of departments) {
+      if (department.parentDepartmentId === parentDepartmentId) {
+        const departmentWithChildren: DepartmentEntity = {
+          ...department,
+          childDepartments: this.buildDepartmentHierarchyForSummary(
+            departments,
+            department.id,
+            summary,
+            isIncludeEmptyValues,
+          ),
+        };
+
+        if (
+          departmentWithChildren.childDepartments &&
+          departmentWithChildren.childDepartments.length === 0
+        ) {
+          departmentWithChildren.doctors = summary.filter(
+            (s) => s.departmentId === department.id,
+          ) as any;
+        }
+
+        departmentsWithChildren.push(departmentWithChildren);
       }
     }
-    return bestWeeks;
+
+    if (!isIncludeEmptyValues) {
+      for (let i = 0; i < departmentsWithChildren.length; i++) {
+        const department = departmentsWithChildren[i];
+
+        if (
+          department.doctors?.length === 0 &&
+          department.childDepartments?.length === 0
+        ) {
+          departmentsWithChildren.splice(i, 1);
+          i--;
+        }
+      }
+    }
+
+    return departmentsWithChildren;
   }
 
-  private calcInDemandGrowthForDoctor(doctor, prevPeriod) {
-    const topPrevPeriodResults = prevPeriod.filter(
-      (d) => d.doctor_id === doctor.doctor_id,
+  private omitDepartmentHierarchyDetails(departments: DepartmentEntity[]) {
+    const departmentsPartialInfo = {};
+
+    for (const department of departments) {
+      if (!departmentsPartialInfo[department.name]) {
+        departmentsPartialInfo[department.name] = {};
+      }
+
+      const subdepartmentsPartialInfo = this.omitDepartmentHierarchyDetails(
+        department.childDepartments ?? [],
+      );
+
+      if (department.doctors) {
+        departmentsPartialInfo[department.name] = department.doctors;
+      } else {
+        departmentsPartialInfo[department.name] = subdepartmentsPartialInfo;
+      }
+    }
+    return departmentsPartialInfo;
+  }
+
+  private calcProductivityGrowthForDoctor(
+    doctorId: number,
+    prevPeriod: DoctorAppointmentsSummaryEntity[],
+    currPeriod: DoctorAppointmentsSummaryEntity[],
+  ) {
+    const doctorPrevResults = prevPeriod.filter(
+      (doctor) => doctor.doctorId === doctorId,
     );
     const prevMaxRes = Math.max(
-      ...topPrevPeriodResults.map((res) => res.appointment_count),
+      ...doctorPrevResults.map((res) => res.appointmentCount),
     );
 
-    return ((doctor.appointment_count - prevMaxRes) / prevMaxRes) * 100;
+    const doctorCurrResults = currPeriod.filter(
+      (doctor) => doctor.doctorId === doctorId,
+    );
+    const currMaxRes = Math.max(
+      ...doctorCurrResults.map((res) => res.appointmentCount),
+    );
+
+    return ((currMaxRes - prevMaxRes) / prevMaxRes) * 100;
   }
 }

@@ -1,8 +1,8 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { DoctorEntity } from '../entity/doctor.entity';
 import { DoctorAvailableSlotEntity } from '../entity/doctor-available-slot.entity';
+import { DoctorEntity } from '../entity/doctor.entity';
 
 export class PopulateDoctorAvailableSlots1695737764818
   implements MigrationInterface
@@ -10,7 +10,7 @@ export class PopulateDoctorAvailableSlots1695737764818
   public async up(queryRunner: QueryRunner): Promise<void> {
     const seedDataPath = path.join(
       __dirname,
-      '../seed/',
+      '../../../seed/',
       'doctor-available-slots.seed.json',
     );
     const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });

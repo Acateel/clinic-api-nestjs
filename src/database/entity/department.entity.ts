@@ -19,17 +19,17 @@ export class DepartmentEntity {
   name!: string;
 
   @ManyToOne(() => DepartmentEntity, { nullable: true })
-  parent_department?: DepartmentEntity;
+  parentDepartment?: DepartmentEntity;
 
   @OneToMany(
     () => DepartmentEntity,
-    (department) => department.parent_department,
+    (department) => department.parentDepartment,
   )
-  child_departments?: DepartmentEntity[];
+  childDepartments?: DepartmentEntity[];
 
-  // TODO: use or not
-  @RelationId((department: DepartmentEntity) => department.parent_department)
-  parent_department_id?: number;
+  // TODO
+  @RelationId((department: DepartmentEntity) => department.parentDepartment)
+  parentDepartmentId?: number;
 
   @OneToMany(() => DoctorEntity, (doctor) => doctor.department)
   doctors?: DoctorEntity[];

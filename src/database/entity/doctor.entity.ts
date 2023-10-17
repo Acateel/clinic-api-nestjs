@@ -41,6 +41,9 @@ export class DoctorEntity {
   @ManyToOne(() => DepartmentEntity, { onDelete: 'NO ACTION' })
   department?: DepartmentEntity;
 
+  @Column({ nullable: true })
+  departmentId?: number;
+
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
 }

@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfig } from 'src/common/interface';
 import { AppointmentEntity } from './entity/appointment.entity';
+import { DepartmentEntity } from './entity/department.entity';
 import { DoctorAvailableSlotEntity } from './entity/doctor-available-slot.entity';
 import { DoctorEntity } from './entity/doctor.entity';
 import { PatientEntity } from './entity/patient.entity';
 import { UserEntity } from './entity/user.entity';
-import { DepartmentEntity } from './entity/department.entity';
+import { DoctorAppointmentsSummaryEntity } from './view-entity/doctor-appointments-summary.entity';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { DepartmentEntity } from './entity/department.entity';
       AppointmentEntity,
       DoctorAvailableSlotEntity,
       DepartmentEntity,
+      DoctorAppointmentsSummaryEntity,
     ]),
   ],
   exports: [TypeOrmModule],
