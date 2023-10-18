@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { User } from 'src/common/decorator/user.decorator';
 import { AccessTokenPayload } from 'src/common/interface';
@@ -18,8 +18,6 @@ import { RecoverPasswordDto } from './dto/recover-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AuthResponseDto } from './dto/response/auth-response.dto';
-import { ResetPasswordResponseDto } from './dto/response/reset-password-response.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
@@ -30,7 +28,6 @@ export class AuthController {
   @Post('register')
   @UseGuards(ThrottlerGuard)
   @Throttle(5, 5)
-  @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
   register(@Body() dto: RegisterUserDto) {
     return this.authService.register(dto);
   }
@@ -39,7 +36,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ThrottlerGuard)
   @Throttle(5, 5)
-  @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
   login(@Body() dto: LoginUserDto) {
     return this.authService.login(dto.email, dto.password);
   }
@@ -48,7 +44,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ThrottlerGuard)
   @Throttle(5, 5)
-  @ApiResponse({ status: HttpStatus.OK, type: ResetPasswordResponseDto })
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.email);
   }
@@ -57,7 +52,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ThrottlerGuard)
   @Throttle(5, 5)
-  @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
   refresh(@Body() dto: RefreshTokenDto) {
     return this.authService.refresh(dto.refreshToken);
   }
@@ -66,7 +60,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiResponse({ status: HttpStatus.OK, type: AuthResponseDto })
   logout(@User() user: AccessTokenPayload) {
     return this.authService.logout(user);
   }
@@ -85,7 +78,6 @@ export class AuthController {
   @Post('register/:inviteToken')
   @UseGuards(ThrottlerGuard)
   @Throttle(5, 5)
-  @ApiResponse({ status: HttpStatus.CREATED, type: AuthResponseDto })
   registerWithInvite(
     @Param('inviteToken') inviteToken: string,
     @Body() dto: InviteUserDto,
