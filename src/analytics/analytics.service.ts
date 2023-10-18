@@ -4,7 +4,8 @@ import * as datefns from 'date-fns';
 import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
-import { Between, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { GetDoctorAppointmentsOptionsDto } from './dto/get-doctor-appointments-options.dto';
 import { TopDoctorAnalytics } from './interface';
 
 @Injectable()
@@ -17,34 +18,32 @@ export class AnalyticsService {
   ) {}
 
   async getForDoctorAppointmentsWithDepartmentHierarchy(
-    // TODO:
-    fromDate: Date,
-    toDate: Date,
-    doctorIds?: number[],
-    isIncludeEmptyValues = false,
+    options: GetDoctorAppointmentsOptionsDto,
   ) {
-    const currPeriodSummary = await this.doctorRepository.manager.find(
+    const queryBuilder = this.doctorRepository.manager.createQueryBuilder(
       DoctorAppointmentsSummaryEntity,
-      {
-        where: {
-          weekMinDate: Between(fromDate, toDate),
-        },
-      },
+      'doctor_appointments',
     );
 
-    const periodDaysCount = datefns.differenceInCalendarDays(toDate, fromDate);
+    if (options.fromDate) {
+      queryBuilder.andWhere('doctor_appointments.weekMinDate >= :fromDate', {
+        fromDate: options.fromDate,
+      });
+    }
 
-    const prevPeriodSummary = await this.doctorRepository.manager.find(
-      DoctorAppointmentsSummaryEntity,
-      {
-        where: {
-          weekMinDate: Between(
-            datefns.subDays(fromDate, periodDaysCount),
-            datefns.subDays(toDate, periodDaysCount),
-          ),
-        },
-      },
-    );
+    if (options.toDate) {
+      queryBuilder.andWhere('doctor_appointments.weekMinDate <= :toDate', {
+        toDate: options.toDate,
+      });
+    }
+
+    if (options.doctorIds) {
+      queryBuilder.andWhere('doctor_appointments.doctorId in (:...doctorIds)', {
+        doctorIds: options.doctorIds,
+      });
+    }
+
+    const currPeriodSummary = await queryBuilder.getMany();
 
     const currPeriodGroupedSummary =
       this.groupDoctorAppointmentsSummaryByWeeks(currPeriodSummary);
@@ -58,31 +57,67 @@ export class AnalyticsService {
         departments,
         null,
         summary,
-        isIncludeEmptyValues,
+        options.isIncludeEmptyValues ?? false,
       );
 
       currPeriodGroupedSummary[period] =
         this.omitDepartmentHierarchyDetails(hierarchy);
     }
 
-    const prevPeriodGroupedSummary =
-      this.groupDoctorAppointmentsSummaryByWeeks(prevPeriodSummary);
+    const response = { currPeriodGroupedSummary } as any;
 
-    for (const [period, summary] of Object.entries<
-      DoctorAppointmentsSummaryEntity[]
-    >(prevPeriodGroupedSummary)) {
-      const hierarchy = this.buildDepartmentHierarchyForSummary(
-        departments,
-        null,
-        summary,
-        isIncludeEmptyValues,
+    let prevPeriodSummary: DoctorAppointmentsSummaryEntity[] | null = null;
+
+    if (options.fromDate && options.toDate) {
+      const periodDaysCount = datefns.differenceInCalendarDays(
+        options.toDate,
+        options.fromDate,
       );
 
-      prevPeriodGroupedSummary[period] =
-        this.omitDepartmentHierarchyDetails(hierarchy);
+      const queryBuilder = this.doctorRepository.manager
+        .createQueryBuilder(
+          DoctorAppointmentsSummaryEntity,
+          'doctor_appointments',
+        )
+        .andWhere('doctor_appointments.weekMinDate >= :fromDate', {
+          fromDate: datefns.subDays(options.fromDate, periodDaysCount),
+        })
+        .andWhere('doctor_appointments.weekMinDate <= :toDate', {
+          toDate: datefns.subDays(options.toDate, periodDaysCount),
+        });
+
+      if (options.doctorIds) {
+        queryBuilder.andWhere(
+          'doctor_appointments.doctorId in (:...doctorIds)',
+          {
+            doctorIds: options.doctorIds,
+          },
+        );
+      }
+
+      prevPeriodSummary = await queryBuilder.getMany();
+
+      const prevPeriodGroupedSummary =
+        this.groupDoctorAppointmentsSummaryByWeeks(prevPeriodSummary);
+
+      for (const [period, summary] of Object.entries<
+        DoctorAppointmentsSummaryEntity[]
+      >(prevPeriodGroupedSummary)) {
+        const hierarchy = this.buildDepartmentHierarchyForSummary(
+          departments,
+          null,
+          summary,
+          options.isIncludeEmptyValues ?? false,
+        );
+
+        prevPeriodGroupedSummary[period] =
+          this.omitDepartmentHierarchyDetails(hierarchy);
+      }
+
+      response.prevPeriodGroupedSummary = prevPeriodGroupedSummary;
     }
 
-    const topDoctor = (await this.doctorRepository
+    const topDoctorQueryBuilder = this.doctorRepository
       .createQueryBuilder('doctor')
       .select([
         'doctor.doctor_id as "doctorId"',
@@ -90,16 +125,28 @@ export class AnalyticsService {
       ])
       .innerJoin('doctor.appointments', 'appointments')
       .groupBy('doctor.doctor_id')
-      .orderBy('"appointmentCount"', 'DESC')
-      .getRawOne()) as TopDoctorAnalytics;
+      .orderBy('"appointmentCount"', 'DESC');
 
-    topDoctor.productivityGrowth = this.calcProductivityGrowthForDoctor(
-      topDoctor.doctorId,
-      prevPeriodSummary,
-      currPeriodSummary,
-    );
+    if (options.doctorIds) {
+      topDoctorQueryBuilder.andWhere('doctor.doctor_id in (:...doctorIds)', {
+        doctorIds: options.doctorIds,
+      });
+    }
 
-    return { topDoctor, currPeriodGroupedSummary, prevPeriodGroupedSummary };
+    const topDoctor =
+      (await topDoctorQueryBuilder.getRawOne()) as TopDoctorAnalytics;
+
+    topDoctor.productivityGrowth = prevPeriodSummary
+      ? this.calcProductivityGrowthForDoctor(
+          topDoctor.doctorId,
+          prevPeriodSummary,
+          currPeriodSummary,
+        )
+      : null;
+
+    response.topDoctor = topDoctor;
+
+    return response;
   }
 
   private groupDoctorAppointmentsSummaryByWeeks(

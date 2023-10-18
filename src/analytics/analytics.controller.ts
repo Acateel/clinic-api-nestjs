@@ -1,31 +1,19 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ParseDatePipe } from 'src/common/pipe/parse-date.pipe';
+import { ApiTags } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';
+import { GetDoctorAppointmentsOptionsDto } from './dto/get-doctor-appointments-options.dto';
 
 @Controller('analytics')
 @ApiTags('analytics')
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
-  @Get('doctor-appointments/hierarchy')
-  @ApiQuery({
-    name: 'doctorIds',
-    type: 'number',
-    isArray: true,
-    required: false,
-  })
+  @Get('doctor-appointments')
   getDoctorAppointmentsHierarchy(
-    @Query('fromDate', ParseDatePipe) fromDate: Date,
-    @Query('toDate', ParseDatePipe) toDate: Date,
-    @Query('doctorIds') doctorIds?: number[],
-    @Query('isIncludeEmptyValues') isIncludeEmptyValues = false,
+    @Query() query: GetDoctorAppointmentsOptionsDto,
   ) {
     return this.analyticsService.getForDoctorAppointmentsWithDepartmentHierarchy(
-      fromDate,
-      toDate,
-      doctorIds!,
-      isIncludeEmptyValues,
+      query,
     );
   }
 }
