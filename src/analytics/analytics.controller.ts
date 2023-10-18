@@ -8,12 +8,10 @@ import { GetDoctorAppointmentsOptionsDto } from './dto/get-doctor-appointments-o
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
-  @Get('doctor-appointments')
-  getDoctorAppointmentsHierarchy(
+  @Get('doctor-appointments-summary')
+  getDoctorAppointmentsSummary(
     @Query() query: GetDoctorAppointmentsOptionsDto,
   ) {
-    return this.analyticsService.getForDoctorAppointmentsWithDepartmentHierarchy(
-      query,
-    );
+    return this.analyticsService.getDoctorAppointmentsSummary(query);
   }
 }

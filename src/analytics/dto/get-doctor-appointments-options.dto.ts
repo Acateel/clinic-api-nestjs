@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsOptional } from 'class-validator';
 
 export class GetDoctorAppointmentsOptionsDto {
@@ -11,7 +12,8 @@ export class GetDoctorAppointmentsOptionsDto {
 
   @IsOptional()
   @IsArray()
-  readonly doctorIds?: number[];
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
+  readonly filterDoctorIds?: number[];
 
   @IsOptional()
   @IsBoolean()

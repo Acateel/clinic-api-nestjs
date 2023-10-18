@@ -6,7 +6,12 @@ import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
 import { Repository } from 'typeorm';
 import { GetDoctorAppointmentsOptionsDto } from './dto/get-doctor-appointments-options.dto';
-import { TopDoctorAnalytics } from './interface';
+import {
+  DoctorAppointmentsWeeklySummary,
+  TopDoctorAnalytics,
+  WeeklySummaryWithDepartmentHierarchy,
+} from './interface';
+import { GetDoctorAppointmentsResponseDto } from './response-dto/get-doctor-appointments-response.dto';
 
 @Injectable()
 export class AnalyticsService {
@@ -17,9 +22,9 @@ export class AnalyticsService {
     private readonly departmentRepository: Repository<DepartmentEntity>,
   ) {}
 
-  async getForDoctorAppointmentsWithDepartmentHierarchy(
+  async getDoctorAppointmentsSummary(
     options: GetDoctorAppointmentsOptionsDto,
-  ) {
+  ): Promise<GetDoctorAppointmentsResponseDto> {
     const queryBuilder = this.doctorRepository.manager.createQueryBuilder(
       DoctorAppointmentsSummaryEntity,
       'doctor_appointments',
@@ -37,36 +42,29 @@ export class AnalyticsService {
       });
     }
 
-    if (options.doctorIds) {
+    if (options.filterDoctorIds) {
       queryBuilder.andWhere('doctor_appointments.doctorId in (:...doctorIds)', {
-        doctorIds: options.doctorIds,
+        doctorIds: options.filterDoctorIds,
       });
     }
 
     const currPeriodSummary = await queryBuilder.getMany();
 
-    const currPeriodGroupedSummary =
+    const currPeriodWeeklySummary =
       this.groupDoctorAppointmentsSummaryByWeeks(currPeriodSummary);
 
     const departments = await this.departmentRepository.find();
 
-    for (const [period, summary] of Object.entries<
-      DoctorAppointmentsSummaryEntity[]
-    >(currPeriodGroupedSummary)) {
-      const hierarchy = this.buildDepartmentHierarchyForSummary(
+    const currPeriodSummaryWithDepartmentHierarchy =
+      this.buildWeeklySummaryWithDepartmentHierarchy(
         departments,
-        null,
-        summary,
-        options.isIncludeEmptyValues ?? false,
+        currPeriodWeeklySummary,
+        options,
       );
 
-      currPeriodGroupedSummary[period] =
-        this.omitDepartmentHierarchyDetails(hierarchy);
-    }
-
-    const response = { currPeriodGroupedSummary } as any;
-
     let prevPeriodSummary: DoctorAppointmentsSummaryEntity[] | null = null;
+    let prevPeriodSummaryWithDepartmentHierarchy: WeeklySummaryWithDepartmentHierarchy | null =
+      null;
 
     if (options.fromDate && options.toDate) {
       const periodDaysCount = datefns.differenceInCalendarDays(
@@ -86,35 +84,24 @@ export class AnalyticsService {
           toDate: datefns.subDays(options.toDate, periodDaysCount),
         });
 
-      if (options.doctorIds) {
+      if (options.filterDoctorIds) {
         queryBuilder.andWhere(
           'doctor_appointments.doctorId in (:...doctorIds)',
           {
-            doctorIds: options.doctorIds,
+            doctorIds: options.filterDoctorIds,
           },
         );
       }
 
       prevPeriodSummary = await queryBuilder.getMany();
-
-      const prevPeriodGroupedSummary =
+      const prevPeriodWeeklySummary =
         this.groupDoctorAppointmentsSummaryByWeeks(prevPeriodSummary);
-
-      for (const [period, summary] of Object.entries<
-        DoctorAppointmentsSummaryEntity[]
-      >(prevPeriodGroupedSummary)) {
-        const hierarchy = this.buildDepartmentHierarchyForSummary(
+      prevPeriodSummaryWithDepartmentHierarchy =
+        this.buildWeeklySummaryWithDepartmentHierarchy(
           departments,
-          null,
-          summary,
-          options.isIncludeEmptyValues ?? false,
+          prevPeriodWeeklySummary,
+          options,
         );
-
-        prevPeriodGroupedSummary[period] =
-          this.omitDepartmentHierarchyDetails(hierarchy);
-      }
-
-      response.prevPeriodGroupedSummary = prevPeriodGroupedSummary;
     }
 
     const topDoctorQueryBuilder = this.doctorRepository
@@ -127,9 +114,9 @@ export class AnalyticsService {
       .groupBy('doctor.doctor_id')
       .orderBy('"appointmentCount"', 'DESC');
 
-    if (options.doctorIds) {
+    if (options.filterDoctorIds) {
       topDoctorQueryBuilder.andWhere('doctor.doctor_id in (:...doctorIds)', {
-        doctorIds: options.doctorIds,
+        doctorIds: options.filterDoctorIds,
       });
     }
 
@@ -144,30 +131,58 @@ export class AnalyticsService {
         )
       : null;
 
-    response.topDoctor = topDoctor;
-
-    return response;
+    return {
+      topDoctor,
+      currPeriod: currPeriodSummaryWithDepartmentHierarchy,
+      prevPeriod: prevPeriodSummaryWithDepartmentHierarchy ?? {},
+    };
   }
 
   private groupDoctorAppointmentsSummaryByWeeks(
     summaryForPeriod: DoctorAppointmentsSummaryEntity[],
-  ) {
-    return summaryForPeriod.reduce((acc, summary) => {
-      const groupKey = datefns.format(
-        summary.weekMinDate,
-        `Y-MM:${datefns.getWeekOfMonth(summary.weekMinDate)}`,
+  ): DoctorAppointmentsWeeklySummary {
+    return summaryForPeriod.reduce<DoctorAppointmentsWeeklySummary>(
+      (acc, summary) => {
+        const groupKey = datefns.format(
+          summary.weekMinDate,
+          `Y-MM:${datefns.getWeekOfMonth(summary.weekMinDate)}`,
+        );
+
+        if (!acc[groupKey]) {
+          acc[groupKey] = [];
+        }
+
+        acc[groupKey].push({
+          ...summary,
+        });
+
+        return acc;
+      },
+      {},
+    );
+  }
+
+  private buildWeeklySummaryWithDepartmentHierarchy(
+    departments: DepartmentEntity[],
+    weeklySummary: DoctorAppointmentsWeeklySummary,
+    options: GetDoctorAppointmentsOptionsDto,
+  ): WeeklySummaryWithDepartmentHierarchy {
+    const summary: WeeklySummaryWithDepartmentHierarchy = {};
+
+    for (const [period, summary] of Object.entries<
+      DoctorAppointmentsSummaryEntity[]
+    >(weeklySummary)) {
+      const hierarchy = this.buildDepartmentHierarchyForSummary(
+        departments,
+        null,
+        summary,
+        options.isIncludeEmptyValues ?? false,
       );
 
-      if (!acc[groupKey]) {
-        acc[groupKey] = [];
-      }
+      summary[period] = this.omitDepartmentHierarchyDetails(hierarchy);
+    }
 
-      acc[groupKey].push({
-        ...summary,
-      });
-
-      return acc;
-    }, {});
+    return summary;
   }
 
   private buildDepartmentHierarchyForSummary(
@@ -175,7 +190,7 @@ export class AnalyticsService {
     parentDepartmentId: number | null = null,
     summary: DoctorAppointmentsSummaryEntity[],
     isIncludeEmptyValues: boolean,
-  ) {
+  ): DepartmentEntity[] {
     const departmentsWithChildren: DepartmentEntity[] = [];
 
     for (const department of departments) {
@@ -190,13 +205,10 @@ export class AnalyticsService {
           ),
         };
 
-        if (
-          departmentWithChildren.childDepartments &&
-          departmentWithChildren.childDepartments.length === 0
-        ) {
+        if (departmentWithChildren.childDepartments?.length === 0) {
           departmentWithChildren.doctors = summary.filter(
-            (s) => s.departmentId === department.id,
-          ) as any;
+            (summary) => summary.departmentId === department.id,
+          ) as any; // TODO
         }
 
         departmentsWithChildren.push(departmentWithChildren);
@@ -207,12 +219,13 @@ export class AnalyticsService {
       for (let i = 0; i < departmentsWithChildren.length; i++) {
         const department = departmentsWithChildren[i];
 
-        if (
+        const isDepartmentAndSubdepartmentDontHaveDoctors =
           department.doctors?.length === 0 &&
-          department.childDepartments?.length === 0
-        ) {
+          department.childDepartments?.length === 0;
+
+        if (isDepartmentAndSubdepartmentDontHaveDoctors) {
           departmentsWithChildren.splice(i, 1);
-          i--;
+          i--; // TODO: reverce side loop
         }
       }
     }
@@ -220,8 +233,10 @@ export class AnalyticsService {
     return departmentsWithChildren;
   }
 
-  private omitDepartmentHierarchyDetails(departments: DepartmentEntity[]) {
-    const departmentsPartialInfo = {};
+  private omitDepartmentHierarchyDetails(
+    departments: DepartmentEntity[],
+  ): WeeklySummaryWithDepartmentHierarchy {
+    const departmentsPartialInfo: WeeklySummaryWithDepartmentHierarchy = {};
 
     for (const department of departments) {
       if (!departmentsPartialInfo[department.name]) {
@@ -245,7 +260,7 @@ export class AnalyticsService {
     doctorId: number,
     prevPeriod: DoctorAppointmentsSummaryEntity[],
     currPeriod: DoctorAppointmentsSummaryEntity[],
-  ) {
+  ): number {
     const doctorPrevResults = prevPeriod.filter(
       (doctor) => doctor.doctorId === doctorId,
     );
