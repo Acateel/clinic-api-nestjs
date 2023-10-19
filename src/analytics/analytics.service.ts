@@ -218,7 +218,8 @@ export class AnalyticsService {
     }
 
     if (!isIncludeEmptyValues) {
-      for (let i = 0; i < departmentsWithChildren.length; i++) {
+      let i = departmentsWithChildren.length;
+      while (i--) {
         const department = departmentsWithChildren[i];
 
         const isDepartmentAndSubdepartmentDontHaveDoctors =
@@ -227,7 +228,6 @@ export class AnalyticsService {
 
         if (isDepartmentAndSubdepartmentDontHaveDoctors) {
           departmentsWithChildren.splice(i, 1);
-          i--; // TODO: reverce side loop
         }
       }
     }

@@ -1,5 +1,4 @@
 import { DepartmentEntity } from 'src/database/entity/department.entity';
-import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
 
 export interface TopDoctorAnalytics {
@@ -21,5 +20,5 @@ export interface DoctorAppointmentsWeeklySummary {
 }
 
 export interface WeeklySummaryWithDepartmentHierarchy {
-  [period: string]: DoctorEntity[] | Partial<Department>;
+  [period: string]: DoctorAppointmentsSummaryEntity[] | Partial<Department>;
 }
