@@ -7,6 +7,7 @@ import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor
 import { Repository } from 'typeorm';
 import { GetDoctorAppointmentsOptionsDto } from './dto/get-doctor-appointments-options.dto';
 import {
+  Department,
   DoctorAppointmentsWeeklySummary,
   TopDoctorAnalytics,
   WeeklySummaryWithDepartmentHierarchy,
@@ -57,7 +58,7 @@ export class AnalyticsService {
 
     const currPeriodSummaryWithDepartmentHierarchy =
       this.buildWeeklySummaryWithDepartmentHierarchy(
-        departments,
+        departments as Department[],
         currPeriodWeeklySummary,
         options,
       );
@@ -98,7 +99,7 @@ export class AnalyticsService {
         this.groupDoctorAppointmentsSummaryByWeeks(prevPeriodSummary);
       prevPeriodSummaryWithDepartmentHierarchy =
         this.buildWeeklySummaryWithDepartmentHierarchy(
-          departments,
+          departments as Department[],
           prevPeriodWeeklySummary,
           options,
         );
@@ -163,11 +164,11 @@ export class AnalyticsService {
   }
 
   private buildWeeklySummaryWithDepartmentHierarchy(
-    departments: DepartmentEntity[],
+    departments: Department[],
     weeklySummary: DoctorAppointmentsWeeklySummary,
     options: GetDoctorAppointmentsOptionsDto,
   ): WeeklySummaryWithDepartmentHierarchy {
-    const summary: WeeklySummaryWithDepartmentHierarchy = {};
+    const departmentHierarchy: WeeklySummaryWithDepartmentHierarchy = {};
 
     for (const [period, summary] of Object.entries<
       DoctorAppointmentsSummaryEntity[]
@@ -179,23 +180,24 @@ export class AnalyticsService {
         options.isIncludeEmptyValues ?? false,
       );
 
-      summary[period] = this.omitDepartmentHierarchyDetails(hierarchy);
+      departmentHierarchy[period] =
+        this.omitDepartmentHierarchyDetails(hierarchy);
     }
 
-    return summary;
+    return departmentHierarchy;
   }
 
   private buildDepartmentHierarchyForSummary(
-    departments: DepartmentEntity[],
+    departments: Department[],
     parentDepartmentId: number | null = null,
     summary: DoctorAppointmentsSummaryEntity[],
     isIncludeEmptyValues: boolean,
-  ): DepartmentEntity[] {
-    const departmentsWithChildren: DepartmentEntity[] = [];
+  ): Department[] {
+    const departmentsWithChildren: Department[] = [];
 
     for (const department of departments) {
       if (department.parentDepartmentId === parentDepartmentId) {
-        const departmentWithChildren: DepartmentEntity = {
+        const departmentWithChildren: Department = {
           ...department,
           childDepartments: this.buildDepartmentHierarchyForSummary(
             departments,
@@ -208,7 +210,7 @@ export class AnalyticsService {
         if (departmentWithChildren.childDepartments?.length === 0) {
           departmentWithChildren.doctors = summary.filter(
             (summary) => summary.departmentId === department.id,
-          ) as any; // TODO
+          );
         }
 
         departmentsWithChildren.push(departmentWithChildren);
@@ -234,7 +236,7 @@ export class AnalyticsService {
   }
 
   private omitDepartmentHierarchyDetails(
-    departments: DepartmentEntity[],
+    departments: Department[],
   ): WeeklySummaryWithDepartmentHierarchy {
     const departmentsPartialInfo: WeeklySummaryWithDepartmentHierarchy = {};
 
