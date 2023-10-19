@@ -27,7 +27,6 @@ export class DepartmentEntity {
   )
   childDepartments?: DepartmentEntity[];
 
-  // TODO
   @RelationId((department: DepartmentEntity) => department.parentDepartment)
   parentDepartmentId?: number;
 

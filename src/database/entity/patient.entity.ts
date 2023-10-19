@@ -3,10 +3,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
 
@@ -19,10 +19,9 @@ export class PatientEntity {
   phoneNumber!: string;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
-  @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 
-  @Column({ name: 'user_id' })
+  @RelationId((patient: PatientEntity) => patient.user)
   userId!: number;
 
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.patient)
