@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentTime } from 'src/common/interface';
-import { checkIntervalsOverlap } from 'src/common/util';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
+import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { PatientEntity } from 'src/database/entity/patient.entity';
 import { QueryRunner, Repository } from 'typeorm';
@@ -185,17 +185,19 @@ export class AppointmentService {
     doctor: DoctorEntity,
     time: AppointmentTime,
   ): Promise<void> {
-    const freeSlotIdx = doctor.availableSlots.findIndex((slot) =>
-      checkIntervalsOverlap(slot, time),
+    const availableSlot = await this.queryRunner.manager.findOneBy(
+      DoctorAvailableSlotEntity,
+      {
+        doctorId: doctor.id,
+        startDate: time.startDate,
+        endDate: time.endDate,
+      },
     );
 
-    if (freeSlotIdx < 0) {
+    if (!availableSlot) {
       throw new ConflictException('Doctor is unavailable');
     }
 
-    doctor.availableSlots.splice(freeSlotIdx, 1);
-
-    // TODO: update only appointments, its not about updating doctor. And maybe can rid of save method
-    await this.queryRunner.manager.save(doctor);
+    await this.queryRunner.manager.remove(availableSlot);
   }
 }

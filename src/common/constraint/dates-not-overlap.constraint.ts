@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { DoctorAvailableSlotDto } from 'src/doctor/dto/doctor-available-slot.dto';
+import { DoctorAvailableSlotDto } from 'src/doctor-available-slot/doctor-available-slot.dto';
 import { checkIntervalsOverlap } from '../util';
 
 @ValidatorConstraint()

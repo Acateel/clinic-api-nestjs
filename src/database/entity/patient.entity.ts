@@ -6,7 +6,6 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
 
@@ -21,7 +20,7 @@ export class PatientEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
   user?: UserEntity;
 
-  @RelationId((patient: PatientEntity) => patient.user)
+  @Column()
   userId!: number;
 
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.patient)

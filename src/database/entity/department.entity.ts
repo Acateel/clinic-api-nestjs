@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
@@ -27,7 +26,7 @@ export class DepartmentEntity {
   )
   childDepartments?: DepartmentEntity[];
 
-  @RelationId((department: DepartmentEntity) => department.parentDepartment)
+  @Column({ nullable: true })
   parentDepartmentId?: number;
 
   @OneToMany(() => DoctorEntity, (doctor) => doctor.department)

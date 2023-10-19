@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
 import { DepartmentEntity } from './department.entity';
@@ -23,16 +22,12 @@ export class DoctorEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE', nullable: false })
   user?: UserEntity;
 
-  @RelationId((doctor: DoctorEntity) => doctor.user)
+  @Column()
   userId!: number;
 
   @OneToMany(
     () => DoctorAvailableSlotEntity,
     (doctorAvailableSlots) => doctorAvailableSlots.doctor,
-    {
-      cascade: true,
-      eager: true,
-    },
   )
   availableSlots!: DoctorAvailableSlotEntity[];
 
@@ -42,7 +37,7 @@ export class DoctorEntity {
   @ManyToOne(() => DepartmentEntity, { onDelete: 'NO ACTION' })
   department?: DepartmentEntity;
 
-  @RelationId((doctor: DoctorEntity) => doctor.department)
+  @Column({ nullable: true })
   departmentId?: number;
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })

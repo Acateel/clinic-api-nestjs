@@ -4,7 +4,6 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
 import { PatientEntity } from './patient.entity';
@@ -23,13 +22,13 @@ export class AppointmentEntity {
   @ManyToOne(() => PatientEntity, { onDelete: 'CASCADE', nullable: false })
   patient?: PatientEntity;
 
-  @RelationId((appointment: AppointmentEntity) => appointment.patient)
+  @Column()
   patientId!: number;
 
   @ManyToOne(() => DoctorEntity, { onDelete: 'CASCADE', nullable: false })
   doctor?: DoctorEntity;
 
-  @RelationId((appointment: AppointmentEntity) => appointment.doctor)
+  @Column()
   doctorId!: number;
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })

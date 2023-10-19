@@ -41,10 +41,6 @@ export class DoctorService {
     const doctor = new DoctorEntity();
     doctor.speciality = dto.speciality;
 
-    if (dto.availableSlots) {
-      doctor.availableSlots = dto.availableSlots as DoctorAvailableSlotEntity[];
-    }
-
     const user = await this.userRepository.findOneBy({ id: payload.id });
 
     if (!user) {
@@ -65,9 +61,23 @@ export class DoctorService {
       doctor.department = department;
     }
 
-    const createdDoctor = await this.doctorRepository.save(doctor);
+    return this.doctorRepository.manager.transaction(async (entityManager) => {
+      const createdDoctor = await entityManager.save(doctor);
 
-    return this.doctorRepository.findOneBy({ id: createdDoctor.id });
+      if (dto.availableSlots) {
+        const doctorAvailableSlots = dto.availableSlots.map((slot) => ({
+          doctor: createdDoctor,
+          ...slot,
+        }));
+
+        await entityManager.insert(
+          DoctorAvailableSlotEntity,
+          doctorAvailableSlots,
+        );
+      }
+
+      return entityManager.findOneBy(DoctorEntity, { id: createdDoctor.id });
+    });
   }
 
   async get(options): Promise<DoctorEntity[]> {
@@ -120,7 +130,7 @@ export class DoctorService {
   async update(id: number, dto: UpdateDoctorDto): Promise<DoctorEntity | null> {
     const doctor = await this.doctorRepository.findOne({
       where: { id },
-      relations: ['appointments'],
+      relations: { appointments: true },
     });
 
     if (!doctor) {
@@ -129,7 +139,11 @@ export class DoctorService {
 
     doctor.speciality = dto.speciality ?? doctor.speciality;
 
-    if (dto.availableSlots) {
+    return this.doctorRepository.manager.transaction(async (entityManager) => {
+      if (!dto.availableSlots) {
+        return this.doctorRepository.findOneBy({ id: doctor.id });
+      }
+
       if (doctor.appointments) {
         for (const slot of dto.availableSlots) {
           const isFreeSlotTaken = doctor.appointments.some((appointment) =>
@@ -144,12 +158,28 @@ export class DoctorService {
         }
       }
 
-      doctor.availableSlots = dto.availableSlots as DoctorAvailableSlotEntity[];
-    }
+      const doctorAvailableSlotRepository = entityManager.getRepository(
+        DoctorAvailableSlotEntity,
+      );
 
-    const updatedDoctor = await this.doctorRepository.save(doctor);
+      const storedDoctorSlots = await doctorAvailableSlotRepository.findBy({
+        doctorId: doctor.id,
+      });
+      await entityManager.remove(storedDoctorSlots);
 
-    return this.doctorRepository.findOneBy({ id: updatedDoctor.id });
+      const doctorAvailableSlots = dto.availableSlots.map((slot) => ({
+        doctor,
+        ...slot,
+      }));
+      await doctorAvailableSlotRepository.insert(doctorAvailableSlots);
+
+      const doctorRepository = entityManager.getRepository(DoctorEntity);
+
+      delete doctor.appointments; // REVIEW
+      await doctorRepository.update(doctor.id, doctor);
+
+      return doctorRepository.findOneBy({ id: doctor.id });
+    });
   }
 
   async delete(id: number): Promise<void> {
