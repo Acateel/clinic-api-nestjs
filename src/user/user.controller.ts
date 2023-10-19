@@ -22,9 +22,9 @@ import { User } from 'src/common/decorator/user.decorator';
 import { UserRoleEnum } from 'src/common/enum';
 import { AccessTokenPayload } from 'src/common/interface';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserDetailsResponseDto } from './dto/response/user-details-response.dto';
-import { UserResponseDto } from './dto/response/user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserDetailsResponseDto } from './response-dto/user-details-response.dto';
+import { UserResponseDto } from './response-dto/user-response.dto';
 import { UserService } from './user.service';
 
 @ApiTags('users')

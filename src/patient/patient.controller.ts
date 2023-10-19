@@ -23,10 +23,10 @@ import { User } from 'src/common/decorator/user.decorator';
 import { UserRoleEnum } from 'src/common/enum';
 import { AccessTokenPayload } from 'src/common/interface';
 import { CreatePatientDto } from './dto/create-patient.dto';
-import { PatientDetailsResponseDto } from './dto/response/patient-details-response.dto';
-import { PatientResponseDto } from './dto/response/patient-response.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PatientService } from './patient.service';
+import { PatientDetailsResponseDto } from './response-dto/patient-details-response.dto';
+import { PatientResponseDto } from './response-dto/patient-response.dto';
 
 @Controller('patients')
 @ApiTags('patients')

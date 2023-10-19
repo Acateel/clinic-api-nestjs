@@ -1,6 +1,6 @@
 import { UserRoleEnum } from 'src/common/enum';
-import { DoctorResponseDto } from 'src/doctor/dto/response/doctor-response.dto';
-import { PatientResponseDto } from 'src/patient/dto/response/patient-response.dto';
+import { DoctorResponseDto } from 'src/doctor/response-dto/doctor-response.dto';
+import { PatientResponseDto } from 'src/patient/response-dto/patient-response.dto';
 
 export class UserDetailsResponseDto {
   readonly id!: number;

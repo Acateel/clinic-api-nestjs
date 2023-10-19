@@ -24,8 +24,8 @@ import { UserService } from 'src/user/user.service';
 import { DataSource, Repository } from 'typeorm';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { AuthResponseDto } from './dto/response/auth-response.dto';
-import { ResetPasswordResponseDto } from './dto/response/reset-password-response.dto';
+import { AuthResponseDto } from './response-dto/auth-response.dto';
+import { ResetPasswordResponseDto } from './response-dto/reset-password-response.dto';
 
 @Injectable()
 export class AuthService {

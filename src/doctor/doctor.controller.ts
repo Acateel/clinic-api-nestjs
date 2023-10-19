@@ -26,9 +26,9 @@ import { AccessTokenPayload } from 'src/common/interface';
 import { DoctorService } from './doctor.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
-import { DoctorDetailsResponseDto } from './dto/response/doctor-details-response.dto';
-import { DoctorResponseDto } from './dto/response/doctor-response.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { DoctorDetailsResponseDto } from './response-dto/doctor-details-response.dto';
+import { DoctorResponseDto } from './response-dto/doctor-response.dto';
 
 @Controller('doctors')
 @ApiTags('doctors')

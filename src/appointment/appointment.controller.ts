@@ -12,9 +12,9 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-import { AppointmentDetailsResponseDto } from './dto/response/appointment-details-response.dto';
-import { AppointmentResponseDto } from './dto/response/appointment-response.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { AppointmentDetailsResponseDto } from './response-dto/appointment-details-response.dto';
+import { AppointmentResponseDto } from './response-dto/appointment-response.dto';
 
 @Controller('appointments')
 @ApiTags('appointments')
