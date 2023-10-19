@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsOptional } from 'class-validator';
 
 export class GetDoctorAppointmentsOptionsDto {
@@ -17,5 +17,7 @@ export class GetDoctorAppointmentsOptionsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Type(() => String)
+  @Transform(({ value }) => value === 'true')
   readonly isIncludeEmptyValues?: boolean;
 }
