@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   Validate,
   ValidateNested,
@@ -21,5 +22,6 @@ export class CreateDoctorDto {
   readonly availableSlots?: DoctorAvailableSlotDto[];
 
   @IsOptional()
-  readonly departmentId?: number;
+  @IsNumber({}, { each: true })
+  readonly departmentIds?: number[];
 }

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -29,7 +30,9 @@ export class DepartmentEntity {
   @Column({ nullable: true })
   parentDepartmentId?: number;
 
-  @OneToMany(() => DoctorEntity, (doctor) => doctor.department)
+  @ManyToMany(() => DoctorEntity, (doctor) => doctor.departments, {
+    onDelete: 'SET NULL',
+  })
   doctors?: DoctorEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })

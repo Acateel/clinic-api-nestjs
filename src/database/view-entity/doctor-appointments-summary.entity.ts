@@ -8,12 +8,13 @@ import { DoctorEntity } from '../entity/doctor.entity';
       .select([
         'doctor.doctor_id',
         'full_name',
-        'department_id',
+        'array_agg(distinct department_id) as department_ids',
         'count(*)::integer as appointment_count',
         'extract (week from start_date)::integer as week_number',
         'min(start_date) as week_min_date',
       ])
       .innerJoin('doctor.user', 'user')
+      .innerJoin('doctor.departments', 'department')
       .innerJoin('doctor.appointments', 'appointment')
       .groupBy('doctor.doctor_id, full_name, week_number')
       .orderBy('appointment_count', 'DESC')
@@ -27,7 +28,7 @@ export class DoctorAppointmentsSummaryEntity {
   fullName!: string;
 
   @ViewColumn()
-  departmentId!: number;
+  departmentIds!: number[];
 
   @ViewColumn()
   appointmentCount!: number;

@@ -15,7 +15,7 @@ import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { EmailService } from 'src/email/email.service';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -49,16 +49,16 @@ export class DoctorService {
 
     doctor.user = user;
 
-    if (dto.departmentId) {
-      const department = await this.departmentRepository.findOneBy({
-        id: dto.departmentId,
+    if (dto.departmentIds) {
+      const departments = await this.departmentRepository.findBy({
+        id: In(dto.departmentIds),
       });
 
-      if (!department) {
-        throw new NotFoundException('Department not found');
+      if (departments.length !== dto.departmentIds.length) {
+        throw new NotFoundException('Some of departments were not found');
       }
 
-      doctor.department = department;
+      doctor.departments = departments;
     }
 
     return this.doctorRepository.manager.transaction(async (entityManager) => {

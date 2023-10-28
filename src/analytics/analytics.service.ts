@@ -31,6 +31,8 @@ export class AnalyticsService {
       'doctor_appointments',
     );
 
+    console.log(await queryBuilder.getMany());
+
     if (options.fromDate) {
       queryBuilder.andWhere('doctor_appointments.weekMinDate >= :fromDate', {
         fromDate: options.fromDate,
@@ -208,8 +210,8 @@ export class AnalyticsService {
         };
 
         if (departmentWithChildren.childDepartments?.length === 0) {
-          departmentWithChildren.doctors = summary.filter(
-            (summary) => summary.departmentId === department.id,
+          departmentWithChildren.doctors = summary.filter((summary) =>
+            summary.departmentIds.some((id) => id === department.id),
           );
         }
 

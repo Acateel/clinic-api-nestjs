@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -34,11 +36,11 @@ export class DoctorEntity {
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.doctor)
   appointments?: AppointmentEntity[];
 
-  @ManyToOne(() => DepartmentEntity, { onDelete: 'NO ACTION' })
-  department?: DepartmentEntity;
-
-  @Column({ nullable: true })
-  departmentId?: number;
+  @ManyToMany(() => DepartmentEntity, (department) => department.doctors, {
+    onDelete: 'NO ACTION',
+  })
+  @JoinTable()
+  departments?: DepartmentEntity[]; // TODO: rename departments
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
