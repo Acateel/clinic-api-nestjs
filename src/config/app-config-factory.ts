@@ -1,5 +1,6 @@
 import { AppConfig } from 'src/common/interface';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import * as path from 'path';
 
 export const appConfigFactory = (): AppConfig => ({
   port: process.env.PORT!,
@@ -34,5 +35,6 @@ export const appConfigFactory = (): AppConfig => ({
       user: process.env.SMTP_USER!,
       pass: process.env.SMTP_PASSWORD!,
     },
+    templatesPath: path.resolve('email-template'),
   },
 });

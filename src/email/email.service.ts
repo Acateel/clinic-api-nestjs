@@ -9,14 +9,22 @@ import { AppConfig } from 'src/common/interface';
 
 @Injectable()
 export class EmailService {
+  private readonly templatesPath;
+
   constructor(
-    private readonly configService: ConfigService<AppConfig, true>,
     @Inject(SMTP_TRANSPORTER) private readonly transporter: Transporter,
-  ) {}
+    private readonly configService: ConfigService<AppConfig, true>,
+  ) {
+    this.templatesPath = this.configService.get('smtp.templatesPath', {
+      infer: true,
+    });
+
+    this.sendInvite('dobrin.alexandrr@gmail.com', '');
+  }
 
   async sendInvite(to: string, inviteLink: string): Promise<void> {
     const template = fs.readFileSync(
-      path.join(__dirname, 'template', 'invite.hbs'),
+      path.join(this.templatesPath, 'invite.hbs'),
       'utf8',
     );
 

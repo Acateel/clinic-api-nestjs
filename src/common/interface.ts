@@ -24,6 +24,7 @@ export interface AppConfig {
       user: string;
       pass: string;
     };
+    templatesPath: string;
   };
 }
 
