@@ -31,8 +31,6 @@ export class AnalyticsService {
       'doctor_appointments',
     );
 
-    console.log(await queryBuilder.getMany());
-
     if (options.fromDate) {
       queryBuilder.andWhere('doctor_appointments.weekMinDate >= :fromDate', {
         fromDate: options.fromDate,
