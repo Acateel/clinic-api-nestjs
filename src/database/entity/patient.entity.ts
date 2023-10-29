@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
 
@@ -28,4 +29,7 @@ export class PatientEntity {
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
+
+  @UpdateDateColumn({ select: false, type: 'timestamptz' })
+  updatedAt?: Date;
 }

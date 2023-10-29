@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
 
 @Entity('doctor_available_slot')
@@ -20,4 +27,10 @@ export class DoctorAvailableSlotEntity {
 
   @Column()
   doctorId!: number;
+
+  @CreateDateColumn({ select: false, type: 'timestamptz' })
+  createdAt?: Date;
+
+  @UpdateDateColumn({ select: false, type: 'timestamptz' })
+  updatedAt?: Date;
 }

@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
 import { DepartmentEntity } from './department.entity';
@@ -40,8 +41,11 @@ export class DoctorEntity {
     onDelete: 'NO ACTION',
   })
   @JoinTable()
-  departments?: DepartmentEntity[]; // TODO: rename departments
+  departments?: DepartmentEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
+
+  @UpdateDateColumn({ select: false, type: 'timestamptz' })
+  updatedAt?: Date;
 }

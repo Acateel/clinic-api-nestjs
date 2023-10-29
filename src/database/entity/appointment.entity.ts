@@ -4,6 +4,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
 import { PatientEntity } from './patient.entity';
@@ -33,4 +34,7 @@ export class AppointmentEntity {
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
+
+  @UpdateDateColumn({ select: false, type: 'timestamptz' })
+  updatedAt?: Date;
 }

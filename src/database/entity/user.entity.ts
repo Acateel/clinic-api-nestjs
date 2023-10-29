@@ -6,6 +6,7 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
 
@@ -40,4 +41,7 @@ export class UserEntity {
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;
+
+  @UpdateDateColumn({ select: false, type: 'timestamptz' })
+  updatedAt?: Date;
 }
