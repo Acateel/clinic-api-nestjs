@@ -8,3 +8,7 @@ export enum RegisterUserRoleEnum {
   DOCTOR = 'DOCTOR',
   PATIENT = 'PATIENT',
 }
+
+export enum MetadataKeyEnum {
+  ROLES = 'ROLES',
+}

@@ -1,19 +1,20 @@
 import {
   CanActivate,
   ExecutionContext,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRoleEnum } from 'src/common/enum';
+import { MetadataKeyEnum, UserRoleEnum } from 'src/common/enum';
 import { AuthenticatedRequest } from 'src/common/interface';
 
+@Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<UserRoleEnum[]>(
-      // Review: use enum for metadata keys?
-      'ROLES',
+      MetadataKeyEnum.ROLES,
       [context.getHandler(), context.getClass()],
     );
 
