@@ -118,6 +118,10 @@ export class PatientService {
   }
 
   async delete(id: number): Promise<void> {
-    await this.patientRepository.delete(id);
+    const result = await this.patientRepository.delete(id);
+
+    if (!result.affected) {
+      throw new NotFoundException('Patient not found');
+    }
   }
 }

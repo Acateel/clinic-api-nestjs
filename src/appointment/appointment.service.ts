@@ -178,7 +178,11 @@ export class AppointmentService {
   }
 
   async delete(id: number): Promise<void> {
-    await this.appointmentRepository.delete(id);
+    const result = await this.appointmentRepository.delete(id);
+
+    if (!result.affected) {
+      throw new NotFoundException('Appointment not found');
+    }
   }
 
   private async takeDoctorAvailableSlot(

@@ -183,7 +183,11 @@ export class DoctorService {
   }
 
   async delete(id: number): Promise<void> {
-    await this.doctorRepository.delete(id);
+    const result = await this.doctorRepository.delete(id);
+
+    if (!result.affected) {
+      throw new NotFoundException('Doctor not found');
+    }
   }
 
   async invite(dto: InviteDoctorDto): Promise<void> {
