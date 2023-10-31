@@ -18,8 +18,6 @@ export class EmailService {
     this.templatesPath = this.configService.get('smtp.templatesPath', {
       infer: true,
     });
-
-    this.sendInvite('dobrin.alexandrr@gmail.com', '');
   }
 
   async sendInvite(to: string, inviteLink: string): Promise<void> {

@@ -175,7 +175,7 @@ export class DoctorService {
 
       const doctorRepository = entityManager.getRepository(DoctorEntity);
 
-      delete doctor.appointments; // REVIEW
+      delete doctor.appointments;
       await doctorRepository.update(doctor.id, doctor);
 
       return doctorRepository.findOneBy({ id: doctor.id });

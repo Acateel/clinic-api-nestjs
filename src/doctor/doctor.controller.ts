@@ -55,8 +55,7 @@ export class DoctorController {
     return this.doctorService.get(query);
   }
 
-  // REVIEW: нужно ли как и с profile ендпоинтом изменить путь /:any/invite
-  @Post('invite')
+  @Post('invite/email')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
