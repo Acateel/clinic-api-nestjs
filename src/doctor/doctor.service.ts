@@ -205,8 +205,10 @@ export class DoctorService {
     );
     const inviteLink = `${this.configService.get(
       'apiUrl',
-    )}/auth/register/${inviteToken}`;
+    )}api/v1/auth/register/${inviteToken}`;
 
-    await this.emailService.sendInvite(dto.email, inviteLink);
+    this.emailService.send(dto.email, 'Invite', 'invite.hbs', {
+      inviteLink,
+    });
   }
 }

@@ -20,22 +20,25 @@ export class EmailService {
     });
   }
 
-  async sendInvite(to: string, inviteLink: string): Promise<void> {
+  async send(
+    to: string,
+    subject: string,
+    templateName: string,
+    templateData: object,
+  ): Promise<void> {
     const template = fs.readFileSync(
-      path.join(this.templatesPath, 'invite.hbs'),
+      path.join(this.templatesPath, templateName),
       'utf8',
     );
 
     const compiledTemplate = handlebars.compile(template);
-    const html = compiledTemplate({ inviteLink });
+    const html = compiledTemplate(templateData);
 
-    const mailOptions = {
+    await this.transporter.sendMail({
       from: this.configService.get('smtp.auth.user', { infer: true }),
       to,
-      subject: 'Invite mail',
+      subject,
       html,
-    };
-
-    await this.transporter.sendMail(mailOptions);
+    });
   }
 }
