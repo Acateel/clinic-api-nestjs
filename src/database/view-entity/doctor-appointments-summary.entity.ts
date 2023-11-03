@@ -17,8 +17,8 @@ import { DoctorEntity } from '../entity/doctor.entity';
       .innerJoin('doctor.departments', 'department')
       .innerJoin('doctor.appointments', 'appointment')
       .groupBy('doctor.doctor_id, full_name, week_number')
-      .orderBy('appointment_count', 'DESC')
-      .addOrderBy('week_number', 'ASC'),
+      .orderBy('week_number', 'ASC')
+      .addOrderBy('appointment_count', 'DESC'),
 })
 export class DoctorAppointmentsSummaryEntity {
   @ViewColumn()
