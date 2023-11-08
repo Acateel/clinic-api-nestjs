@@ -28,7 +28,7 @@ export class DepartmentEntity {
   childDepartments?: DepartmentEntity[];
 
   @Column({ nullable: true })
-  parentDepartmentId?: number;
+  parentDepartmentId!: number | null;
 
   @ManyToMany(() => DoctorEntity, (doctor) => doctor.departments, {
     onDelete: 'SET NULL',

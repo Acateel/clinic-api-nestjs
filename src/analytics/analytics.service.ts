@@ -43,12 +43,6 @@ export class AnalyticsService {
       });
     }
 
-    if (options.filterDoctorIds) {
-      queryBuilder.andWhere('doctor_appointments.doctorId in (:...doctorIds)', {
-        doctorIds: options.filterDoctorIds,
-      });
-    }
-
     const currPeriodSummary = await queryBuilder.getMany();
 
     const currPeriodWeeklySummary =
@@ -85,15 +79,6 @@ export class AnalyticsService {
           toDate: datefns.subDays(options.toDate, periodDaysCount),
         });
 
-      if (options.filterDoctorIds) {
-        queryBuilder.andWhere(
-          'doctor_appointments.doctorId in (:...doctorIds)',
-          {
-            doctorIds: options.filterDoctorIds,
-          },
-        );
-      }
-
       prevPeriodSummary = await queryBuilder.getMany();
       const prevPeriodWeeklySummary =
         this.groupDoctorAppointmentsSummaryByWeeks(prevPeriodSummary);
@@ -114,12 +99,6 @@ export class AnalyticsService {
       .innerJoin('doctor.appointments', 'appointments')
       .groupBy('doctor.doctor_id')
       .orderBy('"appointmentCount"', 'DESC');
-
-    if (options.filterDoctorIds) {
-      topDoctorQueryBuilder.andWhere('doctor.doctor_id in (:...doctorIds)', {
-        doctorIds: options.filterDoctorIds,
-      });
-    }
 
     const topDoctor =
       (await topDoctorQueryBuilder.getRawOne()) as TopDoctorAnalytics;
@@ -170,15 +149,87 @@ export class AnalyticsService {
   ): WeeklySummaryWithDepartmentHierarchy {
     const departmentHierarchy: WeeklySummaryWithDepartmentHierarchy = {};
 
-    for (const [period, summary] of Object.entries<
+    for (const [period, doctorAppointmentsSummary] of Object.entries<
       DoctorAppointmentsSummaryEntity[]
     >(weeklySummary)) {
-      const hierarchy = this.buildDepartmentHierarchyForSummary(
-        departments,
-        null,
-        summary,
-        options.isIncludeEmptyValues ?? false,
-      );
+      const hierarchy: Department[] = [];
+      const todoStack: Department[] = [];
+      const departmentsMap: Map<number | null, Department> = new Map();
+
+      departments.forEach((department) => {
+        if (department.parentDepartmentId === null) {
+          const departmentCopy = { ...department };
+          hierarchy.push(departmentCopy);
+          departmentsMap.set(departmentCopy.id, departmentCopy);
+          todoStack.push(departmentCopy);
+        }
+
+        while (todoStack.length) {
+          let parentDepartment = todoStack.pop()!;
+
+          departments.forEach((childDepartment) => {
+            if (childDepartment.parentDepartmentId !== parentDepartment.id) {
+              return;
+            }
+
+            if (!parentDepartment.childDepartments) {
+              parentDepartment.childDepartments = [];
+            }
+
+            const departmentCopy = { ...childDepartment };
+            parentDepartment.childDepartments.push(departmentCopy);
+            departmentsMap.set(departmentCopy.id, departmentCopy);
+            todoStack.push(departmentCopy);
+          });
+
+          if (!parentDepartment.childDepartments) {
+            parentDepartment.doctors = doctorAppointmentsSummary.filter(
+              (summary) =>
+                summary.departmentIds.some((id) => id === parentDepartment.id),
+            );
+          }
+
+          if (!options.isIncludeEmptyValues) {
+            while (
+              (parentDepartment.doctors?.length === 0 &&
+                !parentDepartment.childDepartments) ||
+              parentDepartment.childDepartments?.length === 0
+            ) {
+              if (parentDepartment.parentDepartmentId === null) {
+                if (parentDepartment.childDepartments?.length === 0) {
+                  parentDepartment.doctors = doctorAppointmentsSummary.filter(
+                    (summary) =>
+                      summary.departmentIds.some(
+                        (id) => id === parentDepartment.id,
+                      ),
+                  );
+                }
+
+                if (!parentDepartment.doctors) {
+                  const idx = hierarchy.findIndex(
+                    (department) => department.id === parentDepartment.id,
+                  );
+                  hierarchy.splice(idx, 1);
+                }
+              }
+
+              const parentOfParent = departmentsMap.get(
+                parentDepartment.parentDepartmentId,
+              );
+
+              if (!parentOfParent) {
+                break;
+              }
+
+              parentOfParent.childDepartments =
+                parentOfParent.childDepartments?.filter(
+                  (child) => child.id !== parentDepartment.id,
+                );
+              parentDepartment = parentOfParent;
+            }
+          }
+        }
+      });
 
       departmentHierarchy[period] =
         this.omitDepartmentHierarchyDetails(hierarchy);
@@ -191,7 +242,7 @@ export class AnalyticsService {
     departments: Department[],
     parentDepartmentId: number | null = null,
     summary: DoctorAppointmentsSummaryEntity[],
-    isIncludeEmptyValues: boolean,
+    options: GetDoctorAppointmentsOptionsDto,
   ): Department[] {
     const departmentsWithChildren: Department[] = [];
 
@@ -203,7 +254,7 @@ export class AnalyticsService {
             departments,
             department.id,
             summary,
-            isIncludeEmptyValues,
+            options,
           ),
         };
 
@@ -217,7 +268,7 @@ export class AnalyticsService {
       }
     }
 
-    if (!isIncludeEmptyValues) {
+    if (!options.isIncludeEmptyValues) {
       let i = departmentsWithChildren.length;
       while (i--) {
         const department = departmentsWithChildren[i];

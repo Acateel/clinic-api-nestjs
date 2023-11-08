@@ -12,8 +12,11 @@ export class GetDoctorAppointmentsOptionsDto {
 
   @IsOptional()
   @IsArray()
-  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
-  readonly filterDoctorIds?: number[];
+  @Type(() => Array<number>)
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : Array(value).map((v) => Number(v)),
+  )
+  readonly filterDepartmentIds?: number[];
 
   @IsOptional()
   @IsBoolean()
