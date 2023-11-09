@@ -170,7 +170,6 @@ export class AnalyticsService {
           }
         });
 
-        // добавить докторов во все департаменты, а потом удалить для тех у кого останутся дети
         department.doctors = doctorAppointmentsSummary.filter((summary) =>
           summary.departmentIds.some((id) => id === department.id),
         );
@@ -263,8 +262,7 @@ export class AnalyticsService {
         }
       }
 
-      departmentHierarchy[period] =
-        this.omitDepartmentHierarchyDetails(hierarchy);
+      departmentHierarchy[period] = hierarchy as any;
     }
 
     return departmentHierarchy;
@@ -284,7 +282,6 @@ export class AnalyticsService {
         department.childDepartments ?? [],
       );
 
-      // todo некорректно работает при isIncludeEmptyValues
       if (department.doctors && !department.childDepartments!.length) {
         departmentsPartialInfo[department.name] = department.doctors;
       } else {
