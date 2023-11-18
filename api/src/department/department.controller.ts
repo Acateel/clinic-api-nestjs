@@ -3,8 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 
-@Controller('department')
-@ApiTags('department')
+@Controller('departments')
+@ApiTags('departments')
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {}
 
@@ -13,7 +13,12 @@ export class DepartmentController {
     return this.departmentService.create(dto);
   }
 
-  @Get('hierarchy')
+  @Get()
+  get() {
+    return this.departmentService.get();
+  }
+
+  @Get('list/hierarchy')
   getDepartmentsHierarchy() {
     return this.departmentService.getDepartmentsHierarchy();
   }

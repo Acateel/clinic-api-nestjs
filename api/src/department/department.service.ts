@@ -32,6 +32,10 @@ export class DepartmentService {
     return this.departmentRepository.findOneBy({ id: createdDepartment.id });
   }
 
+  get() {
+    return this.departmentRepository.find();
+  }
+
   async getDepartmentsHierarchy() {
     const departments = await this.departmentRepository.find({
       relations: { doctors: { user: true } },

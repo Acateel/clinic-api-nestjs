@@ -25,6 +25,7 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+  app.enableCors();
 
   setupSwagger(app);
 

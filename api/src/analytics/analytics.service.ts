@@ -262,7 +262,11 @@ export class AnalyticsService {
         }
       }
 
-      departmentHierarchy[period] = hierarchy as any;
+      departmentHierarchy[period] = this.omitDepartmentHierarchyDetails(
+        hierarchy.filter(
+          (hierarchy) => hierarchy.childDepartments?.length !== 0, // TODO:
+        ),
+      );
     }
 
     return departmentHierarchy;
