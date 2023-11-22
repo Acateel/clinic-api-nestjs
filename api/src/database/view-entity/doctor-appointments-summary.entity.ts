@@ -6,6 +6,7 @@ import { DoctorEntity } from '../entity/doctor.entity';
     dataSource
       .createQueryBuilder(DoctorEntity, 'doctor')
       .select([
+        'ROW_NUMBER() OVER (ORDER BY 1)::integer as summary_id',
         'doctor.doctor_id',
         'full_name',
         'array_agg(distinct department_id) as department_ids',
@@ -21,6 +22,9 @@ import { DoctorEntity } from '../entity/doctor.entity';
       .addOrderBy('appointment_count', 'DESC'),
 })
 export class DoctorAppointmentsSummaryEntity {
+  @ViewColumn()
+  summaryId!: number;
+
   @ViewColumn()
   doctorId!: number;
 

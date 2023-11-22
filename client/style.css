@@ -42,4 +42,8 @@
     max-width: 350px;
 }
 
+.slideActiveClass {
+    background: black;
+}
+
 @media (max-width: 768px) {}

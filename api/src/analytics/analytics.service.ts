@@ -147,7 +147,7 @@ export class AnalyticsService {
     weeklySummary: DoctorAppointmentsWeeklySummary,
     options: GetDoctorAppointmentsOptionsDto,
   ): WeeklySummaryWithDepartmentHierarchy {
-    const departmentHierarchy: WeeklySummaryWithDepartmentHierarchy = {};
+    const hierarchiesRootDepartments: Department[] = [];
 
     for (const [period, doctorAppointmentsSummary] of Object.entries<
       DoctorAppointmentsSummaryEntity[]
@@ -155,127 +155,187 @@ export class AnalyticsService {
       const departmentsCopy: Department[] = JSON.parse(
         JSON.stringify(departments),
       );
-      const hierarchy: Department[] = [];
+      const departmentsChildrenMap = new Map<number, Department[]>();
 
       departmentsCopy.forEach((department) => {
-        if (department.parentDepartmentId === null) {
-          hierarchy.push(department);
+        department.period = period;
+
+        if (!department.parentDepartmentId) {
+          return;
         }
 
-        departmentsCopy.forEach((childDepartment) => {
-          department.childDepartments ??= [];
-
-          if (childDepartment.parentDepartmentId === department.id) {
-            department.childDepartments.push(childDepartment);
-          }
-        });
-
-        department.doctors = doctorAppointmentsSummary.filter((summary) =>
-          summary.departmentIds.some((id) => id === department.id),
+        let children = departmentsChildrenMap.get(
+          department.parentDepartmentId,
         );
 
-        if (!department.doctors.length) {
+        if (!children) {
+          children = [];
+        }
+
+        children.push(department);
+        departmentsChildrenMap.set(department.parentDepartmentId, children);
+      });
+
+      const hierarchy = departmentsCopy.reduce<Department[]>(
+        (acc, department) => {
+          if (department.parentDepartmentId === null) {
+            acc.push(department);
+          }
+
+          department.childDepartments =
+            departmentsChildrenMap.get(department.id) ?? [];
+
+          department.childDepartments.forEach((dept) => {
+            dept.parentDepartment = department;
+          });
+
+          return acc;
+        },
+        [],
+      );
+
+      const summaryMap = new Map<number, DoctorAppointmentsSummaryEntity[]>();
+
+      doctorAppointmentsSummary.reduce((acc, summary) => {
+        summary.departmentIds.forEach((departmentId) => {
+          let item = summaryMap.get(departmentId);
+
+          if (!item) {
+            item = [];
+          }
+
+          item.push(summary);
+          summaryMap.set(departmentId, item);
+        });
+
+        return acc;
+      }, summaryMap);
+
+      departmentsCopy.forEach((department) => {
+        department.doctors = summaryMap.get(department.id);
+
+        if (!department.doctors?.length) {
           delete department.doctors;
         }
       });
 
-      if (options.filterDepartmentIds) {
-        const tasksOnDepartmentsStack: Department[] = [...hierarchy];
+      hierarchiesRootDepartments.push(...hierarchy);
+    }
 
-        while (tasksOnDepartmentsStack.length) {
-          const department = tasksOnDepartmentsStack.pop()!;
+    if (options.filterDepartmentIds) {
+      const hierarchyCopy = [...hierarchiesRootDepartments];
+      const tasksOnDepartmentsStack: Department[] = [...hierarchyCopy];
+
+      while (tasksOnDepartmentsStack.length) {
+        const department = tasksOnDepartmentsStack.pop()!;
+        tasksOnDepartmentsStack.push(...department.childDepartments!);
+        const isInFilter = options.filterDepartmentIds.includes(department.id);
+
+        if (isInFilter) {
+          continue;
+        }
+
+        const parentDepartment = department.parentDepartment;
+
+        department.childDepartments!.forEach((dept) => {
+          dept.parentDepartment = department.parentDepartment;
+          dept.parentDepartmentId = department.parentDepartmentId;
+        });
+
+        if (!parentDepartment) {
+          const index = hierarchiesRootDepartments.findIndex(
+            (dept) => dept.id === department.id,
+          );
+          if (index != -1) {
+            hierarchiesRootDepartments.splice(index, 1);
+            hierarchiesRootDepartments.push(...department.childDepartments!);
+            tasksOnDepartmentsStack.push(...department.childDepartments!);
+          }
+
+          continue;
+        }
+
+        parentDepartment.childDepartments =
+          parentDepartment.childDepartments!.filter(
+            (dept) => dept.id !== department.id,
+          );
+
+        parentDepartment.childDepartments.push(...department.childDepartments!);
+      }
+    }
+
+    if (!options.isIncludeEmptyValues) {
+      const hierarchyCopy = [...hierarchiesRootDepartments];
+      const tasksOnDepartmentsStack: Department[] = [...hierarchyCopy];
+
+      while (tasksOnDepartmentsStack.length) {
+        const department = tasksOnDepartmentsStack.pop()!;
+
+        const isEmptyDepartment =
+          !department.childDepartments?.length && !department.doctors;
+
+        if (!isEmptyDepartment) {
           tasksOnDepartmentsStack.push(...department.childDepartments!);
-
-          const isInFilter = options.filterDepartmentIds.includes(
-            department.id,
-          );
-
-          if (isInFilter) {
-            continue;
-          }
-
-          const parentDepartment = departmentsCopy.find((dept) =>
-            dept.childDepartments!.some(
-              (deptChild) => deptChild.id === department.id,
-            ),
-          );
-
-          department.childDepartments!.forEach((dept) => {
-            dept.parentDepartmentId = department.parentDepartmentId;
-          });
-
-          if (!parentDepartment) {
-            const index = hierarchy.findIndex(
-              (dept) => dept.id === department.id,
-            );
-            hierarchy.splice(index, 1);
-            hierarchy.push(...department.childDepartments!);
-            tasksOnDepartmentsStack.push(...department.childDepartments!);
-            continue;
-          }
-
-          parentDepartment.childDepartments =
-            parentDepartment.childDepartments!.filter(
-              (dept) => dept.id !== department.id,
-            );
-
-          parentDepartment.childDepartments.push(
-            ...department.childDepartments!,
-          );
+          continue;
         }
+
+        const parentDepartment = department.parentDepartment;
+
+        if (!parentDepartment) {
+          const index = hierarchiesRootDepartments.findIndex(
+            (dept) => dept.id === department.id,
+          );
+          if (index != -1) {
+            hierarchiesRootDepartments.splice(index, 1);
+          }
+
+          continue;
+        }
+
+        parentDepartment.childDepartments =
+          parentDepartment.childDepartments!.filter(
+            (dept) => dept.id !== department.id,
+          );
+
+        tasksOnDepartmentsStack.push(parentDepartment);
+      }
+    }
+
+    const tasksOnDepartmentsStack = [...hierarchiesRootDepartments];
+
+    while (tasksOnDepartmentsStack.length) {
+      const department = tasksOnDepartmentsStack.pop()!;
+
+      if (department.childDepartments?.length) {
+        tasksOnDepartmentsStack.push(...department.childDepartments);
       }
 
-      if (!options.isIncludeEmptyValues) {
-        const tasksOnDepartmentsStack: Department[] = [...hierarchy];
+      delete department.parentDepartment;
+    }
 
-        while (tasksOnDepartmentsStack.length) {
-          const department = tasksOnDepartmentsStack.pop()!;
+    const result = {};
 
-          const isEmptyDepartment =
-            !department.childDepartments!.length && !department.doctors;
-
-          if (!isEmptyDepartment) {
-            tasksOnDepartmentsStack.push(...department.childDepartments!);
-            continue;
-          }
-
-          const parentDepartment = departmentsCopy.find((dept) =>
-            dept.childDepartments!.some(
-              (deptChild) => deptChild.id === department.id,
-            ),
-          );
-
-          if (!parentDepartment) {
-            const index = hierarchy.findIndex(
-              (dept) => dept.id === department.id,
-            );
-            hierarchy.splice(index, 1);
-            continue;
-          }
-
-          parentDepartment.childDepartments =
-            parentDepartment.childDepartments!.filter(
-              (dept) => dept.id !== department.id,
-            );
-
-          tasksOnDepartmentsStack.push(parentDepartment);
-        }
+    for (const department of hierarchiesRootDepartments) {
+      if (!result[department.period!]) {
+        result[department.period!] = [];
       }
 
-      departmentHierarchy[period] = this.omitDepartmentHierarchyDetails(
-        hierarchy.filter(
-          (hierarchy) => hierarchy.childDepartments?.length !== 0, // TODO:
-        ),
+      result[department.period!].push(
+        this.omitDepartmentHierarchyDetails([department]),
       );
     }
 
-    return departmentHierarchy;
+    Object.entries(result).forEach(([period, arr]) => {
+      result[period] = Object.assign({}, ...(arr as any));
+    });
+
+    return result;
   }
 
   private omitDepartmentHierarchyDetails(
     departments: Department[],
   ): WeeklySummaryWithDepartmentHierarchy {
-    const departmentsPartialInfo: WeeklySummaryWithDepartmentHierarchy = {};
+    const departmentsPartialInfo = {};
 
     for (const department of departments) {
       if (!departmentsPartialInfo[department.name]) {
@@ -286,12 +346,13 @@ export class AnalyticsService {
         department.childDepartments ?? [],
       );
 
-      if (department.doctors && !department.childDepartments!.length) {
+      if (department.doctors && !department.childDepartments?.length) {
         departmentsPartialInfo[department.name] = department.doctors;
       } else {
         departmentsPartialInfo[department.name] = subdepartmentsPartialInfo;
       }
     }
+
     return departmentsPartialInfo;
   }
 

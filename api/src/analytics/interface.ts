@@ -9,10 +9,12 @@ export interface TopDoctorAnalytics {
 
 export type Department = Omit<
   DepartmentEntity,
-  'doctors' | 'childDepartments'
+  'doctors' | 'childDepartments' | 'parentDepartment'
 > & {
   doctors?: DoctorAppointmentsSummaryEntity[];
   childDepartments?: Department[];
+  parentDepartment?: Department;
+  period?: string;
 };
 
 export interface DoctorAppointmentsWeeklySummary {
@@ -20,5 +22,5 @@ export interface DoctorAppointmentsWeeklySummary {
 }
 
 export interface WeeklySummaryWithDepartmentHierarchy {
-  [period: string]: DoctorAppointmentsSummaryEntity[] | Partial<Department>;
+  [period: string]: Department[];
 }
