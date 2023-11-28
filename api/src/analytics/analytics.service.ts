@@ -147,68 +147,70 @@ export class AnalyticsService {
     weeklySummary: DoctorAppointmentsWeeklySummary,
     options: GetDoctorAppointmentsOptionsDto,
   ): WeeklySummaryWithDepartmentHierarchy {
-    const periodsCound = Object.keys(weeklySummary).length;
-    const hierarchies: Department[] = [];
-    [...Array(periodsCound)].forEach((_, index) => {
-      const departmentsCopy: Department[] = JSON.parse(
-        JSON.stringify(departments),
-      );
-      const [period, doctorAppointmentsSummary] =
-        Object.entries(weeklySummary)[index];
-      const departmentsMap = departmentsCopy.reduce(
-        (acc, department) => acc.set(department.id, department),
-        new Map<number, Department>(),
-      );
-      const departmentsChildrenMap = departmentsCopy.reduce(
-        (acc, department) => {
-          department.period = period;
-          if (!department.parentDepartmentId) {
-            return acc;
-          }
-
-          const children = acc.get(department.parentDepartmentId) ?? [];
-          children.push(department);
-
-          return acc.set(department.parentDepartmentId, children);
-        },
-        new Map<number, Department[]>(),
-      );
-
-      Array.from(departmentsChildrenMap.values())
-        .flatMap((depts) => depts)
-        .forEach((department) => {
-          department.parentDepartment = departmentsMap.get(
-            department.parentDepartmentId ?? -1,
-          );
-        });
-
-      const hierarchyRootDepartments: Department[] = [];
-
-      departmentsCopy.forEach((department) => {
-        department.period = period;
-
-        if (department.parentDepartmentId === null) {
-          hierarchyRootDepartments.push(department);
-        }
-
-        department.childDepartments =
-          departmentsChildrenMap.get(department.id) ?? [];
-
-        department.doctors = doctorAppointmentsSummary.filter((summary) =>
-          summary.departmentIds.some((id) => id === department.id),
+    const hierarchies = Object.entries(weeklySummary).reduce<Department[]>(
+      (acc, [period, doctorAppointmentsSummary]) => {
+        const departmentsCopy: Department[] = JSON.parse(
+          JSON.stringify(departments),
         );
 
-        if (!department.doctors.length) {
-          delete department.doctors;
-        }
-      });
+        const departmentsMap = departmentsCopy.reduce((acc, department) => {
+          department.period = period;
 
-      hierarchyRootDepartments.forEach((department) => {
-        department.period = period;
-      });
+          return acc.set(department.id, department);
+        }, new Map<number, Department>());
+        const departmentsChildrenMap = departmentsCopy.reduce(
+          (acc, department) => {
+            if (!department.parentDepartmentId) {
+              return acc;
+            }
 
-      hierarchies.push(...hierarchyRootDepartments);
-    });
+            const children = acc.get(department.parentDepartmentId) ?? [];
+            children.push(department);
+
+            return acc.set(department.parentDepartmentId, children);
+          },
+          new Map<number, Department[]>(),
+        );
+
+        Array.from(departmentsChildrenMap.values())
+          .flatMap((depts) => depts)
+          .forEach((department) => {
+            department.parentDepartment = departmentsMap.get(
+              department.parentDepartmentId ?? -1,
+            );
+          });
+
+        const hierarchyRootDepartments: Department[] = [];
+
+        departmentsCopy.forEach((department) => {
+          department.period = period;
+
+          if (department.parentDepartmentId === null) {
+            hierarchyRootDepartments.push(department);
+          }
+
+          department.childDepartments =
+            departmentsChildrenMap.get(department.id) ?? [];
+
+          department.doctors = doctorAppointmentsSummary.filter((summary) =>
+            summary.departmentIds.some((id) => id === department.id),
+          );
+
+          if (!department.doctors.length) {
+            delete department.doctors;
+          }
+        });
+
+        hierarchyRootDepartments.forEach((department) => {
+          department.period = period;
+        });
+
+        acc.push(...hierarchyRootDepartments);
+
+        return acc;
+      },
+      [],
+    );
 
     if (options.filterDepartmentIds) {
       const hierarchyCopy = [...hierarchies];
@@ -234,6 +236,7 @@ export class AnalyticsService {
           const index = hierarchies.findIndex(
             (dept) => dept.id === department.id,
           );
+
           if (index != -1) {
             hierarchies.splice(index, 1);
             hierarchies.push(...department.childDepartments!);
@@ -264,6 +267,7 @@ export class AnalyticsService {
 
         if (!isEmptyDepartment) {
           tasksOnDepartmentsStack.push(...department.childDepartments!);
+
           continue;
         }
 
@@ -273,6 +277,7 @@ export class AnalyticsService {
           const index = hierarchies.findIndex(
             (dept) => dept.id === department.id,
           );
+
           if (index != -1) {
             hierarchies.splice(index, 1);
           }
@@ -301,17 +306,17 @@ export class AnalyticsService {
       delete department.parentDepartment;
     }
 
-    const result = {};
-
-    for (const department of hierarchies) {
-      if (!result[department.period!]) {
-        result[department.period!] = [];
+    const result = hierarchies.reduce((acc, department) => {
+      if (!acc[department.period!]) {
+        acc[department.period!] = [];
       }
 
-      result[department.period!].push(
+      acc[department.period!].push(
         this.omitDepartmentHierarchyDetails([department]),
       );
-    }
+
+      return acc;
+    }, {});
 
     Object.entries(result).forEach(([period, arr]) => {
       result[period] = Object.assign({}, ...(arr as any));

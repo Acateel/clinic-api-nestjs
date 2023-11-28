@@ -57,7 +57,7 @@ export class DoctorController {
 
   @Post('invite/email')
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin' })
