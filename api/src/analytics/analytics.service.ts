@@ -211,9 +211,10 @@ export class AnalyticsService {
       return acc;
     }, []);
 
-    const tasksOnDepartmentsStack: Department[] = [
-      ...hierarchiesRootDepartments,
-    ];
+    const tasksOnDepartmentsStack: Department[] =
+      options.filterDepartmentIds || !options.isIncludeEmptyValues
+        ? [...hierarchiesRootDepartments]
+        : [];
 
     while (tasksOnDepartmentsStack.length) {
       const department = tasksOnDepartmentsStack.pop()!;
