@@ -1,6 +1,6 @@
+import * as path from 'path';
 import { AppConfig } from 'src/common/interface';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import * as path from 'path';
 
 export const appConfigFactory = (): AppConfig => ({
   port: process.env.PORT!,
@@ -23,7 +23,6 @@ export const appConfigFactory = (): AppConfig => ({
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     entities: [process.env.ENTITIES!],
-    migrations: [process.env.MIGRATIONS!],
     namingStrategy: new SnakeNamingStrategy(),
     synchronize: process.env.SYNCHRONIZE === 'true',
   },

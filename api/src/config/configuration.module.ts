@@ -9,7 +9,6 @@ import { AppConfigValidator } from './app-config-validator';
       load: [appConfigFactory],
       validate: AppConfigValidator.validate,
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
   ],
   exports: [ConfigModule],
