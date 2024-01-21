@@ -147,7 +147,7 @@ export class AnalyticsService {
     weeklySummary: DoctorAppointmentsWeeklySummary,
     options: GetDoctorAppointmentsOptionsDto,
   ): WeeklySummaryWithDepartmentHierarchy {
-    const hierarchiesRootDepartments = Object.entries(weeklySummary).reduce<
+    let hierarchiesRootDepartments = Object.entries(weeklySummary).reduce<
       Department[]
     >((acc, [period, doctorAppointmentsSummary]) => {
       const departmentsCopy: Department[] = JSON.parse(
@@ -266,7 +266,8 @@ export class AnalyticsService {
 
         if (!parentDepartment) {
           const index = hierarchiesRootDepartments.findIndex(
-            (dept) => dept.id === department.id,
+            (dept) =>
+              dept.id === department.id && dept.period === department.period,
           );
 
           if (index != -1) {
@@ -284,6 +285,10 @@ export class AnalyticsService {
         tasksOnDepartmentsStack.push(parentDepartment);
       }
     }
+
+    hierarchiesRootDepartments = hierarchiesRootDepartments.filter(
+      (dept) => dept.childDepartments!.length > 0 || dept.doctors,
+    );
 
     const departmentsStack = [...hierarchiesRootDepartments];
 
