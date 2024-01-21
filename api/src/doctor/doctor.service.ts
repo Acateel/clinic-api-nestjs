@@ -107,6 +107,10 @@ export class DoctorService {
         .addOrderBy('appointment_count', 'DESC');
     }
 
+    if (options.limit) {
+      queryBuilder.limit(options.limit);
+    }
+
     return queryBuilder.getMany();
   }
 
