@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
+import { ReviewEntity } from './review.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -38,6 +39,9 @@ export class UserEntity {
 
   @OneToMany(() => DoctorEntity, (doctor) => doctor.user)
   doctors?: DoctorEntity[];
+
+  @OneToMany(() => ReviewEntity, (review) => review.user)
+  reviews?: ReviewEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

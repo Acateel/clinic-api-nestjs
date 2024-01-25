@@ -13,9 +13,11 @@ import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
+import { ReviewEntity } from 'src/database/entity/review.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { EmailService } from 'src/email/email.service';
 import { In, Repository } from 'typeorm';
+import { AddReviewDto } from './dto/add-review.dto';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -29,6 +31,8 @@ export class DoctorService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(DepartmentEntity)
     private readonly departmentRepository: Repository<DepartmentEntity>,
+    @InjectRepository(ReviewEntity)
+    private readonly reviewRepository: Repository<ReviewEntity>,
     private readonly configService: ConfigService<AppConfig, true>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
@@ -122,6 +126,7 @@ export class DoctorService {
       .leftJoinAndSelect('doctor.user', 'user')
       .leftJoinAndSelect('doctor.appointments', 'appointment')
       .leftJoinAndSelect('doctor.availableSlots', 'available_slot')
+      .leftJoinAndSelect('doctor.reviews', 'review')
       .getOne();
 
     if (!doctor) {
@@ -214,5 +219,34 @@ export class DoctorService {
     this.emailService.send(dto.email, 'Invite', 'invite.hbs', {
       inviteLink,
     });
+  }
+
+  async addReview(
+    id: number,
+    dto: AddReviewDto,
+    payload: AccessTokenPayload,
+  ): Promise<ReviewEntity> {
+    const user = await this.userRepository.findOneBy({ id: payload.id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const doctor = await this.doctorRepository.findOneBy({ id });
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    const reviewDetails = await this.reviewRepository.save({
+      doctor,
+      user,
+      ...dto,
+    });
+    const review = await this.reviewRepository.findOneBy({
+      id: reviewDetails.id,
+    });
+
+    return review!;
   }
 }

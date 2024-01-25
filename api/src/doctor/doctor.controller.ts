@@ -24,6 +24,7 @@ import { User } from 'src/common/decorator/user.decorator';
 import { UserRoleEnum } from 'src/common/enum';
 import { AccessTokenPayload } from 'src/common/interface';
 import { DoctorService } from './doctor.service';
+import { AddReviewDto } from './dto/add-review.dto';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
@@ -64,6 +65,19 @@ export class DoctorController {
   @ApiResponse({ status: HttpStatus.OK })
   invite(@Body() dto: InviteDoctorDto) {
     return this.doctorService.invite(dto);
+  }
+
+  @Post(':id/reviews')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'admin, patient' })
+  addReview(
+    @Param('id') id: number,
+    @Body() dto: AddReviewDto,
+    @User() user: AccessTokenPayload,
+  ) {
+    return this.doctorService.addReview(id, dto, user);
   }
 
   @Get(':id')

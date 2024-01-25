@@ -18,17 +18,18 @@ export class DepartmentEntity {
   @Column()
   name!: string;
 
-  @ManyToOne(() => DepartmentEntity, { nullable: true })
+  // TODO: check if nullable can be ommited
+  @ManyToOne(() => DepartmentEntity)
   parentDepartment?: DepartmentEntity;
+
+  @Column({ nullable: true })
+  parentDepartmentId!: number | null;
 
   @OneToMany(
     () => DepartmentEntity,
     (department) => department.parentDepartment,
   )
   childDepartments?: DepartmentEntity[];
-
-  @Column({ nullable: true })
-  parentDepartmentId!: number | null;
 
   @ManyToMany(() => DoctorEntity, (doctor) => doctor.departments, {
     onDelete: 'SET NULL',

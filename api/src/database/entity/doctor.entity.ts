@@ -12,6 +12,7 @@ import {
 import { AppointmentEntity } from './appointment.entity';
 import { DepartmentEntity } from './department.entity';
 import { DoctorAvailableSlotEntity } from './doctor-available-slot.entity';
+import { ReviewEntity } from './review.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('doctor')
@@ -37,11 +38,15 @@ export class DoctorEntity {
   @OneToMany(() => AppointmentEntity, (appointment) => appointment.doctor)
   appointments?: AppointmentEntity[];
 
+  // TODO: check if no action is correct
   @ManyToMany(() => DepartmentEntity, (department) => department.doctors, {
     onDelete: 'NO ACTION',
   })
   @JoinTable()
   departments?: DepartmentEntity[];
+
+  @OneToMany(() => ReviewEntity, (review) => review.doctor)
+  reviews?: ReviewEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

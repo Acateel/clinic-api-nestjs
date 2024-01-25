@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 export const setupSwagger = (app: INestApplication) => {
   const config = new DocumentBuilder()
     .setTitle('clinic-api-docs')
-    .setVersion('0.9')
+    .setVersion('0.10')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
