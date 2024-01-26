@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { AccessTokenPayload } from '../common/interface';
 import { PatientEntity } from '../database/entity/patient.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
+import { GetPatientQueryDto } from './dto/get-patient-query.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 
 @Injectable()
@@ -45,19 +46,19 @@ export class PatientService {
     return this.patientRepository.findOneBy({ id: createdPatient.id });
   }
 
-  async get(options): Promise<PatientEntity[]> {
+  async get(query: GetPatientQueryDto): Promise<PatientEntity[]> {
     const queryBuilder = this.patientRepository.createQueryBuilder('patient');
 
-    if (options.phoneNumber) {
+    if (query.phoneNumber) {
       queryBuilder.andWhere('patient.phoneNumber = :phoneNumber', {
-        phoneNumber: `+${options.phoneNumber}`,
+        phoneNumber: `+${query.phoneNumber}`,
       });
     }
 
-    if (options.fullName) {
+    if (query.fullName) {
       queryBuilder.leftJoin('patient.user', 'user');
       queryBuilder.andWhere('user.fullName = :fullName', {
-        fullName: options.fullName,
+        fullName: query.fullName,
       });
     }
 

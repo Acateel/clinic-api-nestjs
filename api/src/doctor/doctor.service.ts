@@ -19,6 +19,7 @@ import { EmailService } from 'src/email/email.service';
 import { In, Repository } from 'typeorm';
 import { AddReviewDto } from './dto/add-review.dto';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { GetDoctorQueryDto } from './dto/get-doctor-query.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 
@@ -84,23 +85,23 @@ export class DoctorService {
     });
   }
 
-  async get(options): Promise<DoctorEntity[]> {
+  async get(query: GetDoctorQueryDto): Promise<DoctorEntity[]> {
     const queryBuilder = this.doctorRepository.createQueryBuilder('doctor');
 
-    if (options.speciality) {
+    if (query.speciality) {
       queryBuilder.andWhere('doctor.speciality = :speciality', {
-        speciality: options.speciality,
+        speciality: query.speciality,
       });
     }
 
-    if (options.fullName) {
+    if (query.fullName) {
       queryBuilder.leftJoin('doctor.user', 'user');
       queryBuilder.andWhere('user.fullName = :fullName', {
-        fullName: options.fullName,
+        fullName: query.fullName,
       });
     }
 
-    if (options.sort === 'appointments') {
+    if (query.sort === 'appointments') {
       queryBuilder
         .select((subQuery) =>
           subQuery
@@ -111,8 +112,8 @@ export class DoctorService {
         .addOrderBy('appointment_count', 'DESC');
     }
 
-    if (options.limit) {
-      queryBuilder.limit(options.limit);
+    if (query.limit) {
+      queryBuilder.limit(query.limit);
     }
 
     return queryBuilder.getMany();

@@ -23,6 +23,7 @@ import { User } from 'src/common/decorator/user.decorator';
 import { UserRoleEnum } from 'src/common/enum';
 import { AccessTokenPayload } from 'src/common/interface';
 import { CreatePatientDto } from './dto/create-patient.dto';
+import { GetPatientQueryDto } from './dto/get-patient-query.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PatientService } from './patient.service';
 import { PatientDetailsResponseDto } from './response-dto/patient-details-response.dto';
@@ -49,7 +50,7 @@ export class PatientController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: [PatientResponseDto] })
-  get(@Query() query) {
+  get(@Query() query: GetPatientQueryDto) {
     return this.patientService.get(query);
   }
 

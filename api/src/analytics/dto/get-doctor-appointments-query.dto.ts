@@ -1,7 +1,7 @@
 import { Transform, Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsDate, IsOptional } from 'class-validator';
 
-export class GetDoctorAppointmentsOptionsDto {
+export class GetDoctorAppointmentsQueryDto {
   @IsOptional()
   @IsDate()
   readonly fromDate?: Date;

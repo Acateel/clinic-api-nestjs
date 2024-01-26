@@ -5,7 +5,7 @@ import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
 import { Repository } from 'typeorm';
-import { GetDoctorAppointmentsOptionsDto } from './dto/get-doctor-appointments-options.dto';
+import { GetDoctorAppointmentsQueryDto } from './dto/get-doctor-appointments-query.dto';
 import {
   Department,
   DoctorAppointmentsWeeklySummary,
@@ -24,22 +24,22 @@ export class AnalyticsService {
   ) {}
 
   async getDoctorAppointmentsSummary(
-    options: GetDoctorAppointmentsOptionsDto,
+    query: GetDoctorAppointmentsQueryDto,
   ): Promise<GetDoctorAppointmentsResponseDto> {
     const queryBuilder = this.doctorRepository.manager.createQueryBuilder(
       DoctorAppointmentsSummaryEntity,
       'doctor_appointments',
     );
 
-    if (options.fromDate) {
+    if (query.fromDate) {
       queryBuilder.andWhere('doctor_appointments.weekMinDate >= :fromDate', {
-        fromDate: options.fromDate,
+        fromDate: query.fromDate,
       });
     }
 
-    if (options.toDate) {
+    if (query.toDate) {
       queryBuilder.andWhere('doctor_appointments.weekMinDate <= :toDate', {
-        toDate: options.toDate,
+        toDate: query.toDate,
       });
     }
 
@@ -54,17 +54,17 @@ export class AnalyticsService {
       this.buildWeeklySummaryWithDepartmentHierarchy(
         departments as Department[],
         currPeriodWeeklySummary,
-        options,
+        query,
       );
 
     let prevPeriodSummary: DoctorAppointmentsSummaryEntity[] | null = null;
     let prevPeriodSummaryWithDepartmentHierarchy: WeeklySummaryWithDepartmentHierarchy | null =
       null;
 
-    if (options.fromDate && options.toDate) {
+    if (query.fromDate && query.toDate) {
       const periodDaysCount = datefns.differenceInCalendarDays(
-        options.toDate,
-        options.fromDate,
+        query.toDate,
+        query.fromDate,
       );
 
       const queryBuilder = this.doctorRepository.manager
@@ -73,10 +73,10 @@ export class AnalyticsService {
           'doctor_appointments',
         )
         .andWhere('doctor_appointments.weekMinDate >= :fromDate', {
-          fromDate: datefns.subDays(options.fromDate, periodDaysCount),
+          fromDate: datefns.subDays(query.fromDate, periodDaysCount),
         })
         .andWhere('doctor_appointments.weekMinDate <= :toDate', {
-          toDate: datefns.subDays(options.toDate, periodDaysCount),
+          toDate: datefns.subDays(query.toDate, periodDaysCount),
         });
 
       prevPeriodSummary = await queryBuilder.getMany();
@@ -86,7 +86,7 @@ export class AnalyticsService {
         this.buildWeeklySummaryWithDepartmentHierarchy(
           departments as Department[],
           prevPeriodWeeklySummary,
-          options,
+          query,
         );
     }
 
@@ -145,7 +145,7 @@ export class AnalyticsService {
   private buildWeeklySummaryWithDepartmentHierarchy(
     departments: Department[],
     weeklySummary: DoctorAppointmentsWeeklySummary,
-    options: GetDoctorAppointmentsOptionsDto,
+    options: GetDoctorAppointmentsQueryDto,
   ): WeeklySummaryWithDepartmentHierarchy {
     let hierarchiesRootDepartments = Object.entries(weeklySummary).reduce<
       Department[]

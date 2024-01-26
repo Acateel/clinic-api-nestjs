@@ -12,6 +12,7 @@ import {
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { GetAppointmentQueryDto } from './dto/get-appointment-query.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { AppointmentDetailsResponseDto } from './response-dto/appointment-details-response.dto';
 import { AppointmentResponseDto } from './response-dto/appointment-response.dto';
@@ -29,7 +30,7 @@ export class AppointmentController {
 
   @Get()
   @ApiResponse({ status: HttpStatus.OK, type: AppointmentResponseDto })
-  get(@Query() query) {
+  get(@Query() query: GetAppointmentQueryDto) {
     return this.appointmentService.get(query);
   }
 

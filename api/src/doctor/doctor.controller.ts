@@ -26,6 +26,7 @@ import { AccessTokenPayload } from 'src/common/interface';
 import { DoctorService } from './doctor.service';
 import { AddReviewDto } from './dto/add-review.dto';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
+import { GetDoctorQueryDto } from './dto/get-doctor-query.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { DoctorDetailsResponseDto } from './response-dto/doctor-details-response.dto';
@@ -52,7 +53,7 @@ export class DoctorController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: [DoctorResponseDto] })
-  get(@Query() query) {
+  get(@Query() query: GetDoctorQueryDto) {
     return this.doctorService.get(query);
   }
 

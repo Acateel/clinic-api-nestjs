@@ -11,6 +11,7 @@ import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { PatientEntity } from 'src/database/entity/patient.entity';
 import { QueryRunner, Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { GetAppointmentQueryDto } from './dto/get-appointment-query.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Injectable()
@@ -71,19 +72,19 @@ export class AppointmentService {
     }
   }
 
-  async get(options): Promise<AppointmentEntity[]> {
+  async get(query: GetAppointmentQueryDto): Promise<AppointmentEntity[]> {
     const queryBuilder =
       this.appointmentRepository.createQueryBuilder('appointment');
 
-    if (options.doctor) {
+    if (query.doctor) {
       queryBuilder.andWhere('appointment.doctor_id = :doctorId', {
-        doctorId: options.doctor,
+        doctorId: query.doctor,
       });
     }
 
-    if (options.patient) {
+    if (query.patient) {
       queryBuilder.andWhere('appointment.patient_id = :patientId', {
-        patientId: options.patient,
+        patientId: query.patient,
       });
     }
 
