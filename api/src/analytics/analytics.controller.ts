@@ -12,4 +12,9 @@ export class AnalyticsController {
   getDoctorAppointmentsSummary(@Query() query: GetDoctorAppointmentsQueryDto) {
     return this.analyticsService.getDoctorAppointmentsSummary(query);
   }
+
+  @Get('new-users-count')
+  getNewUsersCount() {
+    return this.analyticsService.getNewUsersCount();
+  }
 }

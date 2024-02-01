@@ -29,13 +29,13 @@ export class AppointmentController {
   }
 
   @Get()
-  @ApiResponse({ status: HttpStatus.OK, type: AppointmentResponseDto })
+  @ApiResponse({ status: HttpStatus.OK, type: [AppointmentResponseDto] })
   get(@Query() query: GetAppointmentQueryDto) {
     return this.appointmentService.get(query);
   }
 
   @Get(':id')
-  @ApiResponse({ status: HttpStatus.OK, type: [AppointmentDetailsResponseDto] })
+  @ApiResponse({ status: HttpStatus.OK, type: AppointmentDetailsResponseDto })
   getById(@Param('id') id: number) {
     return this.appointmentService.getById(id);
   }

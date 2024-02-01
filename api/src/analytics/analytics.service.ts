@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import * as datefns from 'date-fns';
 import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
+import { UserEntity } from 'src/database/entity/user.entity';
 import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { GetDoctorAppointmentsQueryDto } from './dto/get-doctor-appointments-query.dto';
 import {
   Department,
@@ -13,6 +14,7 @@ import {
   WeeklySummaryWithDepartmentHierarchy,
 } from './interface';
 import { GetDoctorAppointmentsResponseDto } from './response-dto/get-doctor-appointments-response.dto';
+import { GetNewUsersCountResponseDto } from './response-dto/get-new-users-count-response-dto';
 
 @Injectable()
 export class AnalyticsService {
@@ -21,6 +23,8 @@ export class AnalyticsService {
     private readonly doctorRepository: Repository<DoctorEntity>,
     @InjectRepository(DepartmentEntity)
     private readonly departmentRepository: Repository<DepartmentEntity>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   async getDoctorAppointmentsSummary(
@@ -365,5 +369,63 @@ export class AnalyticsService {
     );
 
     return ((currMaxRes - prevMaxRes) / prevMaxRes) * 100;
+  }
+
+  async getNewUsersCount(): Promise<GetNewUsersCountResponseDto> {
+    // TODO: Try without dataSource
+    const usersCount = await this.dataSource
+      .createQueryBuilder()
+      .select([
+        'day.count::INT AS "prevDayCount"',
+        `
+        (
+          SELECT COUNT(*) FROM public.user 
+          WHERE EXTRACT(DAY FROM created_at) = EXTRACT(DAY FROM CURRENT_DATE) AND
+            DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
+        )::INT as "currDayCount"
+        `,
+        `
+        (
+          SELECT COUNT(*) FROM public.user 
+          WHERE EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM (CURRENT_DATE - INTERVAL '1 month')) AND
+            EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
+        )::INT as "prevMonthCount"
+        `,
+        `
+        (
+          SELECT COUNT(*) FROM public.user 
+          WHERE EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE) AND
+            EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
+        )::INT as "currMonthCount"
+        `,
+        `
+        (
+          SELECT COUNT(*) FROM public.user 
+          WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM (CURRENT_DATE - INTERVAL '1 year'))
+        )::INT as "prevYearCount"
+        `,
+        `
+        (
+          SELECT COUNT(*) FROM public.user 
+          WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
+        )::INT as "currYearCount"
+        `,
+      ])
+      .from(
+        (subQuery) =>
+          subQuery
+            .select('COUNT(*)')
+            .from(UserEntity, 'user')
+            .where(
+              `
+              EXTRACT(DAY FROM created_at) = EXTRACT(DAY FROM (CURRENT_DATE - INTERVAL '1 day')) AND
+                DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
+              `,
+            ),
+        'day',
+      )
+      .execute();
+
+    return usersCount;
   }
 }
