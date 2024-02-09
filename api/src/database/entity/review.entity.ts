@@ -20,6 +20,14 @@ export class ReviewEntity {
   @Column({ type: 'varchar', nullable: true })
   comment!: string | null;
 
+  // @Column()
+  // upVotes!: number;
+
+  // @Column({ default: 0 })
+  // downVotes!: number;
+
+  // TODO: add comments relations here?
+
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL', nullable: false })
   user?: UserEntity;
 
