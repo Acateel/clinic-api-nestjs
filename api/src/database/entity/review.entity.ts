@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CommentEntity } from './comment.entity';
 import { DoctorEntity } from './doctor.entity';
 import { UserEntity } from './user.entity';
 
@@ -18,15 +20,7 @@ export class ReviewEntity {
   rating!: number;
 
   @Column({ type: 'varchar', nullable: true })
-  comment!: string | null;
-
-  // @Column()
-  // upVotes!: number;
-
-  // @Column({ default: 0 })
-  // downVotes!: number;
-
-  // TODO: add comments relations here?
+  text!: string | null;
 
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL', nullable: false })
   user?: UserEntity;
@@ -39,6 +33,9 @@ export class ReviewEntity {
 
   @Column({ nullable: true })
   doctorId!: number | null;
+
+  @OneToMany(() => CommentEntity, (comment) => comment.review)
+  comments?: CommentEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

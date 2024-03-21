@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { CommentEntity } from './comment.entity';
 import { DoctorEntity } from './doctor.entity';
 import { ReviewEntity } from './review.entity';
 
@@ -42,6 +43,9 @@ export class UserEntity {
 
   @OneToMany(() => ReviewEntity, (review) => review.user)
   reviews?: ReviewEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments?: CommentEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

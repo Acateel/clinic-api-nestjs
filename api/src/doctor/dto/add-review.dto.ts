@@ -6,5 +6,5 @@ export class AddReviewDto {
   readonly rating!: number;
 
   @IsOptional()
-  readonly comment?: string;
+  readonly text?: string;
 }
