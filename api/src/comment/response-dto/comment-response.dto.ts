@@ -1,4 +1,4 @@
-export class AddCommentResponseDto {
+export class CommentResponseDto {
   readonly id!: number;
   readonly text!: string;
   readonly upVotes!: number;

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AppointmentModule } from './appointment/appointment.module';
@@ -15,6 +16,7 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigurationModule,
     ThrottlerModule.forRoot(),
+    EventEmitterModule.forRoot(),
     UserModule,
     AuthModule,
     PatientModule,

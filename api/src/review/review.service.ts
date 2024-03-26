@@ -1,5 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, MessageEvent, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Observable, fromEvent, map, merge, of } from 'rxjs';
+import { ReviewEventsEnum } from 'src/common/enum';
 import { AccessTokenPayload } from 'src/common/interface';
 import { CommentEntity } from 'src/database/entity/comment.entity';
 import { ReviewEntity } from 'src/database/entity/review.entity';
@@ -16,6 +19,7 @@ export class ReviewService {
     private readonly commentRepository: Repository<CommentEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   get(): Promise<ReviewEntity[]> {
@@ -127,6 +131,36 @@ export class ReviewService {
       id: commentId,
     });
 
+    this.eventEmitter.emit(ReviewEventsEnum.ADD_COMMENT, commentDetails);
+
     return commentDetails!;
+  }
+
+  async getByIdSse(
+    id: number,
+    maxDepth: number,
+  ): Promise<Observable<MessageEvent>> {
+    const review = await this.getById(id, maxDepth);
+
+    return merge(
+      of(review).pipe(
+        map((comment) => ({
+          type: 'getById',
+          data: comment as object,
+        })),
+      ),
+      fromEvent(this.eventEmitter, ReviewEventsEnum.ADD_COMMENT).pipe(
+        map((comment) => ({
+          type: 'addComment',
+          data: comment as object,
+        })),
+      ),
+      fromEvent(this.eventEmitter, ReviewEventsEnum.VOTE).pipe(
+        map((comment) => ({
+          type: 'vote',
+          data: comment as object,
+        })),
+      ),
+    );
   }
 }

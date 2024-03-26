@@ -52,7 +52,7 @@ export class UserController {
     return this.userService.get();
   }
 
-  @Get('current/profile')
+  @Get('profile')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()

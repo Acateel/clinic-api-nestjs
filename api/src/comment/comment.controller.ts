@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -21,5 +29,25 @@ export class CommentController {
   @ApiOperation({ summary: 'admin, doctor, patient' })
   create(@Body() dto: CreateCommentDto, @User() user: AccessTokenPayload) {
     return this.commentService.create(dto, user);
+  }
+
+  @Post(':id/like')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'admin, doctor, patient' })
+  like(@Param('id') id: number, @User() user: AccessTokenPayload) {
+    return this.commentService.like(id, user);
+  }
+
+  @Post(':id/dislike')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'admin, doctor, patient' })
+  dislike(@Param('id') id: number, @User() user: AccessTokenPayload) {
+    return this.commentService.dislike(id, user);
   }
 }
