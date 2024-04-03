@@ -25,7 +25,7 @@ export const appConfigFactory = (): AppConfig => ({
     entities: [process.env.ENTITIES!],
     namingStrategy: new SnakeNamingStrategy(),
     synchronize: process.env.SYNCHRONIZE === 'true',
-    logging: true,
+    logging: false,
   },
   smtp: {
     host: process.env.SMTP_HOST!,
@@ -36,5 +36,12 @@ export const appConfigFactory = (): AppConfig => ({
       pass: process.env.SMTP_PASSWORD!,
     },
     templatesPath: path.resolve('email-template'),
+  },
+  i18n: {
+    fallbackLanguage: 'en',
+    loaderOptions: {
+      path: path.join(__dirname, '../i18n/'),
+      watch: true,
+    },
   },
 });

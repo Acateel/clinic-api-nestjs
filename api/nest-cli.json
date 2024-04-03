@@ -4,7 +4,15 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["email/template/**/*", "seed/**/*"],
+    "assets": [
+      { "include": "../i18n/**/*", "outDir": "dist/i18n", "watchAssets": true },
+      {
+        "include": "../email-template/**",
+        "outDir": "dist/email-template",
+        "watchAssets": true
+      },
+      { "include": "../seed/**", "outDir": "dist/seed", "watchAssets": true }
+    ],
     "watchAssets": true,
     "plugins": [
       {

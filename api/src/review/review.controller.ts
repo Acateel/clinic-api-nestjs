@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   Sse,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { AccessTokenPayload } from 'src/common/interface';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { ReviewResponseDto } from './response-dto/review-response.dto';
 import { ReviewService } from './review.service';
+import { I18nContext } from 'nestjs-i18n';
 
 @ApiTags('reviews')
 @Controller('reviews')
@@ -47,7 +49,13 @@ export class ReviewController {
   }
 
   @Get(':id')
-  getById(@Param('id') id: number, @Query('maxDepth') maxDepth: number) {
+  getById(
+    @Req() req: any,
+    @Param('id') id: number,
+    @Query('maxDepth') maxDepth: number,
+  ) {
+    console.log(I18nContext.current()?.lang);
+    console.log(req.language);
     return this.reviewService.getById(id, maxDepth);
   }
 

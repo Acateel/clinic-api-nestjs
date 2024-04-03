@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Request } from 'express';
+import { I18nOptions } from 'nestjs-i18n';
 import { UserRoleEnum } from './enum';
 
 export interface AppConfig {
@@ -26,6 +27,7 @@ export interface AppConfig {
     };
     templatesPath: string;
   };
+  i18n: I18nOptions;
 }
 
 export interface AuthenticatedRequest extends Request {
