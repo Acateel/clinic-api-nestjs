@@ -217,7 +217,7 @@ export class DoctorService {
       'apiUrl',
     )}api/v1/auth/register/${inviteToken}`;
 
-    this.emailService.send(dto.email, 'Invite', 'invite.hbs', {
+    this.emailService.send(dto.email, 'Invite', 'invite-i18n', {
       inviteLink,
     });
   }
