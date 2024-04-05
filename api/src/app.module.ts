@@ -12,6 +12,7 @@ import { AppConfig } from './common/interface';
 import { ConfigurationModule } from './config/configuration.module';
 import { DepartmentModule } from './department/department.module';
 import { DoctorModule } from './doctor/doctor.module';
+import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
 import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
@@ -38,6 +39,7 @@ console.log(path.join(__dirname, '/i18n/'));
     AnalyticsModule,
     ReviewModule,
     CommentModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

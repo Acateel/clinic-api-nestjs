@@ -3,7 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Observable, fromEvent, map, merge, of } from 'rxjs';
 import { ReviewEventsEnum } from 'src/common/enum';
-import { AccessTokenPayload } from 'src/common/interface';
+import { AccessTokenPayload, ReviewCommentedEvent } from 'src/common/interface';
 import { CommentEntity } from 'src/database/entity/comment.entity';
 import { ReviewEntity } from 'src/database/entity/review.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
@@ -132,6 +132,13 @@ export class ReviewService {
     });
 
     this.eventEmitter.emit(ReviewEventsEnum.ADD_COMMENT, commentDetails);
+    const notification: ReviewCommentedEvent = {
+      reviewId: review.id,
+      commentId,
+      userId: user.id,
+    };
+    // TODO: enum event and class for notification?
+    this.eventEmitter.emit('notification.reviewCommented', notification);
 
     return commentDetails!;
   }

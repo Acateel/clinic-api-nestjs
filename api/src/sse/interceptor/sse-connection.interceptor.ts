@@ -2,14 +2,19 @@ import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { NEVER, Observable } from 'rxjs';
+import { Response } from 'express';
+import { NEVER, Observable, of } from 'rxjs';
+import { AuthenticatedRequest } from 'src/common/interface';
 import { SseService } from '../sse.service';
 
 @Injectable()
-export class SseInterceptor implements NestInterceptor {
+export class SseConnectionInterceptor implements NestInterceptor {
+  // TODO: inject in constructor
+  private readonly logger = new Logger(SseConnectionInterceptor.name);
+
   constructor(private readonly sseService: SseService) {}
 
   async intercept(
@@ -17,8 +22,13 @@ export class SseInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Promise<Observable<any>> {
     const http = context.switchToHttp();
-    const req = http.getRequest<Request>();
+    const req = http.getRequest<AuthenticatedRequest>();
     const res = http.getResponse<Response>();
+
+    if (!req.user) {
+      this.logger.error('Can not open connection on unauthorized request');
+      return of(null);
+    }
 
     const subscription = next.handle().subscribe();
 

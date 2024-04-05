@@ -57,3 +57,9 @@ export interface AppointmentTime {
   startDate: Date;
   endDate: Date;
 }
+
+export interface ReviewCommentedEvent {
+  readonly userId: number;
+  readonly reviewId: number;
+  readonly commentId: number;
+}
