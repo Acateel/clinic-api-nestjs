@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentTime } from 'src/common/interface';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
@@ -66,6 +62,9 @@ export class AppointmentService {
       });
     } catch (error) {
       await this.queryRunner.rollbackTransaction();
+      // TODO:
+      // BUG: Query runner already released. Cannot run queries anymore.
+      // BUG: Transaction is not started yet, start transaction before committing or rolling it back.
       throw error;
     } finally {
       await this.queryRunner.release();
@@ -199,10 +198,10 @@ export class AppointmentService {
       },
     );
 
-    if (!availableSlot) {
-      throw new ConflictException('Doctor is unavailable');
-    }
+    // if (!availableSlot) {
+    //   throw new ConflictException('Doctor is unavailable');
+    // }
 
-    await this.queryRunner.manager.remove(availableSlot);
+    // await this.queryRunner.manager.remove(availableSlot);
   }
 }

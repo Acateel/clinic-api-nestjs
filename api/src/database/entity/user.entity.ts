@@ -11,7 +11,7 @@ import {
 import { CommentEntity } from './comment.entity';
 import { DoctorEntity } from './doctor.entity';
 import { ReviewEntity } from './review.entity';
-import { ReviewNotificationEntity } from './review-notification.entity';
+import { UserNotificationEntity } from './user-notification.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -48,11 +48,8 @@ export class UserEntity {
   @OneToMany(() => CommentEntity, (comment) => comment.user)
   comments?: CommentEntity[];
 
-  @OneToMany(
-    () => ReviewNotificationEntity,
-    (reviewNotification) => reviewNotification.user,
-  )
-  reviewNotifications?: ReviewNotificationEntity[];
+  @OneToMany(() => UserNotificationEntity, (notification) => notification.user)
+  notifications?: UserNotificationEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

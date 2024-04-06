@@ -18,6 +18,7 @@ export enum VoteEnum {
   DISLIKE = 'DISLIKE',
 }
 
-export enum ReviewNotificationTypeEnum {
-  COMMENTED = 'COMMENTED',
+export enum UserNotificationTypeEnum {
+  REVIEW_COMMENTED = 'REVIEW_COMMENTED',
+  APPOINTMENT_UPCOMING = 'APPOINTMENT_UPCOMING',
 }

@@ -7,3 +7,9 @@ export class NotifyReviewCommentedEvent {
     readonly commentId: number,
   ) {}
 }
+
+export class NotifyAppointmentUpcommingEvent {
+  static readonly EVENT_NAME = 'notification.appointmentUpcoming';
+
+  constructor(readonly userId: number, readonly appointmentId: number) {}
+}
