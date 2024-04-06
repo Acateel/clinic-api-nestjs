@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
-import * as path from 'path';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { AuthModule } from './auth/auth.module';
@@ -16,8 +15,6 @@ import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
 import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
-
-console.log(path.join(__dirname, '/i18n/'));
 
 @Module({
   imports: [

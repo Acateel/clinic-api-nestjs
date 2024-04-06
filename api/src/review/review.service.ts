@@ -2,13 +2,14 @@ import { Injectable, MessageEvent, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Observable, fromEvent, map, merge, of } from 'rxjs';
-import { ReviewEventsEnum } from 'src/common/enum';
-import { AccessTokenPayload, ReviewCommentedEvent } from 'src/common/interface';
+import { AccessTokenPayload } from 'src/common/interface';
 import { CommentEntity } from 'src/database/entity/comment.entity';
 import { ReviewEntity } from 'src/database/entity/review.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
+import { NotifyReviewCommentedEvent } from 'src/notification/event';
 import { Repository } from 'typeorm';
 import { AddCommentDto } from './dto/add-comment.dto';
+import { ReviewCommentedEvent, ReviewVotedEvent } from './event';
 
 @Injectable()
 export class ReviewService {
@@ -131,14 +132,14 @@ export class ReviewService {
       id: commentId,
     });
 
-    this.eventEmitter.emit(ReviewEventsEnum.ADD_COMMENT, commentDetails);
-    const notification: ReviewCommentedEvent = {
-      reviewId: review.id,
-      commentId,
-      userId: user.id,
-    };
-    // TODO: enum event and class for notification?
-    this.eventEmitter.emit('notification.reviewCommented', notification);
+    this.eventEmitter.emit(
+      ReviewCommentedEvent.EVENT_NAME,
+      new ReviewCommentedEvent(commentDetails!),
+    );
+    this.eventEmitter.emit(
+      NotifyReviewCommentedEvent.EVENT_NAME,
+      new NotifyReviewCommentedEvent(user.id, review.id, commentId),
+    );
 
     return commentDetails!;
   }
@@ -151,21 +152,29 @@ export class ReviewService {
 
     return merge(
       of(review).pipe(
-        map((comment) => ({
+        map<ReviewEntity, MessageEvent>((comment) => ({
           type: 'getById',
-          data: comment as object,
+          data: comment,
         })),
       ),
-      fromEvent(this.eventEmitter, ReviewEventsEnum.ADD_COMMENT).pipe(
+      fromEvent(
+        this.eventEmitter,
+        ReviewCommentedEvent.EVENT_NAME,
+        () => ReviewCommentedEvent,
+      ).pipe(
         map((comment) => ({
           type: 'addComment',
-          data: comment as object,
+          data: comment,
         })),
       ),
-      fromEvent(this.eventEmitter, ReviewEventsEnum.VOTE).pipe(
-        map((comment) => ({
+      fromEvent(
+        this.eventEmitter,
+        ReviewVotedEvent.EVENT_NAME,
+        () => ReviewVotedEvent,
+      ).pipe(
+        map((vote) => ({
           type: 'vote',
-          data: comment as object,
+          data: vote,
         })),
       ),
     );

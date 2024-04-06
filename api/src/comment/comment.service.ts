@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ReviewEventsEnum, VoteEnum } from 'src/common/enum';
+import { VoteEnum } from 'src/common/enum';
 import { AccessTokenPayload } from 'src/common/interface';
 import { CommentVoteEntity } from 'src/database/entity/comment-vote.entity';
 import { CommentEntity } from 'src/database/entity/comment.entity';
 import { ReviewEntity } from 'src/database/entity/review.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
+import { ReviewCommentedEvent, ReviewVotedEvent } from 'src/review/event';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
@@ -82,7 +83,10 @@ export class CommentService {
       id: commentId,
     });
 
-    this.eventEmitter.emit(ReviewEventsEnum.ADD_COMMENT, commentDetails);
+    this.eventEmitter.emit(
+      ReviewCommentedEvent.EVENT_NAME,
+      new ReviewCommentedEvent(commentDetails!),
+    );
 
     return commentDetails!;
   }
@@ -139,7 +143,10 @@ export class CommentService {
 
       const updatedComment = await this.commentRepository.findOneBy({ id });
 
-      this.eventEmitter.emit(ReviewEventsEnum.VOTE, updatedComment);
+      this.eventEmitter.emit(
+        ReviewVotedEvent.EVENT_NAME,
+        new ReviewVotedEvent(updatedComment!),
+      );
 
       return;
     }
@@ -166,6 +173,9 @@ export class CommentService {
 
     const updatedComment = await this.commentRepository.findOneBy({ id });
 
-    this.eventEmitter.emit(ReviewEventsEnum.VOTE, updatedComment);
+    this.eventEmitter.emit(
+      ReviewVotedEvent.EVENT_NAME,
+      new ReviewVotedEvent(updatedComment!),
+    );
   }
 }

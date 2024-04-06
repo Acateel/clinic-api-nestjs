@@ -1,3 +1,4 @@
+import { ReviewNotificationTypeEnum } from 'src/common/enum';
 import {
   Column,
   CreateDateColumn,
@@ -15,9 +16,11 @@ export class ReviewNotificationEntity {
   @PrimaryGeneratedColumn({ name: 'review_notification_id' })
   id!: number;
 
-  // TODO: enum type
-  @Column()
-  type!: string;
+  @Column({ type: 'enum', enum: ReviewNotificationTypeEnum })
+  type!: ReviewNotificationTypeEnum;
+
+  @Column({ default: false })
+  isSeen!: boolean;
 
   @ManyToOne(() => UserEntity, { onDelete: 'SET NULL', nullable: false })
   user?: UserEntity;

@@ -13,12 +13,11 @@ export enum MetadataKeyEnum {
   ROLES = 'ROLES',
 }
 
-export enum ReviewEventsEnum {
-  ADD_COMMENT = 'review.addComment',
-  VOTE = 'review.vote',
-}
-
 export enum VoteEnum {
   LIKE = 'LIKE',
   DISLIKE = 'DISLIKE',
+}
+
+export enum ReviewNotificationTypeEnum {
+  COMMENTED = 'COMMENTED',
 }

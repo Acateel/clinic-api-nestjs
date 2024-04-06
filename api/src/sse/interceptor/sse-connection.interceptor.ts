@@ -4,15 +4,15 @@ import {
   Injectable,
   Logger,
   NestInterceptor,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { NEVER, Observable, of } from 'rxjs';
+import { NEVER, Observable } from 'rxjs';
 import { AuthenticatedRequest } from 'src/common/interface';
 import { SseService } from '../sse.service';
 
 @Injectable()
 export class SseConnectionInterceptor implements NestInterceptor {
-  // TODO: inject in constructor
   private readonly logger = new Logger(SseConnectionInterceptor.name);
 
   constructor(private readonly sseService: SseService) {}
@@ -26,8 +26,10 @@ export class SseConnectionInterceptor implements NestInterceptor {
     const res = http.getResponse<Response>();
 
     if (!req.user) {
-      this.logger.error('Can not open connection on unauthorized request');
-      return of(null);
+      this.logger.error(
+        'Can not open connection on unauthorized request. Use auth guard before this interceptor',
+      );
+      throw new UnauthorizedException();
     }
 
     const subscription = next.handle().subscribe();

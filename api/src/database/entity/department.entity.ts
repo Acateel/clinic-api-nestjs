@@ -18,7 +18,6 @@ export class DepartmentEntity {
   @Column()
   name!: string;
 
-  // TODO: check if nullable can be ommited
   @ManyToOne(() => DepartmentEntity)
   parentDepartment?: DepartmentEntity;
 
