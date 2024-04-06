@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
 import { AnalyticsModule } from './analytics/analytics.module';
@@ -12,11 +13,11 @@ import { ConfigurationModule } from './config/configuration.module';
 import { CronModule } from './cron/cron.module';
 import { DepartmentModule } from './department/department.module';
 import { DoctorModule } from './doctor/doctor.module';
+import { FileModule } from './file/files.module';
 import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
 import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     CommentModule,
     NotificationModule,
     CronModule,
+    FileModule,
   ],
 })
 export class AppModule {}
