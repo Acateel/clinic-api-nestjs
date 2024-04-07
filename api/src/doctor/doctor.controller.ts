@@ -1,3 +1,4 @@
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -10,6 +11,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -84,6 +86,8 @@ export class DoctorController {
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
+  // TODO: do not cache if parameter passed. Use LRU вытеснение из кеша
+  @UseInterceptors(CacheInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'admin, doctor, patient' })
   @ApiResponse({ status: HttpStatus.OK, type: DoctorDetailsResponseDto })

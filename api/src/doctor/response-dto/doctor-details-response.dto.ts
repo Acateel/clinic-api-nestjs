@@ -11,4 +11,5 @@ export class DoctorDetailsResponseDto {
   readonly appointments!: AppointmentResponseDto[];
   readonly appointmentIds!: number[];
   readonly createdAt!: Date;
+  readonly rating!: number;
 }

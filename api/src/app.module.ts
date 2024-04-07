@@ -1,8 +1,10 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
+import * as redisStore from 'cache-manager-redis-store';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AppointmentModule } from './appointment/appointment.module';
@@ -25,6 +27,12 @@ import { UserModule } from './user/user.module';
     ThrottlerModule.forRoot(),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+    }),
     I18nModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig, true>) =>

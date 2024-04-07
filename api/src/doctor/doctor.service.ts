@@ -119,7 +119,17 @@ export class DoctorService {
     return queryBuilder.getMany();
   }
 
-  async getById(id: number): Promise<DoctorEntity> {
+  // TODO: strong typing
+  async getById(id: number): Promise<any> {
+    // TODO: use single query runner instance?
+    // TODO: cache at least rating
+    const avgRating = await this.doctorRepository.manager.connection
+      .createQueryBuilder(ReviewEntity, 'review')
+      .select('AVG(rating)', 'rating')
+      .where('review.doctor_id = :id', { id })
+      .groupBy('review_id')
+      .getRawOne();
+
     const doctor = await this.doctorRepository
       .createQueryBuilder('doctor')
       .where('doctor.id = :id', { id })
@@ -134,7 +144,7 @@ export class DoctorService {
       throw new NotFoundException('Doctor not found');
     }
 
-    return doctor;
+    return { ...doctor, rating: avgRating.rating };
   }
 
   async update(id: number, dto: UpdateDoctorDto): Promise<DoctorEntity | null> {
