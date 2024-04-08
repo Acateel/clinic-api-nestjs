@@ -17,13 +17,12 @@ import { NotificationService } from './notification.service';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
-  // TODO: exception filter
   @Get('sse')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
   @UseInterceptors(SseConnectionInterceptor)
-  getSse(@User() user: AccessTokenPayload) {
-    this.notificationService.getSse(user);
+  async getSse(@User() user: AccessTokenPayload) {
+    await this.notificationService.getSse(user);
   }
 
   @OnEvent(NotifyReviewCommentedEvent.EVENT_NAME)

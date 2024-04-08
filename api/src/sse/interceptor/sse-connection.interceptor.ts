@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { NEVER, Observable } from 'rxjs';
+import { NEVER, Observable, catchError, concatMap, throwError } from 'rxjs';
 import { AuthenticatedRequest } from 'src/common/interface';
 import { SseService } from '../sse.service';
 
@@ -32,16 +32,15 @@ export class SseConnectionInterceptor implements NestInterceptor {
       throw new UnauthorizedException();
     }
 
-    const subscription = next.handle().subscribe();
-
     const subject = await this.sseService.connect(req, res);
-    subject.subscribe({
-      complete: () => {
-        res.end();
-        subscription.unsubscribe();
-      },
-    });
+    const observable = next.handle().pipe(
+      catchError((err) => {
+        subject.error(err);
+        return throwError(() => err);
+      }),
+      concatMap(() => NEVER),
+    );
 
-    return NEVER;
+    return observable;
   }
 }

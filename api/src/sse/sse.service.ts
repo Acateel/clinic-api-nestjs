@@ -16,13 +16,6 @@ export class SseService {
     req: AuthenticatedRequest,
     res: Response,
   ): Promise<Subject<MessageEvent>> {
-    // if (validationFailed)
-    //   throw new InternalServerErrorException({
-    //     message: 'Query failed',
-    //     error: 100,
-    //     status: 500,
-    //   });
-
     const subject = new Subject<MessageEvent>();
     const observer = {
       next: (msg: MessageEvent) => {
@@ -42,9 +35,12 @@ export class SseService {
       },
       complete: () => {
         this.logger.debug('observer.complete');
+        res.end();
       },
-      error: (err: any) => {
+      error: (err) => {
         this.logger.debug(`observer.error: ${err}`);
+        res.write(`event: error\n`);
+        res.write(`data: ${JSON.stringify(err)}\n\n`);
       },
     };
     subject.subscribe(observer);
@@ -52,7 +48,9 @@ export class SseService {
     const connectionKey = req.user.id;
     this.connections.set(connectionKey, {
       close: () => {
-        res.end();
+        if (!res.closed) {
+          res.end();
+        }
       },
       subject,
     });
@@ -61,7 +59,10 @@ export class SseService {
       this.logger.debug(`Closing connection for client ${connectionKey}`);
       subject.complete();
       this.connections.delete(connectionKey);
-      res.end();
+
+      if (!res.closed) {
+        res.end();
+      }
     });
 
     res.set({
