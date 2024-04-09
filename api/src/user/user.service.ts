@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from 'src/common/constant';
+import { AccessTokenPayload } from 'src/common/interface';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -98,5 +99,18 @@ export class UserService {
     if (!result.affected) {
       throw new NotFoundException('User not found');
     }
+  }
+
+  async setAvatar(payload: AccessTokenPayload, avatar: Express.Multer.File) {
+    const user = await this.userRepository.findOneBy({ id: payload.id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.avatar = avatar.filename;
+    await this.userRepository.update(user.id, user);
+
+    return avatar.filename;
   }
 }

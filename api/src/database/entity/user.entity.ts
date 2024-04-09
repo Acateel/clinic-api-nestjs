@@ -30,6 +30,9 @@ export class UserEntity {
   @Column()
   fullName!: string;
 
+  @Column({ nullable: true, type: String })
+  avatar!: string | null;
+
   @Column({ type: String, select: false, nullable: true })
   resetToken?: string | null;
 

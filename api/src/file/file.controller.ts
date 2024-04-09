@@ -1,29 +1,13 @@
-import {
-  Controller,
-  Post,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { Controller, Get, Param, StreamableFile } from '@nestjs/common';
+import { createReadStream } from 'fs';
+import * as path from 'path';
 
 @Controller('files')
 export class FileController {
-  @Post('upload')
-  // TODO: use util or config for settings
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './upload/',
-        filename: (_, file, cb) => {
-          cb(null, `${Date.now()}-${file.originalname}`);
-        },
-      }),
-      //   fileFilter: imageFileFilter,
-    }),
-  )
-  uploadAvatar(@UploadedFile() file: Express.Multer.File) {
-    // TODO: set path to user, return file name
-    console.log(file);
+  @Get(':name')
+  get(@Param('name') name: string): StreamableFile {
+    const filePath = path.resolve('public', 'upload', name);
+    const file = createReadStream(filePath);
+    return new StreamableFile(file);
   }
 }

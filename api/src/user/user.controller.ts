@@ -7,8 +7,11 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -60,6 +63,19 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.OK, type: UserDetailsResponseDto })
   getProfile(@User() user: AccessTokenPayload) {
     return this.userService.getById(user.id);
+  }
+
+  @Post('uploads/avatar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)
+  @UseInterceptors(FileInterceptor('avatar'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'admin, doctor, patient' })
+  setAvatar(
+    @User() user: AccessTokenPayload,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.userService.setAvatar(user, file);
   }
 
   @Get(':id')

@@ -7,6 +7,7 @@ import { AuthenticatedRequest } from 'src/common/interface';
 export class SseService {
   private readonly logger = new Logger(SseService.name);
 
+  // TODO: support for multiple connections per user
   private connections = new Map<
     number,
     { close: () => void; subject: Subject<MessageEvent> }

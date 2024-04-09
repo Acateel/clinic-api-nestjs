@@ -37,4 +37,4 @@ lerna-debug.log*
 # Custom
 *.env
 seed/
-upload/
+public/upload/
