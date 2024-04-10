@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppConfig } from 'src/common/interface';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 import { AppointmentEntity } from './entity/appointment.entity';
 import { CommentVoteEntity } from './entity/comment-vote.entity';
 import { CommentEntity } from './entity/comment.entity';
@@ -20,6 +22,13 @@ import { DoctorAppointmentsSummaryEntity } from './view-entity/doctor-appointmen
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig, true>) =>
         configService.get('database'),
+      dataSourceFactory: async (options) => {
+        if (!options) {
+          throw new Error('Invalid typeorm options');
+        }
+
+        return addTransactionalDataSource(new DataSource(options));
+      },
     }),
     TypeOrmModule.forFeature([
       PatientEntity,

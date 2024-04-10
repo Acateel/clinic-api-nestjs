@@ -29,6 +29,7 @@ import { UserModule } from './user/user.module';
     ThrottlerModule.forRoot(),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
+    // ClsModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: resolve('public/'),
       serveStaticOptions: {

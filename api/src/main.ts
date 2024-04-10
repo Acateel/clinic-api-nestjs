@@ -2,12 +2,15 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import * as classValidator from 'class-validator';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 import { AppModule } from './app.module';
 import { AppConfig } from './common/interface';
 import { ServeStaticExceptionFilter } from './file/exception-filter/serve-static-exception.filter';
 import { setupSwagger } from './swagger';
 
 async function bootstrap() {
+  initializeTransactionalContext();
+
   const app = await NestFactory.create(AppModule);
 
   const { httpAdapter } = app.get(HttpAdapterHost);

@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppointmentTime } from 'src/common/interface';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
-import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { PatientEntity } from 'src/database/entity/patient.entity';
+import { DoctorService } from 'src/doctor/doctor.service';
 import { QueryRunner, Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { GetAppointmentQueryDto } from './dto/get-appointment-query.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -21,6 +21,7 @@ export class AppointmentService {
     private readonly patientRepository: Repository<PatientEntity>,
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
+    private readonly doctorService: DoctorService,
   ) {}
 
   async create(dto: CreateAppointmentDto): Promise<AppointmentEntity | null> {
@@ -50,7 +51,7 @@ export class AppointmentService {
     await this.queryRunner.startTransaction();
 
     try {
-      await this.takeDoctorAvailableSlot(doctor, appointment);
+      await this.doctorService.takeAvailableSlot(doctor.id, appointment);
       const createdAppointment = await this.queryRunner.manager.save(
         appointment,
       );
@@ -106,14 +107,12 @@ export class AppointmentService {
     return appointment;
   }
 
+  @Transactional()
   async update(
     id: number,
     dto: UpdateAppointmentDto,
   ): Promise<AppointmentEntity | null> {
-    const appointment = await this.appointmentRepository.findOne({
-      where: { id },
-      relations: { doctor: true },
-    });
+    const appointment = await this.appointmentRepository.findOneBy({ id });
 
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
@@ -146,35 +145,19 @@ export class AppointmentService {
       appointment.doctor = doctor;
     }
 
-    this.queryRunner =
-      this.appointmentRepository.manager.connection.createQueryRunner();
-    await this.queryRunner.startTransaction();
+    await this.appointmentRepository.update(appointment.id, appointment);
+    const isDoctorOrTimeChanged = dto.doctorId || dto.startDate || dto.endDate;
 
-    try {
-      const isDoctorOrTimeChanged =
-        dto.doctorId || dto.startDate || dto.endDate;
-
-      if (isDoctorOrTimeChanged) {
-        await this.takeDoctorAvailableSlot(appointment.doctor!, appointment);
-      }
-
-      await this.queryRunner.manager.update(
-        AppointmentEntity,
-        appointment.id,
+    if (isDoctorOrTimeChanged) {
+      await this.doctorService.takeAvailableSlot(
+        appointment.doctor!.id,
         appointment,
       );
-
-      await this.queryRunner.commitTransaction();
-
-      return this.appointmentRepository.findOneBy({
-        id: appointment.id,
-      });
-    } catch (error) {
-      await this.queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await this.queryRunner.release();
     }
+
+    return this.appointmentRepository.findOneBy({
+      id: appointment.id,
+    });
   }
 
   async delete(id: number): Promise<void> {
@@ -183,25 +166,5 @@ export class AppointmentService {
     if (!result.affected) {
       throw new NotFoundException('Appointment not found');
     }
-  }
-
-  private async takeDoctorAvailableSlot(
-    doctor: DoctorEntity,
-    time: AppointmentTime,
-  ): Promise<void> {
-    const availableSlot = await this.queryRunner.manager.findOneBy(
-      DoctorAvailableSlotEntity,
-      {
-        doctorId: doctor.id,
-        startDate: time.startDate,
-        endDate: time.endDate,
-      },
-    );
-
-    // if (!availableSlot) {
-    //   throw new ConflictException('Doctor is unavailable');
-    // }
-
-    // await this.queryRunner.manager.remove(availableSlot);
   }
 }
