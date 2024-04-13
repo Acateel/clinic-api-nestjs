@@ -82,7 +82,7 @@ export class ReviewService {
     return review;
   }
 
-  private getDepth(
+  getDepth(
     comment: CommentEntity,
     commentMap: Map<number, CommentEntity>,
   ): number {

@@ -53,6 +53,7 @@ export class UserService {
       ])
       .leftJoinAndSelect('user.patients', 'patient')
       .leftJoinAndSelect('user.doctors', 'doctor')
+      .leftJoinAndSelect('user.reviews', 'reviews')
       .getOne();
 
     if (!user) {
