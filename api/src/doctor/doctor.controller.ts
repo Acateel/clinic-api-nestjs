@@ -1,4 +1,3 @@
-import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -33,6 +32,7 @@ import { InviteDoctorDto } from './dto/invite-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { DoctorDetailsResponseDto } from './response-dto/doctor-details-response.dto';
 import { DoctorResponseDto } from './response-dto/doctor-response.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('doctors')
 @ApiTags('doctors')
