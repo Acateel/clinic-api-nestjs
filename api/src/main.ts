@@ -13,6 +13,15 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.GRPC,
+  //   options: {
+  //     package: 'test',
+  //     protoPath: join(process.cwd(), 'src/test.proto'),
+  //     // url: configService.get('GRPC_CONNECTION_URL'),
+  //   },
+  // });
+
   const { httpAdapter } = app.get(HttpAdapterHost);
   app.useGlobalFilters(new ServeStaticExceptionFilter(httpAdapter));
   app.useGlobalPipes(
@@ -37,6 +46,6 @@ async function bootstrap() {
 
   const port = app.get(ConfigService<AppConfig, true>).get('port');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();

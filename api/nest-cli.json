@@ -11,7 +11,8 @@
         "outDir": "dist/email-template",
         "watchAssets": true
       },
-      { "include": "../seed/**", "outDir": "dist/seed", "watchAssets": true }
+      { "include": "../seed/**", "outDir": "dist/seed", "watchAssets": true },
+      { "include": "**/*.proto", "watchAssets": true }
     ],
     "watchAssets": true,
     "plugins": [
