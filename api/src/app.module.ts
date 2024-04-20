@@ -24,6 +24,7 @@ import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
 import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
+import { GrpcTestModule } from './grpc/grpc-test.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UserModule } from './user/user.module';
       driver: ApolloDriver,
       autoSchemaFile: 'src/graphql/schema.gql',
     }),
+    GrpcTestModule,
     ThrottlerModule.forRoot(),
     EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
@@ -43,12 +45,12 @@ import { UserModule } from './user/user.module';
       },
       // exclude: ['/api*'],
     }),
-    CacheModule.register({
-      isGlobal: true,
-      store: redisStore,
-      host: 'redis',
-      port: 6379,
-    }),
+    // CacheModule.register({
+    //   isGlobal: true,
+    //   store: redisStore,
+    //   host: 'redis',
+    //   port: 6379,
+    // }),
     I18nModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig, true>) =>
