@@ -13,6 +13,8 @@ import { ReviewEntity } from './entity/review.entity';
 import { UserNotificationEntity } from './entity/user-notification.entity';
 import { UserEntity } from './entity/user.entity';
 import { DoctorAppointmentsSummaryEntity } from './view-entity/doctor-appointments-summary.entity';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 @Module({
   imports: [
@@ -20,13 +22,13 @@ import { DoctorAppointmentsSummaryEntity } from './view-entity/doctor-appointmen
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig, true>) =>
         configService.get('database'),
-      // dataSourceFactory: async (options) => {
-      //   if (!options) {
-      //     throw new Error('Invalid typeorm options');
-      //   }
+      dataSourceFactory: async (options) => {
+        if (!options) {
+          throw new Error('Invalid typeorm options');
+        }
 
-      //   return addTransactionalDataSource(new DataSource(options));
-      // },
+        return addTransactionalDataSource(new DataSource(options));
+      },
     }),
     TypeOrmModule.forFeature([
       PatientEntity,
