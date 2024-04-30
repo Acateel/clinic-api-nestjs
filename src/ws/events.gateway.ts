@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -8,7 +9,7 @@ import {
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
 export class EventsGateway
@@ -31,7 +32,7 @@ export class EventsGateway
   @SubscribeMessage('events')
   handleEvent(
     @MessageBody() data: unknown,
-    // @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: Socket,
   ): WsResponse<unknown> {
     console.log(data);
     const event = 'eventsResponse';
