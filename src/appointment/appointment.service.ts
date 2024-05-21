@@ -1,14 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { PatientEntity } from 'src/database/entity/patient.entity';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { QueryRunner, Repository } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { GetAppointmentQueryDto } from './dto/get-appointment-query.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
+import { AppointmentTime } from 'src/common/interface';
 
 @Injectable()
 export class AppointmentService {
@@ -51,7 +56,7 @@ export class AppointmentService {
     await this.queryRunner.startTransaction();
 
     try {
-      await this.doctorService.takeAvailableSlot(doctor.id, appointment);
+      await this.takeDoctorAvailableSlot(doctor, appointment);
       const createdAppointment = await this.queryRunner.manager.save(
         appointment,
       );
@@ -107,7 +112,6 @@ export class AppointmentService {
     return appointment;
   }
 
-  @Transactional()
   async update(
     id: number,
     dto: UpdateAppointmentDto,
@@ -149,10 +153,7 @@ export class AppointmentService {
     const isDoctorOrTimeChanged = dto.doctorId || dto.startDate || dto.endDate;
 
     if (isDoctorOrTimeChanged) {
-      await this.doctorService.takeAvailableSlot(
-        appointment.doctor!.id,
-        appointment,
-      );
+      await this.takeDoctorAvailableSlot(appointment.doctor!, appointment);
     }
 
     return this.appointmentRepository.findOneBy({
@@ -166,5 +167,25 @@ export class AppointmentService {
     if (!result.affected) {
       throw new NotFoundException('Appointment not found');
     }
+  }
+
+  private async takeDoctorAvailableSlot(
+    doctor: DoctorEntity,
+    time: AppointmentTime,
+  ): Promise<void> {
+    const availableSlot = await this.queryRunner.manager.findOneBy(
+      DoctorAvailableSlotEntity,
+      {
+        doctorId: doctor.id,
+        startDate: time.startDate,
+        endDate: time.endDate,
+      },
+    );
+
+    if (!availableSlot) {
+      throw new ConflictException('Doctor is unavailable');
+    }
+
+    await this.queryRunner.manager.remove(availableSlot);
   }
 }

@@ -18,12 +18,10 @@ import { CronModule } from './cron/cron.module';
 import { DepartmentModule } from './department/department.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { FileModule } from './file/file.module';
-import { GrpcTestModule } from './grpc/grpc-test.module';
 import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
 import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
-import { EventsModule } from './ws/events.module';
 
 @Module({
   imports: [
@@ -32,12 +30,9 @@ import { EventsModule } from './ws/events.module';
       driver: ApolloDriver,
       autoSchemaFile: 'src/graphql/schema.gql',
     }),
-    GrpcTestModule,
     ThrottlerModule.forRoot(),
     EventEmitterModule.forRoot(),
-    EventsModule,
     ScheduleModule.forRoot(),
-    // ClsModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: resolve('public/'),
       serveStaticOptions: {

@@ -5,7 +5,7 @@ import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { DoctorAppointmentsSummaryEntity } from 'src/database/view-entity/doctor-appointments-summary.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { GetDoctorAppointmentsQueryDto } from './dto/get-doctor-appointments-query.dto';
 import {
   Department,
@@ -19,6 +19,8 @@ import { GetNewUsersCountResponseDto } from './response-dto/get-new-users-count-
 @Injectable()
 export class AnalyticsService {
   constructor(
+    @InjectRepository(DoctorEntity)
+    private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
     @InjectRepository(DepartmentEntity)
@@ -372,59 +374,69 @@ export class AnalyticsService {
   }
 
   async getNewUsersCount(): Promise<GetNewUsersCountResponseDto> {
-    // TODO: Try without dataSource
-    const usersCount = await this.dataSource
+    const usersCount = await this.doctorRepository.manager.connection
       .createQueryBuilder()
-      .select([
-        'day.count::INT AS "prevDayCount"',
-        `
-        (
-          SELECT COUNT(*) FROM public.user 
-          WHERE EXTRACT(DAY FROM created_at) = EXTRACT(DAY FROM CURRENT_DATE) AND
-            DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
-        )::INT as "currDayCount"
-        `,
-        `
-        (
-          SELECT COUNT(*) FROM public.user 
-          WHERE EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM (CURRENT_DATE - INTERVAL '1 month')) AND
-            EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
-        )::INT as "prevMonthCount"
-        `,
-        `
-        (
-          SELECT COUNT(*) FROM public.user 
-          WHERE EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE) AND
-            EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
-        )::INT as "currMonthCount"
-        `,
-        `
-        (
-          SELECT COUNT(*) FROM public.user 
-          WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM (CURRENT_DATE - INTERVAL '1 year'))
-        )::INT as "prevYearCount"
-        `,
-        `
-        (
-          SELECT COUNT(*) FROM public.user 
-          WHERE EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
-        )::INT as "currYearCount"
-        `,
-      ])
-      .from(
-        (subQuery) =>
-          subQuery
-            .select('COUNT(*)')
+      .fromDummy()
+      .addSelect(
+        (qb: SelectQueryBuilder<UserEntity>) =>
+          qb
             .from(UserEntity, 'user')
+            .select('COUNT(*)::INT')
             .where(
-              `
-              EXTRACT(DAY FROM created_at) = EXTRACT(DAY FROM (CURRENT_DATE - INTERVAL '1 day')) AND
-                DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)
-              `,
+              'EXTRACT(DAY FROM created_at) = EXTRACT(DAY FROM CURRENT_DATE)',
+            )
+            .andWhere(
+              "DATE_TRUNC('month', created_at) = DATE_TRUNC('month', CURRENT_DATE)",
             ),
-        'day',
+        'currDayCount',
       )
-      .execute();
+      .addSelect(
+        (qb: SelectQueryBuilder<UserEntity>) =>
+          qb
+            .from(UserEntity, 'user')
+            .select('COUNT(*)::INT')
+            .where(
+              "EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM (CURRENT_DATE - INTERVAL '1 month'))",
+            )
+            .andWhere(
+              'EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)',
+            ),
+        'prevMonthCount',
+      )
+      .addSelect(
+        (qb: SelectQueryBuilder<UserEntity>) =>
+          qb
+            .from(UserEntity, 'user')
+            .select('COUNT(*)::INT')
+            .where(
+              'EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE)',
+            )
+            .andWhere(
+              'EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)',
+            ),
+        'currMonthCount',
+      )
+      .addSelect(
+        (qb: SelectQueryBuilder<UserEntity>) =>
+          qb
+            .from(UserEntity, 'user')
+            .select('COUNT(*)::INT')
+            .where(
+              "EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM (CURRENT_DATE - INTERVAL '1 year'))",
+            ),
+        'prevYearCount',
+      )
+      .addSelect(
+        (qb: SelectQueryBuilder<UserEntity>) =>
+          qb
+            .from(UserEntity, 'user')
+            .select('COUNT(*)::INT')
+            .where(
+              'EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)',
+            ),
+        'currYearCount',
+      )
+      .getRawOne();
 
     return usersCount;
   }

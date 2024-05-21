@@ -25,7 +25,7 @@ export const appConfigFactory = (): AppConfig => ({
     entities: [process.env.ENTITIES!],
     namingStrategy: new SnakeNamingStrategy(),
     synchronize: process.env.SYNCHRONIZE === 'true',
-    logging: false,
+    logging: true,
   },
   smtp: {
     host: process.env.SMTP_HOST!,

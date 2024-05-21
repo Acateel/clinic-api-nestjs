@@ -7,11 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserRoleEnum } from 'src/common/enum';
-import {
-  AccessTokenPayload,
-  AppConfig,
-  AppointmentTime,
-} from 'src/common/interface';
+import { AccessTokenPayload, AppConfig } from 'src/common/interface';
 import { checkIntervalsOverlap } from 'src/common/util';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DepartmentEntity } from 'src/database/entity/department.entity';
@@ -21,7 +17,6 @@ import { ReviewEntity } from 'src/database/entity/review.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { EmailService } from 'src/email/email.service';
 import { In, Repository } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
 import { AddReviewDto } from './dto/add-review.dto';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { GetDoctorQueryDto } from './dto/get-doctor-query.dto';
@@ -237,21 +232,6 @@ export class DoctorService {
     this.emailService.send(dto.email, 'Invite', 'invite-i18n', {
       inviteLink,
     });
-  }
-
-  @Transactional()
-  async takeAvailableSlot(id: number, time: AppointmentTime): Promise<void> {
-    const availableSlot = await this.doctorAvailableSlotRepository.findOneBy({
-      doctorId: id,
-      startDate: time.startDate,
-      endDate: time.endDate,
-    });
-
-    if (!availableSlot) {
-      throw new ConflictException('Doctor is unavailable');
-    }
-
-    await this.doctorAvailableSlotRepository.remove(availableSlot);
   }
 
   async addReview(
