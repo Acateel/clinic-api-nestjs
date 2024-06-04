@@ -28,8 +28,6 @@ export class DoctorService {
   constructor(
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
-    @InjectRepository(DoctorAvailableSlotEntity)
-    private readonly doctorAvailableSlotRepository: Repository<DoctorAvailableSlotEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(DepartmentEntity)

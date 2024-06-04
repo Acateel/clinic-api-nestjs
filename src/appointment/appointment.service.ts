@@ -26,7 +26,6 @@ export class AppointmentService {
     private readonly patientRepository: Repository<PatientEntity>,
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
-    private readonly doctorService: DoctorService,
   ) {}
 
   async create(dto: CreateAppointmentDto): Promise<AppointmentEntity | null> {
