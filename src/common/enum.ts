@@ -13,7 +13,7 @@ export enum MetadataKeyEnum {
   ROLES = 'ROLES',
 }
 
-export enum VoteEnum {
+export enum VoteTypeEnum {
   LIKE = 'LIKE',
   DISLIKE = 'DISLIKE',
 }
@@ -21,4 +21,9 @@ export enum VoteEnum {
 export enum UserNotificationTypeEnum {
   REVIEW_COMMENTED = 'REVIEW_COMMENTED',
   APPOINTMENT_UPCOMING = 'APPOINTMENT_UPCOMING',
+}
+
+export enum FeedbackTypeEnum {
+  REVIEW = 'REVIEW',
+  COMMENT = 'COMMENT',
 }

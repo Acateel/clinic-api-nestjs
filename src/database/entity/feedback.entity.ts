@@ -7,17 +7,23 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CommentEntity } from './comment.entity';
 import { DoctorEntity } from './doctor.entity';
 import { UserEntity } from './user.entity';
+import { FeedbackTypeEnum } from 'src/common/enum';
 
-@Entity('review')
-export class ReviewEntity {
-  @PrimaryGeneratedColumn({ name: 'review_id' })
+@Entity('feedback')
+export class FeedbackEntity {
+  @PrimaryGeneratedColumn({ name: 'feedback_id' })
   id!: number;
 
-  @Column()
-  rating!: number;
+  @Column({ enum: FeedbackTypeEnum })
+  feedbackType!: FeedbackTypeEnum;
+
+  @Column({ default: 0 })
+  likeCount!: number;
+
+  @Column({ default: 0 })
+  dislikeCount!: number;
 
   @Column({ type: 'varchar', nullable: true })
   text!: string | null;
@@ -34,8 +40,14 @@ export class ReviewEntity {
   @Column({ nullable: true })
   doctorId!: number | null;
 
-  @OneToMany(() => CommentEntity, (comment) => comment.review)
-  comments?: CommentEntity[];
+  @ManyToOne(() => FeedbackEntity, { nullable: true, onDelete: 'CASCADE' })
+  parentComment?: FeedbackEntity;
+
+  @Column({ nullable: true })
+  parentCommentId!: number | null;
+
+  @OneToMany(() => FeedbackEntity, (feedback) => feedback.parentComment)
+  comments?: FeedbackEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

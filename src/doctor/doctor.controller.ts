@@ -68,19 +68,6 @@ export class DoctorController {
     return this.doctorService.invite(dto);
   }
 
-  @Post(':id/reviews')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.ADMIN, UserRoleEnum.PATIENT)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'admin, patient' })
-  addReview(
-    @Param('id') id: number,
-    @Body() dto: AddReviewDto,
-    @User() user: AccessTokenPayload,
-  ) {
-    return this.doctorService.addReview(id, dto, user);
-  }
-
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.ADMIN, UserRoleEnum.DOCTOR, UserRoleEnum.PATIENT)

@@ -13,11 +13,9 @@ import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { DepartmentEntity } from 'src/database/entity/department.entity';
 import { DoctorAvailableSlotEntity } from 'src/database/entity/doctor-available-slot.entity';
 import { DoctorEntity } from 'src/database/entity/doctor.entity';
-import { ReviewEntity } from 'src/database/entity/review.entity';
 import { UserEntity } from 'src/database/entity/user.entity';
 import { EmailService } from 'src/email/email.service';
 import { In, Repository } from 'typeorm';
-import { AddReviewDto } from './dto/add-review.dto';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { GetDoctorQueryDto } from './dto/get-doctor-query.dto';
 import { InviteDoctorDto } from './dto/invite-doctor.dto';
@@ -32,8 +30,6 @@ export class DoctorService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(DepartmentEntity)
     private readonly departmentRepository: Repository<DepartmentEntity>,
-    @InjectRepository(ReviewEntity)
-    private readonly reviewRepository: Repository<ReviewEntity>,
     private readonly configService: ConfigService<AppConfig, true>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
@@ -123,12 +119,13 @@ export class DoctorService {
   async getById(id: number): Promise<any> {
     // TODO: use single query runner instance?
     // TODO: cache at least rating
-    const avgRating = await this.doctorRepository.manager.connection
-      .createQueryBuilder(ReviewEntity, 'review')
-      .select('AVG(rating)', 'rating')
-      .where('review.doctor_id = :id', { id })
-      .groupBy('review_id')
-      .getRawOne();
+    // TODO: revrite logic with feedbackEntity
+    // const avgRating = await this.doctorRepository.manager.connection
+    //   .createQueryBuilder(ReviewEntity, 'review')
+    //   .select('AVG(rating)', 'rating')
+    //   .where('review.doctor_id = :id', { id })
+    //   .groupBy('review_id')
+    //   .getRawOne();
 
     const doctor = await this.doctorRepository
       .createQueryBuilder('doctor')
@@ -144,7 +141,8 @@ export class DoctorService {
       throw new NotFoundException('Doctor not found');
     }
 
-    return { ...doctor, rating: avgRating.rating };
+    // return { ...doctor, rating: avgRating.rating };
+    return { ...doctor, rating: -1 };
   }
 
   async update(id: number, dto: UpdateDoctorDto): Promise<DoctorEntity | null> {
@@ -230,34 +228,5 @@ export class DoctorService {
     this.emailService.send(dto.email, 'Invite', 'invite-i18n', {
       inviteLink,
     });
-  }
-
-  async addReview(
-    id: number,
-    dto: AddReviewDto,
-    payload: AccessTokenPayload,
-  ): Promise<ReviewEntity> {
-    const user = await this.userRepository.findOneBy({ id: payload.id });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const doctor = await this.doctorRepository.findOneBy({ id });
-
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-
-    const reviewDetails = await this.reviewRepository.save({
-      doctor,
-      user,
-      ...dto,
-    });
-    const review = await this.reviewRepository.findOneBy({
-      id: reviewDetails.id,
-    });
-
-    return review!;
   }
 }

@@ -12,8 +12,8 @@ import {
 import { AppointmentEntity } from './appointment.entity';
 import { DepartmentEntity } from './department.entity';
 import { DoctorAvailableSlotEntity } from './doctor-available-slot.entity';
-import { ReviewEntity } from './review.entity';
 import { UserEntity } from './user.entity';
+import { FeedbackEntity } from './feedback.entity';
 
 @Entity('doctor')
 export class DoctorEntity {
@@ -45,8 +45,9 @@ export class DoctorEntity {
   @JoinTable()
   departments?: DepartmentEntity[];
 
-  @OneToMany(() => ReviewEntity, (review) => review.doctor)
-  reviews?: ReviewEntity[];
+  // TODO: add relations for each side of each relation?
+  @OneToMany(() => FeedbackEntity, (feedback) => feedback.doctor)
+  feedbacks?: FeedbackEntity[];
 
   @CreateDateColumn({ select: false, type: 'timestamptz' })
   createdAt?: Date;

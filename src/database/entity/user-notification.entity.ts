@@ -8,9 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AppointmentEntity } from './appointment.entity';
-import { CommentEntity } from './comment.entity';
-import { ReviewEntity } from './review.entity';
 import { UserEntity } from './user.entity';
+import { FeedbackEntity } from './feedback.entity';
 
 @Entity('user_notification')
 export class UserNotificationEntity {
@@ -32,17 +31,11 @@ export class UserNotificationEntity {
   @Column()
   userId!: number;
 
-  @ManyToOne(() => ReviewEntity, { onDelete: 'NO ACTION' })
-  review?: ReviewEntity;
+  @ManyToOne(() => FeedbackEntity, { onDelete: 'NO ACTION' })
+  feedback?: FeedbackEntity;
 
   @Column({ nullable: true })
-  reviewId!: number | null;
-
-  @ManyToOne(() => CommentEntity, { onDelete: 'NO ACTION' })
-  comment?: CommentEntity;
-
-  @Column({ nullable: true })
-  commentId!: number | null;
+  feedbackId!: number | null;
 
   @ManyToOne(() => AppointmentEntity, { onDelete: 'NO ACTION' })
   appointment?: AppointmentEntity;

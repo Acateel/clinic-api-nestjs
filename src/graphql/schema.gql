@@ -10,13 +10,6 @@ type CommentModel {
   childComments: [CommentModel!]
 }
 
-type ReviewModel {
-  id: Int!
-  rating: Int!
-  text: String
-  comments: [CommentModel!]
-}
-
 type PatientModel {
   id: Int!
   phoneNumber: String!
@@ -49,6 +42,13 @@ type DoctorAvailableSlotModel {
   doctorId: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type ReviewModel {
+  id: Int!
+  rating: Int!
+  text: String
+  comments: [CommentModel!]
 }
 
 type DoctorModel {

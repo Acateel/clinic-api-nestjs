@@ -11,7 +11,6 @@ import { resolve } from 'path';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { AuthModule } from './auth/auth.module';
-import { CommentModule } from './comment/comment.module';
 import { AppConfig } from './common/interface';
 import { ConfigurationModule } from './config/configuration.module';
 import { CronModule } from './cron/cron.module';
@@ -20,8 +19,8 @@ import { DoctorModule } from './doctor/doctor.module';
 import { FileModule } from './file/file.module';
 import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
-import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -59,8 +58,7 @@ import { UserModule } from './user/user.module';
     AppointmentModule,
     DepartmentModule,
     AnalyticsModule,
-    ReviewModule,
-    CommentModule,
+    FeedbackModule,
     NotificationModule,
     CronModule,
     FileModule,

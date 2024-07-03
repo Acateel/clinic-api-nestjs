@@ -8,10 +8,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CommentEntity } from './comment.entity';
 import { DoctorEntity } from './doctor.entity';
-import { ReviewEntity } from './review.entity';
 import { UserNotificationEntity } from './user-notification.entity';
+import { FeedbackEntity } from './feedback.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -45,11 +44,8 @@ export class UserEntity {
   @OneToMany(() => DoctorEntity, (doctor) => doctor.user)
   doctors?: DoctorEntity[];
 
-  @OneToMany(() => ReviewEntity, (review) => review.user)
-  reviews?: ReviewEntity[];
-
-  @OneToMany(() => CommentEntity, (comment) => comment.user)
-  comments?: CommentEntity[];
+  @OneToMany(() => FeedbackEntity, (feedback) => feedback.user)
+  feedbacks?: FeedbackEntity[];
 
   @OneToMany(() => UserNotificationEntity, (notification) => notification.user)
   notifications?: UserNotificationEntity[];
