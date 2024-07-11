@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserNotificationTypeEnum } from 'src/common/enum';
 import { AppointmentEntity } from 'src/database/entity/appointment.entity';
 import { UserNotificationEntity } from 'src/database/entity/user-notification.entity';
-import { NotifyAppointmentUpcommingEvent } from 'src/notification/event';
 import { MoreThan, Repository } from 'typeorm';
 
 @Injectable()
@@ -61,15 +60,15 @@ export class CronService {
     await this.userNotificationRepository.insert(notifications);
 
     // TODO: maybe group data first, and then send
-    notifications.forEach((notification) => {
-      this.eventEmitterService.emit(
-        NotifyAppointmentUpcommingEvent.EVENT_NAME,
-        new NotifyAppointmentUpcommingEvent(
-          notification.userId,
-          notification.appointmentId!,
-        ),
-      );
-    });
+    // notifications.forEach((notification) => {
+    //   this.eventEmitterService.emit(
+    //     NotifyAppointmentUpcommingEvent.EVENT_NAME,
+    //     new NotifyAppointmentUpcommingEvent(
+    //       notification.userId,
+    //       notification.appointmentId!,
+    //     ),
+    //   );
+    // });
 
     const endDate = Date.now();
     this.logger.debug(`Cron finished after ${endDate - startDate} ms`);

@@ -15,6 +15,7 @@ import { CreateFeedbackResponseDto } from './response-dto/feedback-response.dto'
 import { VoteQueryDto } from './dto/vote-query.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FeedbackVotedEvent } from './event';
+import { SseService } from 'src/sse/sse.service';
 
 @Injectable()
 export class FeedbackService {
@@ -26,6 +27,7 @@ export class FeedbackService {
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
     private readonly eventEmitter: EventEmitter2,
+    private readonly sseService: SseService,
   ) {}
 
   async create(
@@ -120,10 +122,15 @@ export class FeedbackService {
       await this.feedbackRepository.increment({ id }, 'dislikeCount', 1);
     }
 
-    // TODO: add listeners, event driven architecture (martin fowler report)
-    this.eventEmitter.emit(
-      FeedbackVotedEvent.EVENT_NAME,
-      new FeedbackVotedEvent(feedback),
-    );
+    const updatedFeedback = await this.feedbackRepository.findOneBy({ id });
+
+    if (!updatedFeedback) {
+      return;
+    }
+
+    this.sseService.send(feedback.userId, {
+      type: FeedbackVotedEvent.EVENT_NAME,
+      data: updatedFeedback,
+    });
   }
 }

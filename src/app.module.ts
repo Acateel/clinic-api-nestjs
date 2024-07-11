@@ -17,7 +17,6 @@ import { CronModule } from './cron/cron.module';
 import { DepartmentModule } from './department/department.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { FileModule } from './file/file.module';
-import { NotificationModule } from './notification/notification.module';
 import { PatientModule } from './patient/patient.module';
 import { UserModule } from './user/user.module';
 import { FeedbackModule } from './feedback/feedback.module';
@@ -59,7 +58,6 @@ import { FeedbackModule } from './feedback/feedback.module';
     DepartmentModule,
     AnalyticsModule,
     FeedbackModule,
-    NotificationModule,
     CronModule,
     FileModule,
   ],
