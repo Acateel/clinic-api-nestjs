@@ -13,7 +13,6 @@ import { DoctorEntity } from 'src/database/entity/doctor.entity';
 import { FeedbackTypeEnum, VoteTypeEnum } from 'src/common/enum';
 import { CreateFeedbackResponseDto } from './response-dto/feedback-response.dto';
 import { VoteQueryDto } from './dto/vote-query.dto';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FeedbackVotedEvent } from './event';
 import { SseService } from 'src/sse/sse.service';
 
@@ -26,7 +25,6 @@ export class FeedbackService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(DoctorEntity)
     private readonly doctorRepository: Repository<DoctorEntity>,
-    private readonly eventEmitter: EventEmitter2,
     private readonly sseService: SseService,
   ) {}
 

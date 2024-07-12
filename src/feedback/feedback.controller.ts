@@ -26,6 +26,7 @@ import { User } from 'src/common/decorator/user.decorator';
 import { CreateFeedbackResponseDto } from './response-dto/feedback-response.dto';
 import { GetFeedbackByDoctorIdResponseDto } from './response-dto/get-feedback-by-doctor-id-response.dto';
 import { VoteQueryDto } from './dto/vote-query.dto';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('feedback')
 @Controller('feedback')
@@ -43,6 +44,8 @@ export class FeedbackController {
   }
 
   @Get('doctors/:id')
+  @UseGuards(ThrottlerGuard)
+  @Throttle(5, 5)
   @ApiResponse({
     status: HttpStatus.OK,
     type: GetFeedbackByDoctorIdResponseDto,
@@ -52,6 +55,8 @@ export class FeedbackController {
   }
 
   @Post(':id/vote')
+  @UseGuards(ThrottlerGuard)
+  @Throttle(1, 5000)
   @HttpCode(HttpStatus.OK)
   vote(@Param('id') id: number, @Query() query: VoteQueryDto) {
     return this.feedbackService.vote(id, query);

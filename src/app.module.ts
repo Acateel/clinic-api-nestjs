@@ -1,9 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
@@ -13,7 +11,6 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { AuthModule } from './auth/auth.module';
 import { AppConfig } from './common/interface';
 import { ConfigurationModule } from './config/configuration.module';
-import { CronModule } from './cron/cron.module';
 import { DepartmentModule } from './department/department.module';
 import { DoctorModule } from './doctor/doctor.module';
 import { FileModule } from './file/file.module';
@@ -29,8 +26,6 @@ import { FeedbackModule } from './feedback/feedback.module';
       autoSchemaFile: 'src/graphql/schema.gql',
     }),
     ThrottlerModule.forRoot(),
-    EventEmitterModule.forRoot(),
-    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: resolve('public/'),
       serveStaticOptions: {
@@ -38,12 +33,6 @@ import { FeedbackModule } from './feedback/feedback.module';
       },
       // exclude: ['/api*'],
     }),
-    // CacheModule.register({
-    //   isGlobal: true,
-    //   store: redisStore,
-    //   host: 'redis',
-    //   port: 6379,
-    // }),
     I18nModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppConfig, true>) =>
@@ -58,7 +47,6 @@ import { FeedbackModule } from './feedback/feedback.module';
     DepartmentModule,
     AnalyticsModule,
     FeedbackModule,
-    CronModule,
     FileModule,
   ],
 })
