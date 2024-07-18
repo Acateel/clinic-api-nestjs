@@ -18,9 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "set NODE_ENV=test&& jest --config ./test/jest-e2e.json",
-    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d ./src/database/data-source.ts",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./src/database/migration -d ./src/database/data-source.ts -p",
     "migration:run": "npm run build && npx typeorm-ts-node-commonjs migration:run -d ./src/database/data-source.ts",
-    "migration:create": "npx typeorm-ts-node-commonjs migration:create"
+    "migration:create": "npx typeorm-ts-node-commonjs migration:create",
+    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d ./src/database/data-source.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.10.2",
