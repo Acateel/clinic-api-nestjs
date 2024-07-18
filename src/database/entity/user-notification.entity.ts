@@ -1,4 +1,3 @@
-import { UserNotificationTypeEnum } from 'src/common/enum';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserNotificationTypeEnum } from '../../common/enum';
 import { AppointmentEntity } from './appointment.entity';
 import { UserEntity } from './user.entity';
 import { FeedbackEntity } from './feedback.entity';

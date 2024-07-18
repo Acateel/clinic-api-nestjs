@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { DoctorEntity } from './doctor.entity';
 import { UserEntity } from './user.entity';
-import { FeedbackTypeEnum } from 'src/common/enum';
+import { FeedbackTypeEnum } from '../../common/enum';
 
 @Entity('feedback')
 export class FeedbackEntity {

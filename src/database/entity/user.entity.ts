@@ -1,5 +1,3 @@
-import { UserRoleEnum } from 'src/common/enum';
-import { PatientEntity } from 'src/database/entity/patient.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserRoleEnum } from '../../common/enum';
+import { PatientEntity } from './patient.entity';
 import { DoctorEntity } from './doctor.entity';
 import { UserNotificationEntity } from './user-notification.entity';
 import { FeedbackEntity } from './feedback.entity';

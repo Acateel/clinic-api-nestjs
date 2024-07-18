@@ -1,23 +1,25 @@
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { MigrationInterface, QueryRunner } from 'typeorm';
-import { AppointmentEntity } from '../entity/appointment.entity';
-import { DoctorEntity } from '../entity/doctor.entity';
-import { PatientEntity } from '../entity/patient.entity';
+import * as fs from 'fs/promises'
+import * as path from 'path'
+import { MigrationInterface, QueryRunner } from 'typeorm'
+import { AppointmentEntity } from '../entity/appointment.entity'
+import { DoctorEntity } from '../entity/doctor.entity'
+import { PatientEntity } from '../entity/patient.entity'
 
 export class PopulateAppointments1695737781537 implements MigrationInterface {
+  name = 'PopulateAppointments1695737781537'
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     const seedDataPath = path.join(
       __dirname,
       '../../../seed/',
-      'appointments.seed.json',
-    );
-    const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
-    const doctorAvailableSlotsData = JSON.parse(seedData);
+      'appointments.seed.json'
+    )
+    const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' })
+    const doctorAvailableSlotsData = JSON.parse(seedData)
 
-    const doctorRepository = queryRunner.connection.getRepository(DoctorEntity);
+    const doctorRepository = queryRunner.connection.getRepository(DoctorEntity)
     const patientRepository =
-      queryRunner.connection.getRepository(PatientEntity);
+      queryRunner.connection.getRepository(PatientEntity)
 
     const appointments = await Promise.all(
       doctorAvailableSlotsData.map(async (d) => ({
@@ -30,11 +32,11 @@ export class PopulateAppointments1695737781537 implements MigrationInterface {
           where: { user: { email: d.patient.user.email } },
           relations: { user: true },
         }),
-      })),
-    );
+      }))
+    )
     const appointmentRepository =
-      queryRunner.connection.getRepository(AppointmentEntity);
-    await appointmentRepository.insert(appointments);
+      queryRunner.connection.getRepository(AppointmentEntity)
+    await appointmentRepository.insert(appointments)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {}
