@@ -1,30 +1,30 @@
-import * as bcrypt from 'bcrypt';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { SALT_ROUNDS } from 'src/common/constant';
-import { MigrationInterface, QueryRunner } from 'typeorm';
-import { PatientEntity } from '../entity/patient.entity';
-import { UserEntity } from '../entity/user.entity';
+import * as bcrypt from 'bcrypt'
+import * as fs from 'fs/promises'
+import * as path from 'path'
+import { MigrationInterface, QueryRunner } from 'typeorm'
+import { SALT_ROUNDS } from '../../common/constant'
+import { PatientEntity } from '../entity/patient.entity'
+import { UserEntity } from '../entity/user.entity'
 
 export class PopulatePatients1695466278360 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.connection.synchronize();
+  name = 'PopulatePatients1695466278360'
 
+  public async up(queryRunner: QueryRunner): Promise<void> {
     const seedDataPath = path.join(
       __dirname,
       '../../../seed/',
-      'patients.seed.json',
-    );
-    const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' });
+      'patients.seed.json'
+    )
+    const seedData = await fs.readFile(seedDataPath, { encoding: 'utf-8' })
     const patientsData: [{ user: UserEntity } & PatientEntity] =
-      JSON.parse(seedData);
+      JSON.parse(seedData)
 
     const users: UserEntity[] = patientsData.map((p) => ({
       ...p.user,
       password: bcrypt.hashSync(p.user.password!, SALT_ROUNDS),
-    }));
-    const userRepository = queryRunner.connection.getRepository(UserEntity);
-    await userRepository.insert(users);
+    }))
+    const userRepository = queryRunner.connection.getRepository(UserEntity)
+    await userRepository.insert(users)
 
     const patients: PatientEntity[] = await Promise.all(
       patientsData.map(
@@ -32,12 +32,12 @@ export class PopulatePatients1695466278360 implements MigrationInterface {
           ({
             ...p,
             user: await userRepository.findOneBy({ email: p.user.email })!,
-          } as PatientEntity),
-      ),
-    );
+          } as PatientEntity)
+      )
+    )
     const patientRepository =
-      queryRunner.connection.getRepository(PatientEntity);
-    await patientRepository.insert(patients);
+      queryRunner.connection.getRepository(PatientEntity)
+    await patientRepository.insert(patients)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {}
